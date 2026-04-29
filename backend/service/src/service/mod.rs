@@ -2,8 +2,9 @@ mod api;
 mod common;
 
 use poem::{
-    Endpoint, EndpointExt, Route, Server, http,
+    Endpoint, EndpointExt, Route, Server,
     endpoint::StaticFilesEndpoint,
+    http,
     listener::TcpListener,
     middleware::{SensitiveHeader, Tracing},
 };
@@ -26,6 +27,7 @@ pub async fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[allow(clippy::unnecessary_wraps)]
 fn mk_app(settings: &Settings) -> anyhow::Result<impl Endpoint + use<>> {
     let api = mk_api(&settings.api_url_prefix);
     let docs = docs(&api);
