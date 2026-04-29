@@ -1,0 +1,62 @@
+/* ── Design tokens ────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --bg: #ffffff;
+  --surface: rgba(0, 0, 0, 0.03);
+  --surface-2: rgba(0, 0, 0, 0.05);
+
+  /* Borders */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-2: rgba(0, 0, 0, 0.13);
+
+  /* Text */
+  --text: #0a0a0a;
+  --text-2: #3f3f46;
+  --text-3: #71717a;
+
+  /* Accent — amber */
+  --accent: #d97706;
+  --accent-2: #b45309;
+  --glow: rgba(217, 119, 6, 0.1);
+
+  /* Status */
+  --red: #e11d48;
+  --red-dim: rgba(225, 29, 72, 0.08);
+  --orange: #dc4f13;
+  --orange-dim: rgba(220, 79, 19, 0.08);
+  --green: #059669;
+  --green-dim: rgba(5, 150, 105, 0.08);
+
+  /* Sidebar */
+  --sidebar-bg: #fafaf9;
+  --sidebar-border: rgba(0, 0, 0, 0.07);
+  --sidebar-text: #71717a;
+  --sidebar-text-hover: #18181b;
+  --sidebar-hover: rgba(0, 0, 0, 0.04);
+  --sidebar-active-bg: rgba(217, 119, 6, 0.09);
+  --sidebar-active-text: #b45309;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+code,
+pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}

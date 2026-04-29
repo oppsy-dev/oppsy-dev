@@ -1,0 +1,205 @@
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-3);
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.backBtn:hover {
+  color: var(--text-2);
+}
+
+/* ── Danger zone ── */
+.dangerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dangerHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.dangerTitle {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--red);
+}
+
+.dangerDesc {
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+/* ── Default panel (pre-confirm) ── */
+.dangerPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(225, 29, 72, 0.18);
+  border-radius: 10px;
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.actionTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+}
+
+.actionDesc {
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(225, 29, 72, 0.08);
+  color: var(--red);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
+}
+
+.deleteBtn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* ── Confirm panel ── */
+.dangerPanelConfirm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  border-radius: 10px;
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.confirmPrompt {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.confirmCode {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--red);
+}
+
+.confirmInput {
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  background: #fff;
+  max-width: 320px;
+  transition: border-color 0.15s;
+}
+
+.confirmInput:focus {
+  border-color: var(--red);
+}
+
+.confirmInput::placeholder {
+  color: var(--text-3);
+}
+
+.confirmActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.deleteForeverBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(225, 29, 72, 0.08);
+  color: var(--red);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
+}
+
+.deleteForeverBtn:hover:not(:disabled) {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.deleteForeverBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  color: var(--text-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  color: var(--text-2);
+  border-color: var(--border-2);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Error ── */
+.error {
+  font-size: 0.8125rem;
+  color: var(--red);
+  line-height: 1.5;
+}

@@ -1,0 +1,125 @@
+/* ── Page shell ── */
+.page {
+  position: relative;
+  isolation: isolate;
+  padding: 2rem 2.5rem 4rem;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── Top row (back button + logo) ── */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Back button ── */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.backButton:hover {
+  color: var(--text-2);
+}
+
+/* ── Tab bar ── */
+.tabBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.tabs {
+  display: flex;
+}
+
+.tab,
+.tabActive,
+.tabActiveMuted {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition: color 0.15s;
+  position: relative;
+  font-family: inherit;
+}
+
+.tab {
+  color: var(--text-3);
+}
+
+.tab:hover {
+  color: var(--text-2);
+}
+
+.tabActive,
+.tabActiveMuted {
+  font-weight: 700;
+}
+
+.tabActive {
+  color: var(--accent);
+}
+
+.tabActiveMuted {
+  color: var(--text-3);
+}
+
+.tabActive::after {
+  background: var(--accent);
+}
+
+.tabActiveMuted::after {
+  background: var(--border-2);
+}
+
+.tabActive::after,
+.tabActiveMuted::after {
+  content: '';
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+}
+
+/* ── Tab content ── */
+.tabContent {
+  padding-top: 1.125rem;
+}
+
+/* ── Raw JSON ── */
+.rawJson {
+  margin-top: 1.125rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .page {
+    padding: 1.5rem 1.25rem 3rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+}

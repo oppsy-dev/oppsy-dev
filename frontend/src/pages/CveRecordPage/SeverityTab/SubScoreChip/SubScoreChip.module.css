@@ -1,0 +1,114 @@
+.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ── Vertical bar track ── */
+.track {
+  position: relative;
+  align-self: stretch;
+  height: 72px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* ── Fill grows from the bottom ── */
+.fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Score value row ── */
+.valueRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.1rem;
+}
+
+.value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+.outOf {
+  font-size: 0.5625rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+  line-height: 1;
+}
+
+/* ── Label ── */
+.label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── Track backgrounds + borders ── */
+.trackCritical {
+  background: rgba(159, 18, 57, 0.13);
+  border: 1px solid rgba(159, 18, 57, 0.35);
+}
+.trackHigh {
+  background: rgba(225, 29, 72, 0.1);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+}
+.trackMedium {
+  background: rgba(220, 79, 19, 0.1);
+  border: 1px solid rgba(220, 79, 19, 0.3);
+}
+.trackLow {
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+}
+.trackNone {
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+}
+
+/* ── Fill colors ── */
+.fillCritical {
+  background: #9f1239;
+}
+.fillHigh {
+  background: var(--red);
+}
+.fillMedium {
+  background: var(--orange);
+}
+.fillLow {
+  background: var(--green);
+}
+.fillNone {
+  background: var(--border-2);
+}
+
+/* ── Value text colors ── */
+.scoreCritical {
+  color: #9f1239;
+}
+.scoreHigh {
+  color: var(--red);
+}
+.scoreMedium {
+  color: var(--orange);
+}
+.scoreLow {
+  color: var(--green);
+}
+.scoreNone {
+  color: var(--text-3);
+}

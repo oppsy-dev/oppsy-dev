@@ -1,0 +1,62 @@
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badge {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 100px;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.badgeIntroduced {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--accent);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.badgeFixed {
+  background: rgba(5, 150, 105, 0.1);
+  color: var(--green);
+  border-color: rgba(5, 150, 105, 0.22);
+}
+
+.badgeLastAffected {
+  background: rgba(225, 29, 72, 0.08);
+  color: var(--red);
+  border-color: rgba(225, 29, 72, 0.2);
+}
+
+.badgeLimit {
+  background: var(--surface-2);
+  color: var(--text-3);
+  border-color: var(--border);
+}
+
+.badgeVersion {
+  background: var(--surface-2);
+  color: var(--text-3);
+  border-color: var(--border);
+}
+
+.value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-2);
+  font-weight: 500;
+}

@@ -19,9 +19,7 @@ use poem_openapi::{
 use upload_manifest::MAXIMUM_MANIFEST_SIZE;
 
 use crate::{
-    service::{
-        common::types::{limit::Limit, page::Page},
-    },
+    service::common::types::{limit::Limit, page::Page},
     types::{ManifestId, NotificationChannelId, WorkspaceId},
 };
 

@@ -11,9 +11,7 @@ use poem_openapi::{
 };
 
 use crate::{
-    service::{
-        common::types::{limit::Limit, page::Page},
-    },
+    service::common::types::{limit::Limit, page::Page},
     types::NotificationChannelId,
 };
 

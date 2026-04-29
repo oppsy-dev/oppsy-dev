@@ -1,0 +1,167 @@
+/* ── Card ── */
+.card {
+  background: var(--surface);
+  border: 1px dashed var(--border-2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Card title ── */
+.title {
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ── Metric list ── */
+.metricList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Row ── */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.row:first-child {
+  padding-top: 0;
+}
+
+/* ── Left side: metric title + metric tooltip ── */
+.rowLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Metric title ── */
+.metricTitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+/* ── Right side: value + tooltip ── */
+.rowRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── Value badge ── */
+.value {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-2);
+  background: var(--glow);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.15rem 0.45rem;
+  white-space: nowrap;
+}
+
+/* ── Tooltip anchor ── */
+.tooltipAnchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+}
+
+/* ── Question mark icon ── */
+.questionMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--border-2);
+  background: var(--surface-2);
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--text-3);
+  line-height: 1;
+  user-select: none;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.tooltipAnchor:hover .questionMark {
+  border-color: var(--text-3);
+  color: var(--text-2);
+}
+
+/* ── Tooltip bubble ── */
+.tooltip {
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  line-height: 1.45;
+  border-radius: 7px;
+  padding: 0.5rem 0.65rem;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.15s,
+    visibility 0.15s;
+  z-index: 10;
+}
+
+/* Arrow pointing right toward the question mark (default: bubble opens left) */
+.tooltip::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: var(--text);
+}
+
+/* Variant: bubble opens to the right (for left-side question marks) */
+.tooltipRight {
+  right: auto;
+  left: calc(100% + 8px);
+}
+
+.tooltipRight::after {
+  left: auto;
+  right: 100%;
+  border-left-color: transparent;
+  border-right-color: var(--text);
+}
+
+.tooltipAnchor:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}

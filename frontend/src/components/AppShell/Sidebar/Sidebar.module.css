@@ -1,0 +1,204 @@
+.sidebar {
+  width: 240px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Logo ── */
+.logoArea {
+  padding: 1.125rem 1rem 1rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+/* ── Navigation ── */
+.navSection {
+  padding: 0.625rem 0.625rem 0.25rem;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.navItem:hover {
+  background: var(--sidebar-hover);
+  color: var(--sidebar-text-hover);
+}
+
+.navItemActive {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-active-text);
+}
+
+/* ── Teams ── */
+.teamsSection {
+  flex: 1;
+  padding: 0.75rem 0.625rem 0.5rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.teamsSection::-webkit-scrollbar {
+  display: none;
+}
+
+.sectionLabel {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 0 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.teamsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* ── Account ── */
+.bottomSection {
+  padding: 0.625rem;
+  border-top: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.accountButton {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.accountButton:hover {
+  background: var(--sidebar-hover);
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+
+.accountInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.accountName {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.2;
+}
+
+.accountMeta {
+  font-size: 0.6875rem;
+  color: var(--text-3);
+  line-height: 1.2;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-right: none;
+    border-bottom: 1px solid var(--sidebar-border);
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+  }
+
+  .logoArea {
+    padding: 0.875rem 1rem;
+    border-bottom: none;
+    border-right: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+  }
+
+  .navSection {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .teamsSection {
+    flex: 1;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+  }
+
+  .teamsList {
+    flex-direction: row;
+    gap: 4px;
+  }
+
+  .sectionLabel {
+    display: none;
+  }
+
+  .bottomSection {
+    padding: 0.5rem;
+    border-top: none;
+    border-left: 1px solid var(--sidebar-border);
+    flex-shrink: 0;
+  }
+
+  .accountInfo {
+    display: none;
+  }
+}
