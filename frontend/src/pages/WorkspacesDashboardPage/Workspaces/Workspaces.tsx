@@ -6,6 +6,8 @@ import { CreateWorkspaceModal } from './CreateWorkspaceModal/CreateWorkspaceModa
 import styles from './Workspaces.module.css';
 import { AppRoute } from '../../../routes/Routes';
 
+const PAGE_SIZE = 9;
+
 function FolderIcon() {
   return (
     <svg
@@ -28,11 +30,48 @@ export function Workspaces() {
   const createWorkspace = useCreateWorkspace();
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
 
   const handleConfirm = async (name: string) => {
     const info = await createWorkspace.mutateAsync({ name });
     navigate(AppRoute.Workspace.replace(':workspaceId', info.id));
   };
+
+  const totalPages = Math.ceil(workspaces.length / PAGE_SIZE);
+  const pageWorkspaces = workspaces.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const pagesNavigation = totalPages > 1 && (
+    <div className={styles.pagination}>
+      <button
+        type="button"
+        className={styles.pageBtn}
+        onClick={() => setPage((p) => p - 1)}
+        disabled={page === 0}
+      >
+        ← Previous
+      </button>
+
+      <div className={styles.pageDots}>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            type="button"
+            className={i === page ? `${styles.pageDot} ${styles.pageDotActive}` : styles.pageDot}
+            onClick={() => setPage(i)}
+            aria-label={`Page ${i + 1}`}
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        className={styles.pageBtn}
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === totalPages - 1}
+      >
+        Next →
+      </button>
+    </div>
+  );
 
   return (
     <section className={styles.section}>
@@ -74,12 +113,16 @@ export function Workspaces() {
         </div>
       )}
 
-      {workspaces.length > 0 && (
-        <div className={styles.grid}>
-          {workspaces.map((ws) => (
-            <WorkspaceCard key={ws.id} workspace={ws} />
-          ))}
-        </div>
+      {pageWorkspaces.length > 0 && (
+        <>
+          <div className={styles.grid}>
+            {pageWorkspaces.map((ws) => (
+              <WorkspaceCard key={ws.id} workspace={ws} />
+            ))}
+          </div>
+
+          {pagesNavigation}
+        </>
       )}
 
       {modalOpen && (

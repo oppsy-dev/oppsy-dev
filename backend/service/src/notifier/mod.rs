@@ -73,6 +73,7 @@ impl Notifier {
 
         let tasks = channels
             .into_iter()
+            .filter(|c| c.active)
             .map(|channel| {
                 match channel.conf.inner {
                     NotificationChannelConfInner::Webhook(conf) => {

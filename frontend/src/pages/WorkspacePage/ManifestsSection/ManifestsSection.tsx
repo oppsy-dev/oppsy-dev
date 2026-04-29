@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useManifests, useRemoveWorkspaceManifest } from '../../../hooks/workspaces';
 import type { WorkspaceId } from '../../../api/workspaces';
+import { BackIcon } from '../../../components/Icons';
 import { ManifestRow } from './ManifestRow/ManifestRow';
 import { UploadManifestModal } from './UploadManifestModal/UploadManifestModal';
 import styles from './ManifestsSection.module.css';
+
+const PAGE_SIZE = 10;
 
 function UploadIcon({ size = 13 }: { size?: number }) {
   return (
@@ -47,8 +50,40 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
 
 export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
   const { data: manifests = [], isLoading, isError } = useManifests(workspaceId);
   const removeMutation = useRemoveWorkspaceManifest(workspaceId);
+
+  const totalPages = Math.ceil(manifests.length / PAGE_SIZE);
+  const pageManifests = manifests.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
+  const pagesNaviation = totalPages > 1 && (
+    <div className={styles.pagination}>
+      <button
+        type="button"
+        className={styles.pageBtn}
+        onClick={() => setPage((p) => p - 1)}
+        disabled={page === 0}
+        aria-label="Previous page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
+
+      <span className={styles.pageInfo}>
+        {page + 1} <span className={styles.pageInfoSep}>/</span> {totalPages}
+      </span>
+
+      <button
+        type="button"
+        className={`${styles.pageBtn} ${styles.pageBtnNext}`}
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === totalPages - 1}
+        aria-label="Next page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
+    </div>
+  );
 
   return (
     <div>
@@ -70,27 +105,31 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
       {!isError && !isLoading && manifests.length === 0 ? (
         <EmptyState onUpload={() => setUploadModalOpen(true)} />
       ) : (
-        <div className={styles.tableWrap}>
-          <div className={styles.table}>
-            <div className={styles.tableHead}>
-              <span />
-              <span>Name</span>
-              <span>Ecosystem</span>
-              <span>Tag</span>
-              <span className={styles.tableHeadCenter}>Vulns</span>
-              <span>Uploaded</span>
-              <span />
+        <>
+          {pagesNaviation}
+          <div className={styles.tableWrap}>
+            <div className={styles.table}>
+              <div className={styles.tableHead}>
+                <span />
+                <span>Name</span>
+                <span>Ecosystem</span>
+                <span>Tag</span>
+                <span className={styles.tableHeadCenter}>Vulns</span>
+                <span>Uploaded</span>
+                <span />
+              </div>
+              {pageManifests.map((m, i) => (
+                <ManifestRow
+                  key={m.id}
+                  manifest={m}
+                  isLast={i === pageManifests.length - 1}
+                  onRemove={() => removeMutation.mutate(m.id)}
+                />
+              ))}
             </div>
-            {manifests.map((m, i) => (
-              <ManifestRow
-                key={m.id}
-                manifest={m}
-                isLast={i === manifests.length - 1}
-                onRemove={() => removeMutation.mutate(m.id)}
-              />
-            ))}
           </div>
-        </div>
+          {pagesNaviation}
+        </>
       )}
 
       {uploadModalOpen && (
