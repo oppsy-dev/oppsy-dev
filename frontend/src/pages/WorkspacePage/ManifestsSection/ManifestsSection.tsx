@@ -57,33 +57,33 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
   const totalPages = Math.ceil(manifests.length / PAGE_SIZE);
   const pageManifests = manifests.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const pagesNaviation =           (totalPages > 1 && (
-            <div className={styles.pagination}>
-              <button
-                type="button"
-                className={styles.pageBtn}
-                onClick={() => setPage((p) => p - 1)}
-                disabled={page === 0}
-                aria-label="Previous page"
-              >
-                <BackIcon width={13} height={13} />
-              </button>
+  const pagesNaviation = totalPages > 1 && (
+    <div className={styles.pagination}>
+      <button
+        type="button"
+        className={styles.pageBtn}
+        onClick={() => setPage((p) => p - 1)}
+        disabled={page === 0}
+        aria-label="Previous page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
 
-              <span className={styles.pageInfo}>
-                {page + 1} <span className={styles.pageInfoSep}>/</span> {totalPages}
-              </span>
+      <span className={styles.pageInfo}>
+        {page + 1} <span className={styles.pageInfoSep}>/</span> {totalPages}
+      </span>
 
-              <button
-                type="button"
-                className={`${styles.pageBtn} ${styles.pageBtnNext}`}
-                onClick={() => setPage((p) => p + 1)}
-                disabled={page === totalPages - 1}
-                aria-label="Next page"
-              >
-                <BackIcon width={13} height={13} />
-              </button>
-            </div>
-          ));
+      <button
+        type="button"
+        className={`${styles.pageBtn} ${styles.pageBtnNext}`}
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === totalPages - 1}
+        aria-label="Next page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
+    </div>
+  );
 
   return (
     <div>
@@ -106,7 +106,7 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
         <EmptyState onUpload={() => setUploadModalOpen(true)} />
       ) : (
         <>
-        {pagesNaviation}
+          {pagesNaviation}
           <div className={styles.tableWrap}>
             <div className={styles.table}>
               <div className={styles.tableHead}>

@@ -19,34 +19,33 @@ export function EventsTab({ channelId }: Props) {
   const totalPages = Math.ceil(events.length / PAGE_SIZE);
   const pageEvents = events.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const pagesNavigation =       (totalPages > 1 && (
-        <div className={styles.pagination}>
-          <button
-            type="button"
-            className={styles.pageBtn}
-            onClick={() => setPage((p) => p - 1)}
-            disabled={page === 0}
-            aria-label="Previous page"
-          >
-            <BackIcon width={13} height={13} />
-          </button>
+  const pagesNavigation = totalPages > 1 && (
+    <div className={styles.pagination}>
+      <button
+        type="button"
+        className={styles.pageBtn}
+        onClick={() => setPage((p) => p - 1)}
+        disabled={page === 0}
+        aria-label="Previous page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
 
-          <span className={styles.pageInfo}>
-            {page + 1} <span className={styles.pageInfoSep}>/</span> {totalPages}
-          </span>
+      <span className={styles.pageInfo}>
+        {page + 1} <span className={styles.pageInfoSep}>/</span> {totalPages}
+      </span>
 
-          <button
-            type="button"
-            className={`${styles.pageBtn} ${styles.pageBtnNext}`}
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page === totalPages - 1}
-            aria-label="Next page"
-          >
-            <BackIcon width={13} height={13} />
-          </button>
-        </div>
-      ));
-  
+      <button
+        type="button"
+        className={`${styles.pageBtn} ${styles.pageBtnNext}`}
+        onClick={() => setPage((p) => p + 1)}
+        disabled={page === totalPages - 1}
+        aria-label="Next page"
+      >
+        <BackIcon width={13} height={13} />
+      </button>
+    </div>
+  );
 
   return (
     <div className={styles.container}>
