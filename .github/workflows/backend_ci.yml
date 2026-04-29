@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - "Justfile"
+      - "rust-toolchain.toml"
+      - ".github/workflows/backend_ci.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - "Justfile"
+      - "rust-toolchain.toml"
+      - ".github/workflows/backend_ci.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+          components: rustfmt, clippy
+
+      - uses: baptiste0928/cargo-install@v3
+        with:
+          crate: cargo-deny
+          version: "0.19.0"
+      - uses: astral-sh/setup-uv@v5
+      - uses: extractions/setup-just@v3
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Lints check
+        run: just backend-lint-check
+
+      - name: Unit tests
+        run: just backend-unit-tests

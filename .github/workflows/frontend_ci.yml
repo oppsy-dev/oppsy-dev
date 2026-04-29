@@ -1,0 +1,37 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - "Justfile"
+      - ".github/workflows/frontend_ci.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "frontend/**"
+      - "Justfile"
+      - ".github/workflows/frontend_ci.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "frontend/.node-version"
+          cache: "yarn"
+          cache-dependency-path: "frontend/yarn.lock"
+
+      - uses: extractions/setup-just@v3
+
+      - name: Install dependencies
+        run: cd frontend && yarn install --frozen-lockfile
+
+      - name: Lint check
+        run: just frontend-lint-check

@@ -1,0 +1,19 @@
+.vscode
+
+# Python
+.venv
+__pycache__
+.ruff_cache
+
+# npm
+**/node_modules
+
+.scell_args.cue
+
+# Runtime data directories
+osv_db/
+manifest_db/
+
+### macOS ###
+# General
+.DS_Store

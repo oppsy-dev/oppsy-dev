@@ -1,0 +1,47 @@
+name: Integration Tests Nightly
+
+on:
+  schedule:
+    # Runs every day at 00:00
+    - cron: '0 0 * * *'
+
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v5
+      - uses: extractions/setup-just@v3
+
+      - name: Run integration tests
+        run: just backend-integration-tests
+
+      - name: Stop service
+        if: always()
+        working-directory: backend/tests
+        run: docker compose logs && docker compose down
+
+      # - name: Prepare Discord message
+      #   if: always()
+      #   id: discord-message
+      #   run: |
+      #     if [ "${{ steps.integration-tests.outcome }}" = "success" ]; then
+      #       echo "title=✅ OPPSY Integration Tests Nightly — Passed" >> "$GITHUB_OUTPUT"
+      #     else
+      #       echo "title=❌ OPPSY Integration Tests Nightly — Failed" >> "$GITHUB_OUTPUT"
+      #       echo "content=<@&${{ secrets.DISCORD_EVERYONE_ROLE_ID }}>" >> "$GITHUB_OUTPUT"
+      #     fi
+      #     echo "job_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+
+      # - name: Notify Discord
+      #   if: always()
+      #   uses: tsickert/discord-webhook@v7.0.0
+      #   with:
+      #     webhook-url: ${{ secrets.DISCORD_NIGHTLY_CI }}
+      #     embed-title: ${{ steps.discord-message.outputs.title }}
+      #     embed-url: ${{ steps.discord-message.outputs.job_url }}
+      #     content: ${{ steps.discord-message.outputs.content }}

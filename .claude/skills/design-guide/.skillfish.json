@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "design-guide",
+  "owner": "arkcle83",
+  "repo": "crewdeck",
+  "path": ".claude/skills/design-guide",
+  "branch": "main",
+  "sha": "3d9c40e53de51d31e228b1c243fed42521b56927",
+  "source": "manual"
+}
