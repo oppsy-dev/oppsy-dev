@@ -1,10 +1,8 @@
 use std::{path::PathBuf, sync::Mutex};
 
-use auth::{default_github_auth_client_path, default_google_auth_client_path};
 use test_case::test_case;
 
 use super::*;
-use crate::settings::auth::{JWT_SIGNING_KEY_STR, jwt_signing_key};
 
 static ENV_LOCK: Mutex<()> = Mutex::new(());
 
@@ -24,11 +22,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "default values"
@@ -46,11 +39,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set bind address"
@@ -68,11 +56,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set tracing format to json"
@@ -90,11 +73,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set log level to debug"
@@ -112,11 +90,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set api url prefix"
@@ -134,11 +107,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set manifest db path"
@@ -156,11 +124,6 @@ struct EnvVar {
             osv_db_path: PathBuf::from("/var/data/osv"),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set osv db path"
@@ -181,11 +144,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: PathBuf::from("/etc/secrets/github_auth.json"),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set github auth client path"
@@ -206,11 +164,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: PathBuf::from("/etc/secrets/google_auth.json"),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set google auth client path"
@@ -231,11 +184,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![
                 "https://app.example.com".parse().unwrap(),
                 "https://staging.example.com".parse().unwrap(),
@@ -259,11 +207,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: "sqlite:///var/data/core.db".to_string(),
             osv_sync_interval: default_osv_sync_interval(),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set core db url"
@@ -284,11 +227,6 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: Duration::from_mins(10),
-            auth: AuthSettings {
-                github_auth_client_creds_path: default_github_auth_client_path(),
-                google_auth_client_creds_path: default_google_auth_client_path(),
-                jwt_signing_key: jwt_signing_key(),
-            },
             allowed_cors_origins: vec![],
         };
         "set osv sync interval"
@@ -297,10 +235,7 @@ struct EnvVar {
 fn settings_init_test(env_vars: &[EnvVar]) -> Settings {
     let guard = ENV_LOCK.lock().unwrap();
 
-    let required = [EnvVar {
-        key: "OSV_SERVICE_JWT_SIGNING_KEY".to_string(),
-        value: JWT_SIGNING_KEY_STR.to_string(),
-    }];
+    let required = [];
     for e in required.iter().chain(env_vars.iter()) {
         unsafe {
             std::env::set_var(&e.key, &e.value);

@@ -1,6 +1,3 @@
-//! Environment Variable settings for the service
-
-pub mod auth;
 #[cfg(test)]
 mod tests;
 
@@ -10,7 +7,6 @@ use std::{
     time::Duration,
 };
 
-use auth::AuthSettings;
 use config::Config;
 use serde::Deserialize;
 use url::Url;
@@ -100,9 +96,6 @@ pub struct Settings {
     /// "Data Freshness: Data sources no more than 15 minutes stale, 99.5% of the time."
     #[serde(with = "duration_mins", default = "default_osv_sync_interval")]
     pub osv_sync_interval: Duration,
-    /// Auth provider credentials and related configuration.
-    #[serde(flatten)]
-    pub auth: AuthSettings,
     /// Origins allowed by the CORS middleware,
     /// a comma-separated list of allowed origins e.g.
     /// `https://app.example.com,https://staging.example.com`.
