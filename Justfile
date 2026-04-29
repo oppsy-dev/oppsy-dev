@@ -20,9 +20,8 @@ frontend-gen-api-client:
     cargo run --manifest-path {{backend_manifest}} -p service -- docs > /tmp/oppsy-openapi.json
     npx openapi-typescript /tmp/oppsy-openapi.json -o {{frontend_dir}}/src/api/schema.d.ts
 
-# Start the frontend dev server at http://localhost:3000 (regenerates API client first)
-run-frontend-dev: frontend-gen-api-client frontend-lint-fix
-    cd {{frontend_dir}} && yarn start
+frontend-build-dev: frontend-gen-api-client frontend-lint-fix
+    cd {{frontend_dir}} && yarn build
 
 # Auto-fix formatting for frontend sources
 frontend-lint-fix:
@@ -36,7 +35,7 @@ frontend-lint-check:
 # Format, lint, unit tests, integration tests — run before committing
 dev: backend-lint-check frontend-lint-check backend-unit-tests
 
-# Run unit tests 
+# Run unit tests
 backend-unit-tests:
     cargo test --manifest-path {{backend_manifest}} --all-targets --locked
 
