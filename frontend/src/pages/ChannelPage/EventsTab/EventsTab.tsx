@@ -19,7 +19,7 @@ export function EventsTab({ channelId }: Props) {
   const totalPages = Math.ceil(events.length / PAGE_SIZE);
   const pageEvents = events.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const navigation =       (totalPages > 1 && (
+  const pagesNavigation =       (totalPages > 1 && (
         <div className={styles.pagination}>
           <button
             type="button"
@@ -50,7 +50,7 @@ export function EventsTab({ channelId }: Props) {
 
   return (
     <div className={styles.container}>
-      {navigation}
+      {pagesNavigation}
 
       <div className={styles.list}>
         {pageEvents.map((event) => (
@@ -58,7 +58,7 @@ export function EventsTab({ channelId }: Props) {
         ))}
       </div>
 
-      {navigation}
+      {pagesNavigation}
     </div>
   );
 }
