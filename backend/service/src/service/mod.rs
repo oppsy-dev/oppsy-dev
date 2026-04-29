@@ -2,9 +2,11 @@ mod api;
 mod common;
 
 use poem::{
-    Endpoint, EndpointExt, Route, Server, http,
+    Endpoint, EndpointExt, Route, Server,
+    endpoint::StaticFilesEndpoint,
+    http,
     listener::TcpListener,
-    middleware::{Cors, SensitiveHeader, Tracing},
+    middleware::{SensitiveHeader, Tracing},
 };
 use poem_openapi::{OpenApi, OpenApiService, Webhook};
 
@@ -25,44 +27,25 @@ pub async fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[allow(clippy::unnecessary_wraps)]
 fn mk_app(settings: &Settings) -> anyhow::Result<impl Endpoint + use<>> {
     let api = mk_api(&settings.api_url_prefix);
     let docs = docs(&api);
 
-    if !cfg!(feature = "local-dev") && settings.allowed_cors_origins.is_empty() {
-        anyhow::bail!(
-            "allowed_cors_origins is empty — all origins are permitted by the CORS \
-            middleware and open-redirect protection on the auth callback is disabled. \
-            This is only acceptable for local development, built with '--features local-dev' flag."
-        );
-    }
-
-    let cors = if settings.allowed_cors_origins.is_empty() {
-        // Dev mode: reflect the request's Origin header and allow credentials.
-        // `Access-Control-Allow-Origin: *` is forbidden when credentials are
-        // included, so we echo back whatever origin the browser sent instead.
-        Cors::new()
-            .allow_credentials(true)
-            .allow_origins_fn(|_| true)
-    } else {
-        settings
-            .allowed_cors_origins
-            .iter()
-            .fold(Cors::new().allow_credentials(true), |cors, origin| {
-                cors.allow_origin(origin.origin().ascii_serialization().as_str())
-            })
-    };
+    let static_files = StaticFilesEndpoint::new(&settings.frontend_path)
+        .index_file("index.html")
+        .fallback_to_index();
 
     Ok(Route::new()
         .nest(&settings.api_url_prefix, api)
         .nest("/docs", docs)
+        .nest("/", static_files)
         .with(Tracing)
         .with(
             SensitiveHeader::new()
                 .header(http::header::COOKIE)
                 .header(http::header::SET_COOKIE),
-        )
-        .with(cors))
+        ))
 }
 
 fn docs(api: &OpenApiService<impl OpenApi + 'static, impl Webhook + 'static>) -> Route {

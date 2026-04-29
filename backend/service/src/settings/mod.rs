@@ -9,7 +9,6 @@ use std::{
 
 use config::Config;
 use serde::Deserialize;
-use url::Url;
 
 use crate::resources::Resource;
 
@@ -29,6 +28,10 @@ fn default_manifest_db_path() -> PathBuf {
 
 fn default_osv_db_path() -> PathBuf {
     PathBuf::from("./osv_db")
+}
+
+fn default_frontend_path() -> PathBuf {
+    PathBuf::from("./frontend")
 }
 
 pub(super) fn default_core_db_url() -> String {
@@ -96,13 +99,16 @@ pub struct Settings {
     /// "Data Freshness: Data sources no more than 15 minutes stale, 99.5% of the time."
     #[serde(with = "duration_mins", default = "default_osv_sync_interval")]
     pub osv_sync_interval: Duration,
-    /// Origins allowed by the CORS middleware,
-    /// a comma-separated list of allowed origins e.g.
-    /// `https://app.example.com,https://staging.example.com`.
+    /// Filesystem path to the directory containing the built frontend assets.
     ///
-    /// **Development-only `--features = local-dev'`.** could be empty
-    #[serde(default)]
-    pub allowed_cors_origins: Vec<Url>,
+    /// The backend serves the React SPA from this directory at `/`, falling
+    /// back to `index.html` for all unmatched paths (SPA routing). API routes
+    /// under `api_url_prefix` and `/docs` always take priority.
+    ///
+    /// Defaults to `./frontend` relative to the working directory.
+    /// Set `OSV_SERVICE_FRONTEND_PATH` to override.
+    #[serde(default = "default_frontend_path")]
+    pub frontend_path: PathBuf,
 }
 
 #[async_trait::async_trait]
@@ -128,21 +134,9 @@ impl Settings {
     /// - Returns an error if any required environment variable is absent or malformed.
     fn load() -> anyhow::Result<Self> {
         let res: Settings = Config::builder()
-            .add_source(
-                config::Environment::with_prefix(ENV_VAR_PREFIX)
-                    .try_parsing(true)
-                    .list_separator(",")
-                    .with_list_parse_key("allowed_cors_origins"),
-            )
+            .add_source(config::Environment::with_prefix(ENV_VAR_PREFIX).try_parsing(true))
             .build()?
             .try_deserialize()?;
-        if !cfg!(feature = "local-dev") && res.allowed_cors_origins.is_empty() {
-            anyhow::bail!(
-                "allowed_cors_origins is empty — all origins are permitted by the CORS \
-                middleware and open-redirect protection on the auth callback is disabled. \
-                This is only acceptable for local development, built with '--features local-dev' flag."
-            );
-        }
         Ok(res)
     }
 }
