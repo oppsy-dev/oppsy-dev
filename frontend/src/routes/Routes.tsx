@@ -1,5 +1,6 @@
 import { Outlet, Route, Routes } from 'react-router-dom';
 import { AppShell } from '../components/AppShell/AppShell';
+import { HomePage } from '../pages/HomePage/HomePage';
 import { WorkspacesDashboardPage } from '../pages/WorkspacesDashboardPage/WorkspacesDashboardPage';
 import { ChannelsDashboardPage } from '../pages/ChannelsDashboardPage/ChannelsDashboardPage';
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
@@ -8,7 +9,7 @@ import { CveRecordPage } from '../pages/CveRecordPage/CveRecordPage';
 import { ChannelPage } from '../pages/ChannelPage/ChannelPage';
 
 export enum AppRoute {
-  Home = '/workspaces',
+  Home = '/',
   WorkspacesDashboard = '/workspaces',
   Workspace = '/workspaces/:workspaceId',
   TeamDashboard = '/dashboard/teams/:teamId',
@@ -20,6 +21,8 @@ export enum AppRoute {
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path={AppRoute.Home} element={<HomePage />} />
+
       <Route
         element={
           <AppShell>
