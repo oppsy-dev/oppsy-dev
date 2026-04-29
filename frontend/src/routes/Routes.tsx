@@ -8,6 +8,7 @@ import { CveRecordPage } from '../pages/CveRecordPage/CveRecordPage';
 import { ChannelPage } from '../pages/ChannelPage/ChannelPage';
 
 export enum AppRoute {
+  Home = '/workspaces',
   WorkspacesDashboard = '/workspaces',
   Workspace = '/workspaces/:workspaceId',
   TeamDashboard = '/dashboard/teams/:teamId',

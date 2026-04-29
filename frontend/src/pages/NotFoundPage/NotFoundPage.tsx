@@ -17,7 +17,7 @@ export function NotFoundPage() {
       <p className={styles.description}>
         The page you're looking for doesn't exist or has been moved.
       </p>
-      <Link to={AppRoute.WorkspacesDashboard} className={styles.homeLink}>
+      <Link to={AppRoute.Home} className={styles.homeLink}>
         Go home
       </Link>
     </main>
