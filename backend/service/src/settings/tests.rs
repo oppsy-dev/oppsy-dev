@@ -22,7 +22,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "default values"
     )]
@@ -39,7 +39,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set bind address"
     )]
@@ -56,7 +56,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set tracing format to json"
     )]
@@ -73,7 +73,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set log level to debug"
     )]
@@ -90,7 +90,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set api url prefix"
     )]
@@ -107,7 +107,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set manifest db path"
     )]
@@ -124,72 +124,9 @@ struct EnvVar {
             osv_db_path: PathBuf::from("/var/data/osv"),
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set osv db path"
-    )]
-#[test_case(
-        &[
-            EnvVar {
-                key: "OSV_SERVICE_GITHUB_AUTH_CLIENT_CREDS_PATH".to_string(),
-                value: "/etc/secrets/github_auth.json".to_string(),
-            },
-        ]
-        => Settings {
-            bind_address: default_bind_address(),
-            log_format: LogFormat::default(),
-            log_level: LogLevel::default(),
-            api_url_prefix: default_api_url_prefix(),
-            manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
-            core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
-        };
-        "set github auth client path"
-    )]
-#[test_case(
-        &[
-            EnvVar {
-                key: "OSV_SERVICE_GOOGLE_AUTH_CLIENT_CREDS_PATH".to_string(),
-                value: "/etc/secrets/google_auth.json".to_string(),
-            },
-        ]
-        => Settings {
-            bind_address: default_bind_address(),
-            log_format: LogFormat::default(),
-            log_level: LogLevel::default(),
-            api_url_prefix: default_api_url_prefix(),
-            manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
-            core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
-        };
-        "set google auth client path"
-    )]
-#[test_case(
-        &[
-            EnvVar {
-                key: "OSV_SERVICE_ALLOWED_CORS_ORIGINS".to_string(),
-                value: "https://app.example.com,https://staging.example.com".to_string(),
-            },
-        ]
-        => Settings {
-            bind_address: default_bind_address(),
-            log_format: LogFormat::default(),
-            log_level: LogLevel::default(),
-            api_url_prefix: default_api_url_prefix(),
-            manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
-            core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![
-                "https://app.example.com".parse().unwrap(),
-                "https://staging.example.com".parse().unwrap(),
-            ],
-        };
-        "set allowed cors origins"
     )]
 #[test_case(
         &[
@@ -207,7 +144,7 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: "sqlite:///var/data/core.db".to_string(),
             osv_sync_interval: default_osv_sync_interval(),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set core db url"
     )]
@@ -227,11 +164,30 @@ struct EnvVar {
             osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
             osv_sync_interval: Duration::from_mins(10),
-            allowed_cors_origins: vec![],
+            frontend_path: default_frontend_path(),
         };
         "set osv sync interval"
     )]
-/// Must run only with the set `--features local-dev`
+#[test_case(
+        &[
+            EnvVar {
+                key: "OSV_SERVICE_FRONTEND_PATH".to_string(),
+                value: "/var/www/frontend".to_string(),
+            },
+        ]
+        => Settings {
+            bind_address: default_bind_address(),
+            log_format: LogFormat::default(),
+            log_level: LogLevel::default(),
+            api_url_prefix: default_api_url_prefix(),
+            manifest_db_path: default_manifest_db_path(),
+            osv_db_path: default_osv_db_path(),
+            core_db_url: default_core_db_url(),
+            osv_sync_interval: default_osv_sync_interval(),
+            frontend_path: PathBuf::from("/var/www/frontend"),
+        };
+        "set frontend path"
+    )]
 fn settings_init_test(env_vars: &[EnvVar]) -> Settings {
     let guard = ENV_LOCK.lock().unwrap();
 

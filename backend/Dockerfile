@@ -1,12 +1,7 @@
 FROM rust:1.91-slim AS builder
 WORKDIR /app
 COPY . .
-ARG IS_LOCAL_DEV=false
-RUN if [ "$IS_LOCAL_DEV" = "true" ]; then \
-      cargo build --release -p service --features local-dev; \
-    else \
-      cargo build --release -p service; \
-    fi
+RUN cargo build --release -p service
 
 FROM debian:trixie-slim
 RUN apt-get update && apt-get install -y ca-certificates curl && update-ca-certificates

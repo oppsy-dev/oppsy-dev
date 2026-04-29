@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OPPSY is a full-stack OSV (Open Source Vulnerability) management platform. It scans dependency manifests across workspaces, matches packages against the OSV database, and delivers notifications via webhooks. The repo is a monorepo with a Rust backend and a React/TypeScript frontend.
+OPPSY is a full-stack OSV (Open Source Vulnerability) management platform. It scans dependency manifests across workspaces, matches packages against the OSV database, and delivers notifications via webhooks. The repo is a monorepo with a Rust backend and a React/TypeScript frontend. In production the backend serves the compiled frontend assets directly — there is no separate frontend server.
 
 ## Commands
 
@@ -13,13 +13,13 @@ All top-level tasks are driven by `just` (see `Justfile`). Run `just` to list al
 **Backend:**
 ```bash
 just backend-lint-check          # fmt check + clippy (-D warnings) + cargo-deny
-just backend-unit-tests          # cargo test --features local-dev --locked
+just backend-unit-tests          # cargo test --locked
 cargo +nightly fmt --manifest-path backend/Cargo.toml --all   # format in place
 ```
 
 Run a single test:
 ```bash
-cargo test --manifest-path backend/Cargo.toml -p <crate> --features local-dev <test_name>
+cargo test --manifest-path backend/Cargo.toml -p <crate> <test_name>
 ```
 
 **Frontend:**
@@ -49,7 +49,7 @@ Six crates, each with a single responsibility:
 
 | Crate | Role |
 |---|---|
-| `service` | Binary entry point. Poem HTTP server on `:3030`, poem-openapi REST endpoints, CORS, tracing. |
+| `service` | Binary entry point. Poem HTTP server on `:3030`, poem-openapi REST endpoints, static frontend serving, tracing. |
 | `core-db` | `CoreDb` connection-pool wrapper over SQLite (SQLx). Owns all queries and Atlas migrations under `sqlite-migrations/`. |
 | `package-analyzer` | Parses lock files (`Cargo.lock`, `package-lock.json`, `uv.lock`, `poetry.lock`, Go JSON) and matches packages against OSV records via `MultiAnalyzer`. |
 | `manifest-storage` | Filesystem read/write for raw manifest bytes. |
@@ -67,9 +67,7 @@ Six crates, each with a single responsibility:
 | `OSV_SERVICE_MANIFEST_DB_PATH` | `./manifest_db` |
 | `OSV_SERVICE_OSV_DB_PATH` | `./osv_db` |
 | `OSV_SERVICE_OSV_SYNC_INTERVAL` | `15` (minutes) |
-| `OSV_SERVICE_ALLOWED_CORS_ORIGINS` | required in prod; empty allowed only with `--features local-dev` |
-
-**`local-dev` feature flag** must be passed to `cargo test` and enables the server to start without `allowed_cors_origins`.
+| `OSV_SERVICE_FRONTEND_PATH` | `./frontend` |
 
 **Rust toolchain:** nightly (for clippy + rustfmt). Linting enforces `-D warnings`; no `unwrap`/`expect`/`panic` in library code.
 
@@ -80,6 +78,7 @@ Six crates, each with a single responsibility:
 - **API client** (`src/api/schema.d.ts`) is auto-generated from the backend's OpenAPI schema — always regenerate after backend API changes with `just frontend-gen-api-client`
 - Pages live under `src/pages/`, shared components under `src/components/`, Zustand stores under `src/stores/`
 - Package manager: **yarn**
+- The frontend is a SPA. In production, run `yarn build` and point `OSV_SERVICE_FRONTEND_PATH` at the resulting `build/` directory. The backend serves all static assets and falls back to `index.html` for client-side routes. No separate frontend process is needed.
 
 ### CI
 

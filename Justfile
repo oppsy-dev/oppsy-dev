@@ -38,5 +38,5 @@ dev: backend-lint-check frontend-lint-check backend-unit-tests
 
 # Run unit tests 
 backend-unit-tests:
-    cargo test --manifest-path {{backend_manifest}} --all-targets --features local-dev --locked
+    cargo test --manifest-path {{backend_manifest}} --all-targets --locked
 

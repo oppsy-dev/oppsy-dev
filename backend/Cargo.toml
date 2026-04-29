@@ -78,7 +78,7 @@ tempfile = "3"
 jsonschema = { version = "0.45", default-features = false }
 dotenvy = "0.15.7"
 bytes = "1"
-poem = "3.1.12"
+poem = { version = "3.1.12", features = ["static-files"] }
 poem-openapi = { version = "5.1.16", features = ["openapi-explorer", "rapidoc", "redoc", "swagger-ui", "uuid", "url", "cookie", "chrono"] }
 oauth2 = { version = "5.0.0", default-features = false }
 uuid = { version = "1.22", features = ["v7", "serde"] }
