@@ -1,0 +1,12 @@
+{
+  "name": "test-package",
+  "version": "0.1.0",
+  "description": "@google/clasp affected by <https://osv.dev/vulnerability/GHSA-hqjg-pww4-pcgq>, @3stripes/ui affected by <https://osv.dev/vulnerability/MAL-2026-1429>",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "dependencies": {
+    "@3stripes/ui": "=999.0.2",
+    "@google/clasp": "=3.1.0"
+  }
+}

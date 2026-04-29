@@ -1,0 +1,31 @@
+version = 3
+
+[[package]]
+name = "anyhow"
+version = "1.0.95"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
+
+[[package]]
+name = "serde"
+version = "1.0.217"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02fc353d706b7b4f42f6ac7c3c36c56e29fd91c2d7f1e0fd2c7551e7d3bd0bdb"
+
+[[package]]
+name = "serde_json"
+version = "1.0.138"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d434192e7da787e94a6ea7e9670b26a036d0ca41e0b7efb2676dd32bae872949"
+
+[[package]]
+name = "thiserror"
+version = "2.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d452f284b73e6d76dd36758a0c8684b1d5be31f92b89d07fd5822175732206fc"
+
+[[package]]
+name = "tokio"
+version = "1.43.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d61fa4ffa3de412bfea335c6ecff681de2b609ba3c77ef3e00e521813a9ed9e"

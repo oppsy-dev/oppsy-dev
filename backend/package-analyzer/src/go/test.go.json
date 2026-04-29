@@ -1,0 +1,55 @@
+[
+  {
+    "Path": "go-cue",
+    "Main": true,
+    "Dir": "/Users/alexeypoghilenkov/Projects/cue-rs/libcue",
+    "GoMod": "/Users/alexeypoghilenkov/Projects/cue-rs/libcue/go.mod",
+    "GoVersion": "1.24.0"
+  },
+  {
+    "Path": "cloud.google.com/go/compute/metadata",
+    "Version": "v0.3.0",
+    "Time": "2024-04-15T20:50:16Z",
+    "Indirect": true
+  },
+  {
+    "Path": "cuelabs.dev/go/oci/ociregistry",
+    "Version": "v0.0.0-20250722084951-074d06050084",
+    "Time": "2025-07-22T08:49:51Z",
+    "Indirect": true,
+    "Dir": "/Users/alexeypoghilenkov/go/pkg/mod/cuelabs.dev/go/oci/ociregistry@v0.0.0-20250722084951-074d06050084",
+    "GoMod": "/Users/alexeypoghilenkov/go/pkg/mod/cache/download/cuelabs.dev/go/oci/ociregistry/@v/v0.0.0-20250722084951-074d06050084.mod",
+    "GoVersion": "1.23",
+    "Sum": "h1:4k1yAtPvZJZQTu8DRY8muBo0LHv6TqtrE0AO5n6IPYs=",
+    "GoModSum": "h1:4WWeZNxUO1vRoZWAHIG0KZOd6dA25ypyWuwD3ti0Tdc="
+  },
+  {
+    "Path": "cuelang.org/go",
+    "Version": "v0.15.3",
+    "Replace": {
+      "Path": "cuelang.org/go",
+      "Version": "v0.14.0",
+      "Time": "2025-08-01T10:21:49Z",
+      "Dir": "/Users/alexeypoghilenkov/go/pkg/mod/cuelang.org/go@v0.14.0",
+      "GoMod": "/Users/alexeypoghilenkov/go/pkg/mod/cache/download/cuelang.org/go/@v/v0.14.0.mod",
+      "GoVersion": "1.23.0",
+      "Sum": "h1:OvkDGmfiTCxoHhVs1tR/6Z96XbupB8oR2DNoIW068bQ=",
+      "GoModSum": "h1:aSP9UZUM5m2izHAHUvqtq0wTlWn5oLjuv2iBMQZBLLs="
+    },
+    "Indirect": true,
+    "Dir": "/Users/alexeypoghilenkov/go/pkg/mod/cuelang.org/go@v0.14.0",
+    "GoMod": "/Users/alexeypoghilenkov/go/pkg/mod/cache/download/cuelang.org/go/@v/v0.14.0.mod",
+    "GoVersion": "1.23.0"
+  },
+  {
+    "Path": "github.com/cockroachdb/apd/v3",
+    "Version": "v3.2.1",
+    "Time": "2023-09-13T03:04:08Z",
+    "Indirect": true,
+    "Dir": "/Users/alexeypoghilenkov/go/pkg/mod/github.com/cockroachdb/apd/v3@v3.2.1",
+    "GoMod": "/Users/alexeypoghilenkov/go/pkg/mod/cache/download/github.com/cockroachdb/apd/v3/@v/v3.2.1.mod",
+    "GoVersion": "1.17",
+    "Sum": "h1:U+8j7t0axsIgvQUqthuNm82HIrYXodOV2iWLWtEaIwg=",
+    "GoModSum": "h1:klXJcjp+FffLTHlhIG69tezTDvdP065naDsHzKhYSqc="
+  }
+]

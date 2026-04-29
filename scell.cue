@@ -32,15 +32,12 @@ main: {
 		// install atlasgo migration
 		"curl -sSf https://atlasgo.sh | sh",
 	]
-	workspace: "osv_notifier"
+	workspace: "oppsy"
 	shell:     "/bin/nu"
 	hang:      "while true; do sleep 3600; done"
 	config: {
 		mounts: [
-			"./:/osv_notifier/",
+			"./:/oppsy/",
 		],
-		ports: [
-			"3031:3000"
-		]
 	}
 }

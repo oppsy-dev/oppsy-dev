@@ -1,0 +1,52 @@
+[package]
+name = "service"
+description = "OPPSY backend service"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[features]
+local-dev = []
+
+[dependencies]
+manifest-storage = { path = "../manifest-storage", version = "0.1.0" }
+package-analyzer = { path = "../package-analyzer", version = "0.1.0" }
+core-db = { path = "../core-db", version = "0.1.0" }
+notifier = { path = "../notifier", version = "0.1.0" }
+
+osv-db.workspace = true
+chrono.workspace = true
+
+tokio.workspace = true
+futures.workspace = true
+async-trait.workspace = true
+anyhow.workspace = true
+bytes.workspace = true
+poem.workspace = true
+poem-openapi.workspace = true
+dotenvy.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+serde.workspace = true
+config.workspace = true
+dashmap.workspace = true
+moka.workspace = true
+thiserror.workspace = true
+url.workspace = true
+uuid.workspace = true
+serde_json.workspace = true
+rayon.workspace = true
+oauth2.workspace = true
+reqwest.workspace = true
+hex.workspace = true
+ed25519-dalek.workspace = true
+base64.workspace = true
+clap.workspace = true
+strum.workspace = true
+
+[dev-dependencies]
+test-case.workspace = true
+jsonschema.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,19 @@
+[package]
+name = "manifest-storage"
+description = "Manifest files storage"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+
+[dependencies]
+common = { path = "../common", version = "0.1.0" }
+
+anyhow.workspace = true
+bytes.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
