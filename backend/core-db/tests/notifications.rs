@@ -9,7 +9,6 @@ use core_db::{
     },
 };
 
-#[test_with::file(oppsy.db)]
 #[tokio::test]
 async fn notification_channel_roundtrip() {
     let db = common::init_db().await;

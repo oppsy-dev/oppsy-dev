@@ -10,7 +10,6 @@ use core_db::{
     },
 };
 
-#[test_with::file(oppsy.db)]
 #[tokio::test]
 async fn workspace_roundtrip() {
     let db = common::init_db().await;

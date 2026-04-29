@@ -5,7 +5,6 @@ use core_db::manifest_osv_vuln::{
     errors::{AddManifestOsvVulnError, GetManifestOsvVulnsError},
 };
 
-#[test_with::file(oppsy.db)]
 #[tokio::test]
 async fn manifest_osv_vuln_roundtrip() {
     let db = common::init_db().await;
