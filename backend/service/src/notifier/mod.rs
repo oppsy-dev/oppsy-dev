@@ -96,7 +96,7 @@ impl Notifier {
             osv_records: osv_records_ids,
         };
 
-        let tasks = channels
+        let events = channels
             .into_iter()
             .filter(|c| c.active)
             .map(|channel| {
@@ -105,11 +105,9 @@ impl Notifier {
             .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
                 tasks.spawn(t);
                 tasks
-            });
-
-        let events = tasks.join_all().await;
-
-        let events = events
+            })
+            .join_all()
+            .await
             .into_iter()
             .map(|(channel_id, id, res)| {
                 NotificationEvent {
@@ -120,6 +118,7 @@ impl Notifier {
                 }
             })
             .collect();
+
         core_db.add_notification_channel_events(events).await?;
         Ok(())
     }
