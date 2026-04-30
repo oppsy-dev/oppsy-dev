@@ -32,7 +32,7 @@ type FormStates = {
 const INITIAL_FORM_STATES: FormStates = {
   Discord: { name: '', webhookUrl: '' },
   Webhook: { name: '', url: '', secret: '' },
-  Email: { name: '', addresses: [''] },
+  Email: { name: '', from: '', addresses: [''] },
 };
 
 function buildChannel(
