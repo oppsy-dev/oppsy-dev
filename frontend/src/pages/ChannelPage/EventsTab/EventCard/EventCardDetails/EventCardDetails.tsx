@@ -35,7 +35,7 @@ export function EventCardDetails({ event }: Props) {
         <span className={styles.label}>Vulnerabilities</span>
         <div className={styles.osvList}>
           {meta.osv_records.map((id) => (
-            <Link key={id} to={AppRoute.CveRecord.replace(':name', id)} className={styles.osvBadge}>
+            <Link key={id} to={AppRoute.OsvRecord.replace(':name', id)} className={styles.osvBadge}>
               {id}
             </Link>
           ))}

@@ -34,7 +34,7 @@ export function OsvRecordRow({ osvId, detectedAt }: OsvRecordRowProps) {
 
   return (
     <div className={styles.row}>
-      <Link to={AppRoute.CveRecord.replace(':name', osvId)} className={styles.osvId} onClick={(e) => e.stopPropagation()}>
+      <Link to={AppRoute.OsvRecord.replace(':name', osvId)} className={styles.osvId} onClick={(e) => e.stopPropagation()}>
         {osvId}
       </Link>
       <span className={[styles.severityBadge, SEV_CLASS[severity]].join(' ')}>{severity}</span>

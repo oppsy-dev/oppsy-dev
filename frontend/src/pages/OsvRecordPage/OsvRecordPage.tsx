@@ -12,7 +12,7 @@ import { OppsyLogo } from '../../components/OppsyLogo/OppsyLogo';
 import { ViewToggle, ViewMode } from './ViewToggle/ViewToggle';
 import { Hero } from './Hero/Hero';
 import { JsonView } from '../../components/JsonView/JsonView';
-import styles from './CveRecordPage.module.css';
+import styles from './OsvRecordPage.module.css';
 import { PageBackground } from '../../components/PageBackground/PageBackground';
 import { AppRoute } from '../../routes/Routes';
 import { BackIcon } from '../../components/Icons';
@@ -33,7 +33,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: Tab.Credits, label: 'Credits' },
 ];
 
-export function CveRecordPage() {
+export function OsvRecordPage() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
   const canGoBack = window.history.length > 1;

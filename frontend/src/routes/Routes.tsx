@@ -5,7 +5,7 @@ import { WorkspacesDashboardPage } from '../pages/WorkspacesDashboardPage/Worksp
 import { ChannelsDashboardPage } from '../pages/ChannelsDashboardPage/ChannelsDashboardPage';
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage';
 import { WorkspacePage } from '../pages/WorkspacePage/WorkspacePage';
-import { CveRecordPage } from '../pages/CveRecordPage/CveRecordPage';
+import { OsvRecordPage } from '../pages/OsvRecordPage/OsvRecordPage';
 import { ChannelPage } from '../pages/ChannelPage/ChannelPage';
 
 export enum AppRoute {
@@ -15,7 +15,7 @@ export enum AppRoute {
   TeamDashboard = '/dashboard/teams/:teamId',
   ChannelsDashboard = '/channels',
   Channel = '/channels/:channelId',
-  CveRecord = '/record/:name',
+  OsvRecord = '/osv/record/:name',
 }
 
 export function AppRoutes() {
@@ -37,7 +37,7 @@ export function AppRoutes() {
         <Route path={AppRoute.TeamDashboard} element={<WorkspacesDashboardPage />} />
       </Route>
 
-      <Route path={AppRoute.CveRecord} element={<CveRecordPage />} />
+      <Route path={AppRoute.OsvRecord} element={<OsvRecordPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
