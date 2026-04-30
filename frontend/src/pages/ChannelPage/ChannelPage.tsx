@@ -4,11 +4,12 @@ import { AppRoute } from '../../routes/Routes';
 import { ChannelSettingsSection } from './ChannelSettingsSection/ChannelSettingsSection';
 import { ConfigurationTab } from './ConfigurationTab/ConfigurationTab';
 import { EventsTab } from './EventsTab/EventsTab';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
 import styles from './ChannelPage.module.css';
 import type { NotificationChannel } from '../../api/notification_channels';
 import { useChannels, useDeleteChannel } from '../../hooks/notification_channels';
-import { BackIcon, ChannelIcon, CHANNEL_ICON_BG, GearIcon } from '../../components/Icons';
-import { formatUuidV7Date, formatUuidV7TimeAgo } from '../../utils/uuidV7';
+import { BackIcon, ChannelIcon, CHANNEL_ICON_BG } from '../../components/Icons';
+import { formatUuidV7TimeAgo } from '../../utils/uuidV7';
 
 enum Tab {
   Configuration = 'Configuration',
@@ -42,44 +43,34 @@ export function ChannelPage() {
         <code className={styles.breadcrumbCurrent}>{displayName}</code>
       </nav>
 
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.headerInfo}>
-            <div
-              className={styles.workspaceIcon}
-              style={
-                channel?.conf.type ? { background: CHANNEL_ICON_BG[channel.conf.type] } : undefined
-              }
-            >
-              {channel?.conf.type && (
-                <ChannelIcon type={channel.conf.type} width={22} height={22} />
+      <PageHeader
+        name={displayName ?? ''}
+        id={channelId ?? ''}
+        icon={
+          channel?.conf.type ? (
+            <ChannelIcon type={channel.conf.type} width={24} height={24} />
+          ) : null
+        }
+        iconStyle={
+          channel?.conf.type
+            ? { background: CHANNEL_ICON_BG[channel.conf.type], border: '1px solid var(--border)' }
+            : undefined
+        }
+        badges={
+          channel && (
+            <>
+              {channel.conf.type && (
+                <span className={styles.typeBadge}>{channel.conf.type}</span>
               )}
-            </div>
-            <div>
-              <h1 className={styles.title}>{displayName}</h1>
-              {channelId && <p className={styles.subline}>Created {formatUuidV7Date(channelId)}</p>}
-            </div>
-          </div>
-          <div className={styles.badges}>
-            {channel?.conf.type && <span className={styles.typeBadge}>{channel.conf.type}</span>}
-            {channel && (
               <span className={channel.active ? styles.activeBadge : styles.inactiveBadge}>
                 {channel.active ? 'Active' : 'Inactive'}
               </span>
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          className={
-            showSettings ? `${styles.settingsBtn} ${styles.settingsBtnActive}` : styles.settingsBtn
-          }
-          onClick={() => setShowSettings((s) => !s)}
-        >
-          <GearIcon width={13} height={13} />
-          Settings
-        </button>
-      </div>
+            </>
+          )
+        }
+        onSettingsClick={() => setShowSettings((s) => !s)}
+        settingsActive={showSettings}
+      />
 
       {showSettings && channel ? (
         <ChannelSettingsSection

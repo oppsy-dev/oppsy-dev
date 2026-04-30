@@ -1,0 +1,144 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.info {
+  display: flex;
+  align-items: stretch;
+  gap: 0.875rem;
+}
+
+.iconWrap {
+  border-radius: 16px;
+  background: rgba(217, 119, 6, 0.07);
+  border: 1px solid rgba(217, 119, 6, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  margin-bottom: 0.25rem;
+}
+
+.subline {
+  font-size: 0.8125rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-3);
+}
+
+/* ── ID row ── */
+.idRow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+.idLabel {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+.idBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.1875rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6875rem;
+  color: var(--text-3);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.idBadge:hover {
+  color: var(--text-2);
+  border-color: var(--border-1);
+}
+
+.idBadgeCopied,
+.idBadgeCopied:hover {
+  color: var(--green, #16a34a);
+  border-color: rgba(22, 163, 74, 0.3);
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.idBadgeIcon {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.5;
+}
+
+.idBadge:hover .idBadgeIcon {
+  opacity: 0.8;
+}
+
+/* ── Settings button ── */
+.settingsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.875rem;
+  background: #fff;
+  border: 1px solid var(--border-2);
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.settingsBtn:hover {
+  background: var(--surface);
+}
+
+.settingsBtnActive {
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.3);
+  color: var(--accent);
+}
+
+/* ── Badges row ── */
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
