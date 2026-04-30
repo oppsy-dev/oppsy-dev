@@ -23,3 +23,4 @@ sha2.workspace = true
 hex.workspace = true
 
 lettre.workspace = true
+webhook.workspace = true

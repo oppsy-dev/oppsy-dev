@@ -1,3 +1,4 @@
+mod discord;
 mod email;
 mod webhook;
 
@@ -6,12 +7,14 @@ use std::{any::type_name, fmt::Debug, sync::Arc};
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
 use osv_db::types::OsvRecord;
-use poem_openapi::types::ToJSON;
 use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
-    notifier::{email::osv_email_event_payload, webhook::osv_webhook_event_payload},
+    notifier::{
+        discord::osv_discord_event_payload, email::osv_email_event_payload,
+        webhook::osv_webhook_event_payload,
+    },
     resources::{Resource, ResourceRegistry},
     settings::Settings,
     types::{
@@ -138,7 +141,7 @@ impl Notifier {
                 spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Discord(conf) => {
-                let payload = meta.to_json().unwrap_or_default();
+                let payload = osv_discord_event_payload(&meta);
                 spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Email(conf) => {
@@ -165,7 +168,7 @@ where
     P: Into<N::EventPayload> + Debug,
 {
     if let Some(notifier) = notifier {
-        info!(type = %type_name::<N>(), payload = ?payload, conf = ?event_conf, "Spawn notification");
+        info!(type = %type_name::<N>(), conf = ?event_conf, "Spawn notification");
         let res = notifier.notify(event_conf.into(), payload.into()).await;
         (channel_id, NotificationEventId::generate(), res)
     } else {
