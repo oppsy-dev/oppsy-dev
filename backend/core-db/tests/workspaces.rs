@@ -30,7 +30,6 @@ async fn workspace_roundtrip() {
         id: workspace_id,
         name: name.to_string(),
     });
-    
 
     db.delete_workspace(workspace_id).await.unwrap();
     assert!(matches!(
