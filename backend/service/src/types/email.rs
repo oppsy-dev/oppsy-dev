@@ -26,6 +26,12 @@ impl From<EmailAddress> for core_db::user::EmailAddress {
     }
 }
 
+impl From<EmailAddress> for lettre::Address {
+    fn from(value: EmailAddress) -> Self {
+        value.0
+    }
+}
+
 impl Type for EmailAddress {
     type RawElementValueType = Self;
     type RawValueType = Self;
@@ -99,6 +105,6 @@ impl ToJSON for EmailAddress {
 
 impl ToHeader for EmailAddress {
     fn to_header(&self) -> Option<poem::http::HeaderValue> {
-        HeaderValue::from_str(&self.0.to_string()).ok()
+        HeaderValue::from_str(self.0.as_ref()).ok()
     }
 }

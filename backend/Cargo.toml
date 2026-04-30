@@ -103,5 +103,5 @@ clap = { version = "4", features = ["derive"] }
 sqlx = { version = "0.8.6", features = ["sqlite", "uuid", "runtime-tokio"] }
 strum = { version = "0.28", features = ["derive"] }
 
-lettre = { version = "0.11", default-features = false, features = ["serde", "rustls", "rustls-no-provider", "webpki-roots"] }
+lettre = { version = "0.11", default-features = false, features = ["smtp-transport", "builder", "tokio1", "serde", "rustls", "tokio1-rustls", "rustls-no-provider", "webpki-roots"] }
 
