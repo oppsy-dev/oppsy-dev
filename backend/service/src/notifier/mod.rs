@@ -61,7 +61,7 @@ impl Notifier {
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
         workspace_id: WorkspaceId,
-        _manifest_id: ManifestId,
+        manifest_id: ManifestId,
         records: Vec<OsvRecord>,
     ) -> anyhow::Result<()> {
         let channels = core_db
@@ -77,16 +77,31 @@ impl Notifier {
             .map(|channel| {
                 match channel.conf.inner {
                     NotificationChannelConfInner::Webhook(conf) => {
-                        notify_about_osv(self.webhook.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        spawn_osv_notification(
+                            self.webhook.clone(),
+                            conf,
+                            channel.id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                     NotificationChannelConfInner::Discord(conf) => {
-                        notify_about_osv(self.discord.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        spawn_osv_notification(
+                            self.discord.clone(),
+                            conf,
+                            channel.id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                     NotificationChannelConfInner::Email(conf) => {
-                        notify_about_osv(self.email.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        spawn_osv_notification(
+                            self.email.clone(),
+                            conf,
+                            channel.id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                 }
             })
@@ -96,30 +111,52 @@ impl Notifier {
             });
 
         let events = tasks.join_all().await;
+
+        let osv_records_ids: Vec<_> = records.iter().map(|r| r.id.clone().into()).collect();
+        let manifest_info = core_db.get_manifest(manifest_id).await?;
+        let workspace_info = core_db.get_workspace(workspace_id).await?;
+
+        let meta = NotificationEventMeta {
+            workspace_id,
+            workspace_name: workspace_info.name.into(),
+            manifest_id,
+            manifest_type: manifest_info.manifest_type.try_into()?,
+            manifest_name: manifest_info.name.into(),
+            manifest_tag: manifest_info.tag.map(Into::into),
+            osv_records: osv_records_ids,
+        };
+
+        let events = events
+            .into_iter()
+            .map(|(channel_id, id, res)| {
+                NotificationEvent {
+                    id,
+                    channel_id,
+                    error: res.err().map(|e| e.to_string()),
+                    meta: meta.clone(),
+                }
+            })
+            .collect();
         core_db.add_notification_channel_events(events).await?;
         Ok(())
     }
 }
 
-async fn notify_about_osv<N, C>(
+async fn spawn_osv_notification<N, C>(
     notifier: Arc<N>,
     event_conf: C,
     channel_id: NotificationChannelId,
     records: Vec<OsvRecord>,
-) -> NotificationEvent
+) -> (
+    NotificationChannelId,
+    NotificationEventId,
+    anyhow::Result<()>,
+)
 where
     N: notifier::Notifier,
     C: Into<N::EventConf> + Debug,
 {
     tracing::info!(records = records.len(), conf = ?event_conf, "Spawn OSV record notification");
-    let osv_records = records.iter().map(|r| r.id.clone().into()).collect();
     let res = notifier.notify(event_conf.into(), records).await;
-    let error = res.err().map(|e| e.to_string());
-    let id = NotificationEventId::generate();
-    NotificationEvent {
-        id,
-        channel_id,
-        error,
-        meta: NotificationEventMeta { osv_records },
-    }
+    (channel_id, NotificationEventId::generate(), res)
 }

@@ -5,9 +5,9 @@ import { AppRoute } from '../../routes/Routes';
 import { ManifestsSection } from './ManifestsSection/ManifestsSection';
 import { WorkspaceSettingsSection } from './WorkspaceSettingsSection/WorkspaceSettingsSection';
 import { NotificationsSection } from './NotificationsSection/NotificationsSection';
+import { PageHeader } from '../../components/PageHeader/PageHeader';
 import styles from './WorkspacePage.module.css';
-import { BackIcon, GearIcon } from '../../components/Icons';
-import { formatUuidV7Date } from '../../utils/uuidV7';
+import { BackIcon, CubeIcon } from '../../components/Icons';
 
 enum Tab {
   Manifests = 'Manifests',
@@ -27,25 +27,6 @@ const TABS: {
     section_element: (workspaceId) => <NotificationsSection workspaceId={workspaceId} />,
   },
 ];
-
-function CubeIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-      <line x1="12" y1="22.08" x2="12" y2="12" />
-    </svg>
-  );
-}
 
 export function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -68,29 +49,13 @@ export function WorkspacePage() {
         <code className={styles.breadcrumbCurrent}>{displayName}</code>
       </nav>
 
-      <div className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.workspaceIcon}>
-            <CubeIcon />
-          </div>
-          <div>
-            <h1 className={styles.title}>{displayName}</h1>
-            {workspaceId && (
-              <p className={styles.subline}>Created {formatUuidV7Date(workspaceId)}</p>
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          className={
-            showSettings ? `${styles.settingsBtn} ${styles.settingsBtnActive}` : styles.settingsBtn
-          }
-          onClick={() => setShowSettings((s) => !s)}
-        >
-          <GearIcon width={13} height={13} />
-          Settings
-        </button>
-      </div>
+      <PageHeader
+        name={displayName ?? ''}
+        id={workspaceId ?? ''}
+        icon={<CubeIcon width={28} height={28} />}
+        onSettingsClick={() => setShowSettings((s) => !s)}
+        settingsActive={showSettings}
+      />
 
       {showSettings ? (
         <WorkspaceSettingsSection
@@ -125,9 +90,7 @@ export function WorkspacePage() {
                   key={label}
                   type="button"
                   className={tab === label ? styles.tabActive : styles.tab}
-                  onClick={() => {
-                    setTab(label);
-                  }}
+                  onClick={() => setTab(label)}
                 >
                   {label}
                 </button>

@@ -4,14 +4,14 @@ use crate::{
     db::CoreDb,
     resources::ResourceRegistry,
     service::common::responses::{WithErrorResponses, try_or_return},
-    types::{WorkspaceId, WorkspaceInfo},
+    types::{WorkspaceId, WorkspaceInfo, WorkspaceName},
 };
 
 /// Request body for workspace creation.
 #[derive(Object)]
 pub struct CreateWorkspaceRequest {
     /// Workspace name
-    pub name: String,
+    pub name: WorkspaceName,
 }
 
 /// Endpoint responses.
@@ -31,7 +31,11 @@ pub async fn endpoint(req: CreateWorkspaceRequest) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
 
     let id = WorkspaceId::generate();
-    try_or_return!(core_db.add_new_workspace(id, req.name.clone()).await);
+    try_or_return!(
+        core_db
+            .add_new_workspace(id, String::from(req.name.clone()))
+            .await
+    );
     Responses::Ok(Json(WorkspaceInfo {
         id,
         name: req.name,

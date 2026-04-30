@@ -7,7 +7,10 @@ use crate::{
         responses::{WithErrorResponses, try_or_return},
         types::{error_msg::ErrorMessage, limit::Limit, page::Page, page_info::PageInfo},
     },
-    types::{ManifestId, ManifestInfo, ManifestType, ManifestVuln, WorkspaceId},
+    types::{
+        ManifestId, ManifestInfo, ManifestName, ManifestTag, ManifestType, ManifestVuln,
+        WorkspaceId,
+    },
 };
 
 /// Response body for listing manifests.
@@ -66,8 +69,8 @@ pub async fn endpoint(
         manifests.push(ManifestInfo {
             id: manifest_id,
             manifest_type,
-            name: db_manifest.name,
-            tag: db_manifest.tag,
+            name: ManifestName::from(db_manifest.name),
+            tag: db_manifest.tag.map(ManifestTag::from),
             vulnerabilities,
         });
     }

@@ -7,7 +7,7 @@ use crate::{
         responses::{WithErrorResponses, try_or_return},
         types::error_msg::ErrorMessage,
     },
-    types::{ManifestId, ManifestType, WorkspaceId},
+    types::{ManifestId, ManifestName, ManifestTag, ManifestType, WorkspaceId},
 };
 
 /// Request body for manifest creation.
@@ -16,9 +16,9 @@ pub struct CreateManifestRequest {
     /// The lock file ecosystem that determines which parser is used.
     pub manifest_type: ManifestType,
     /// Human-readable name for this manifest (e.g. the filename or repo path).
-    pub name: String,
+    pub name: ManifestName,
     /// Optional label for versioning or environment disambiguation.
-    pub tag: Option<String>,
+    pub tag: Option<ManifestTag>,
 }
 
 /// Endpoint responses.
@@ -50,7 +50,12 @@ pub async fn endpoint(
     let manifest_id = ManifestId::generate();
     try_or_return!(
         core_db
-            .add_manifest(manifest_id, req.manifest_type, req.name, req.tag)
+            .add_manifest(
+                manifest_id,
+                req.manifest_type,
+                String::from(req.name),
+                req.tag.map(String::from),
+            )
             .await
     );
     Responses::Created(Json(manifest_id)).into()

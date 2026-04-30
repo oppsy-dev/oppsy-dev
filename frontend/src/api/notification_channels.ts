@@ -16,6 +16,7 @@ export type NotificationChannelType = components['schemas']['NotificationChannel
 export type CreateChannelRequest = components['schemas']['CreateNotificationChannelRequest'];
 export type UpdateChannelRequest = components['schemas']['UpdateNotificationChannelRequest'];
 export type NotificationEvent = components['schemas']['NotificationEvent'];
+export type NotificationEventMeta = components['schemas']['NotificationEventMeta'];
 export type { PaginationParams } from './client';
 
 // --- Channels ---

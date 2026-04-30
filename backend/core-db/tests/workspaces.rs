@@ -4,9 +4,12 @@ use core_db::{
     Pagination,
     manifest::Manifest,
     notification_channel::NotificationChannel,
-    workspace::errors::{
-        AddManifestForWorkspaceError, AddNewWorkspaceError,
-        AddNotificationChannelForWorkspaceError, DeleteWorkspaceError,
+    workspace::{
+        WorkspaceData,
+        errors::{
+            AddManifestForWorkspaceError, AddNewWorkspaceError,
+            AddNotificationChannelForWorkspaceError, DeleteWorkspaceError, GetWorkspaceError,
+        },
     },
 };
 
@@ -22,10 +25,21 @@ async fn workspace_roundtrip() {
         AddNewWorkspaceError::AlreadyExists { .. }
     ));
 
+    let data = db.get_workspace(workspace_id).await.unwrap();
+    assert_eq!(data, WorkspaceData {
+        id: workspace_id,
+        name: name.to_string(),
+    });
+
     db.delete_workspace(workspace_id).await.unwrap();
     assert!(matches!(
         db.delete_workspace(workspace_id).await.unwrap_err(),
         DeleteWorkspaceError::NotFound { .. }
+    ));
+
+    assert!(matches!(
+        db.get_workspace(workspace_id).await.unwrap_err(),
+        GetWorkspaceError::NotFound { .. }
     ));
 }
 

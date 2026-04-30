@@ -12,8 +12,9 @@ use crate::{
         AddManifestForWorkspaceError, AddNewWorkspaceError,
         AddNotificationChannelForWorkspaceError, DeleteManifestForWorkspaceError,
         DeleteNotificationChannelForWorkspaceError, DeleteWorkspaceError,
-        GetManifestWorkspaceMapError, GetWorkspaceManifestsError,
-        GetWorkspaceNotificationChannelsError, GetWorkspacesError, WorkspaceFromRowError,
+        GetManifestWorkspaceMapError, GetWorkspaceError, GetWorkspaceManifestsError,
+        GetWorkspaceNotificationChannelsError, GetWorkspacesError, WorkspaceDataFromRowError,
+        WorkspaceFromRowError,
     },
 };
 
@@ -22,10 +23,33 @@ pub type WorkspaceName = String;
 pub type ManifestId = uuid::Uuid;
 pub type ManifestType = String;
 
+/// Minimal workspace record containing only the data stored in the `workspaces` table,
+/// without any aggregated counts or joined data.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Workspace {
+pub struct WorkspaceData {
     pub id: WorkspaceId,
     pub name: WorkspaceName,
+}
+
+/// Trying to read row in the format `(workspaces.id, workspaces.name)`
+impl TryFrom<sqlx::sqlite::SqliteRow> for WorkspaceData {
+    type Error = WorkspaceDataFromRowError;
+
+    fn try_from(row: sqlx::sqlite::SqliteRow) -> Result<Self, Self::Error> {
+        Ok(WorkspaceData {
+            id: row
+                .try_get(0)
+                .map_err(WorkspaceDataFromRowError::CannotDecodeId)?,
+            name: row
+                .try_get(1)
+                .map_err(WorkspaceDataFromRowError::CannotDecodeName)?,
+        })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Workspace {
+    pub data: WorkspaceData,
     pub manifest_count: u32,
     pub channel_count: u32,
 }
@@ -51,8 +75,7 @@ impl TryFrom<sqlx::sqlite::SqliteRow> for Workspace {
             .and_then(|v| u32::try_from(v).map_err(sqlx::Error::decode))
             .map_err(WorkspaceFromRowError::CannotDecodeChannelCount)?;
         Ok(Workspace {
-            id,
-            name,
+            data: WorkspaceData { id, name },
             manifest_count,
             channel_count,
         })
@@ -90,6 +113,20 @@ impl CoreDb {
         }
 
         Ok(())
+    }
+
+    pub async fn get_workspace(
+        &self,
+        id: impl ConvertTo<WorkspaceId>,
+    ) -> Result<WorkspaceData, GetWorkspaceError> {
+        let id = id.convert()?;
+        let row = sqlx::query("SELECT id, name FROM workspaces WHERE id = $1")
+            .bind(id)
+            .fetch_optional(&self.pool)
+            .await
+            .map_err(GetWorkspaceError::Database)?
+            .ok_or(GetWorkspaceError::NotFound { id })?;
+        Ok(row.convert()?)
     }
 
     pub async fn get_workspaces(
