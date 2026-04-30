@@ -1,5 +1,5 @@
+use discord_webhook2::{message::Message, webhook::DiscordWebhook};
 use reqwest::Url;
-use webhook::{client::WebhookClient, models::Message};
 
 use crate::Notifier;
 
@@ -32,16 +32,9 @@ impl Notifier for DiscordNotifier {
             payload.content.len() <= MAX_CONTENT_LENGTH,
             "Discord Event Payload content exceeds {MAX_CONTENT_LENGTH}"
         );
-
-        let client = WebhookClient::new(conf.url.as_str());
-        let mut message = Message::new();
-        message.content(&payload.content);
-        let res = client
-            .send_message(&message)
-            .await
-            .map_err(|e| anyhow::anyhow!("{e}"))?;
-
-        anyhow::ensure!(res, "Discord message has not been delivered");
+        let discord_webhook = DiscordWebhook::from_url(conf.url);
+        let message = Message::new(|m| m.content(payload.content));
+        discord_webhook.send(&message).await?;
         Ok(())
     }
 }
