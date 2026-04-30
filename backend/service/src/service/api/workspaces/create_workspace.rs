@@ -31,7 +31,11 @@ pub async fn endpoint(req: CreateWorkspaceRequest) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
 
     let id = WorkspaceId::generate();
-    try_or_return!(core_db.add_new_workspace(id, String::from(req.name.clone())).await);
+    try_or_return!(
+        core_db
+            .add_new_workspace(id, String::from(req.name.clone()))
+            .await
+    );
     Responses::Ok(Json(WorkspaceInfo {
         id,
         name: req.name,

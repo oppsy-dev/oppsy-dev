@@ -37,8 +37,12 @@ impl TryFrom<sqlx::sqlite::SqliteRow> for WorkspaceData {
 
     fn try_from(row: sqlx::sqlite::SqliteRow) -> Result<Self, Self::Error> {
         Ok(WorkspaceData {
-            id: row.try_get(0).map_err(WorkspaceDataFromRowError::CannotDecodeId)?,
-            name: row.try_get(1).map_err(WorkspaceDataFromRowError::CannotDecodeName)?,
+            id: row
+                .try_get(0)
+                .map_err(WorkspaceDataFromRowError::CannotDecodeId)?,
+            name: row
+                .try_get(1)
+                .map_err(WorkspaceDataFromRowError::CannotDecodeName)?,
         })
     }
 }

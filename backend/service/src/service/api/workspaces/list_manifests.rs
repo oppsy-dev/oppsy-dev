@@ -7,7 +7,10 @@ use crate::{
         responses::{WithErrorResponses, try_or_return},
         types::{error_msg::ErrorMessage, limit::Limit, page::Page, page_info::PageInfo},
     },
-    types::{ManifestId, ManifestInfo, ManifestName, ManifestTag, ManifestType, ManifestVuln, WorkspaceId},
+    types::{
+        ManifestId, ManifestInfo, ManifestName, ManifestTag, ManifestType, ManifestVuln,
+        WorkspaceId,
+    },
 };
 
 /// Response body for listing manifests.

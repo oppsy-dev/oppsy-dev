@@ -1,8 +1,8 @@
 use chrono::{DateTime, Utc};
 use poem_openapi::Object;
 
-use crate::types::{ManifestId, ManifestType, OsvId};
 use super::{name::ManifestName, tag::ManifestTag};
+use crate::types::{ManifestId, ManifestType, OsvId};
 
 /// Metadata and detected vulnerabilities for a manifest.
 #[derive(Object, Debug, Clone)]
