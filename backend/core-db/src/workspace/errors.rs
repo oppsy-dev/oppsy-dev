@@ -29,6 +29,24 @@ pub enum WorkspaceFromRowError {
 }
 
 #[derive(thiserror::Error, Debug)]
+pub enum WorkspaceDataFromRowError {
+    #[error("Cannot decode workspace id column: {0}")]
+    CannotDecodeId(sqlx::Error),
+    #[error("Cannot decode workspace name column: {0}")]
+    CannotDecodeName(sqlx::Error),
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum GetWorkspaceError {
+    #[error(transparent)]
+    CantConvert(#[from] ConvertError),
+    #[error("Failed to query workspace: {0}")]
+    Database(sqlx::Error),
+    #[error("Workspace with id: {id} not found")]
+    NotFound { id: WorkspaceId },
+}
+
+#[derive(thiserror::Error, Debug)]
 pub enum GetWorkspacesError {
     #[error(transparent)]
     CantConvert(#[from] ConvertError),

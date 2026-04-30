@@ -4,9 +4,12 @@ use core_db::{
     Pagination,
     manifest::Manifest,
     notification_channel::NotificationChannel,
-    workspace::errors::{
-        AddManifestForWorkspaceError, AddNewWorkspaceError,
-        AddNotificationChannelForWorkspaceError, DeleteWorkspaceError,
+    workspace::{
+        WorkspaceData,
+        errors::{
+            AddManifestForWorkspaceError, AddNewWorkspaceError,
+            AddNotificationChannelForWorkspaceError, DeleteWorkspaceError, GetWorkspaceError,
+        },
     },
 };
 
@@ -26,6 +29,27 @@ async fn workspace_roundtrip() {
     assert!(matches!(
         db.delete_workspace(workspace_id).await.unwrap_err(),
         DeleteWorkspaceError::NotFound { .. }
+    ));
+}
+
+#[tokio::test]
+async fn get_workspace_by_id() {
+    let db = common::init_db().await;
+
+    let workspace_id = uuid::Uuid::now_v7();
+    let name = "my-workspace";
+    db.add_new_workspace(workspace_id, name).await.unwrap();
+
+    let data = db.get_workspace(workspace_id).await.unwrap();
+    assert_eq!(data, WorkspaceData {
+        id: workspace_id,
+        name: name.to_string(),
+    });
+
+    db.delete_workspace(workspace_id).await.unwrap();
+    assert!(matches!(
+        db.get_workspace(workspace_id).await.unwrap_err(),
+        GetWorkspaceError::NotFound { .. }
     ));
 }
 

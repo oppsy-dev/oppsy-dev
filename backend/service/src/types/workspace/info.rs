@@ -20,8 +20,8 @@ impl TryFrom<core_db::workspace::Workspace> for WorkspaceInfo {
 
     fn try_from(value: core_db::workspace::Workspace) -> Result<Self, Self::Error> {
         Ok(Self {
-            id: value.id.try_into()?,
-            name: value.name.into(),
+            id: value.data.id.try_into()?,
+            name: value.data.name.into(),
             manifest_count: value.manifest_count,
             channel_count: value.channel_count,
         })
