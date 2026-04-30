@@ -2,7 +2,7 @@ use notifier::email::EmailEventPayload;
 
 use crate::types::NotificationEventMeta;
 
-pub fn osv_email_event_payload(meta: NotificationEventMeta) -> EmailEventPayload {
+pub fn osv_email_event_payload(meta: &NotificationEventMeta) -> EmailEventPayload {
     let vuln_count = meta.osv_records.len();
 
     let subject = format!(
@@ -20,8 +20,7 @@ pub fn osv_email_event_payload(meta: NotificationEventMeta) -> EmailEventPayload
     let vuln_list: String = meta
         .osv_records
         .iter()
-        .map(|id| format!("  - {id}\n"))
-        .collect();
+        .fold(String::new(), |res, id| format!("{res}  - {id}\n"));
 
     let body = format!(
         "OPPSY detected {vuln_count} new open-source vulnerabilit{} in your manifest.\n\

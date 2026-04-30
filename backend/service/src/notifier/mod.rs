@@ -1,4 +1,5 @@
 mod email;
+mod webhook;
 
 use std::{any::type_name, fmt::Debug, sync::Arc};
 
@@ -10,7 +11,7 @@ use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
-    notifier::email::osv_email_event_payload,
+    notifier::{email::osv_email_event_payload, webhook::osv_webhook_event_payload},
     resources::{Resource, ResourceRegistry},
     settings::Settings,
     types::{
@@ -134,7 +135,7 @@ impl Notifier {
     ) {
         match channel.conf.inner {
             NotificationChannelConfInner::Webhook(conf) => {
-                let payload = meta.to_json().unwrap_or_default();
+                let payload = osv_webhook_event_payload(&meta);
                 spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Discord(conf) => {
@@ -142,7 +143,7 @@ impl Notifier {
                 spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Email(conf) => {
-                let payload = osv_email_event_payload(meta);
+                let payload = osv_email_event_payload(&meta);
                 spawn_notification(self.email.clone(), conf, channel.id, payload).await
             },
         }
