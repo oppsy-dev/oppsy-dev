@@ -1,10 +1,9 @@
+import type { WebhookChannelConf } from '../../../../api/notification_channels';
 import styles from '../ConfigurationTab.module.css';
 import { Row } from '../Row/Row';
 import { SecretRow } from './SecretRow/SecretRow';
 
-export type WebhookConf = { type: 'Webhook'; webhook_url: string; secret?: string };
-
-type WebhookConfigurationProps = { conf: WebhookConf };
+type WebhookConfigurationProps = { conf: WebhookChannelConf };
 
 export function WebhookConfiguration({ conf }: WebhookConfigurationProps) {
   return (
@@ -12,7 +11,7 @@ export function WebhookConfiguration({ conf }: WebhookConfigurationProps) {
       <Row label="Endpoint URL">
         <code className={styles.urlValue}>{conf.webhook_url}</code>
       </Row>
-      <SecretRow secret={conf.secret} />
+      <SecretRow secret={conf.secret ?? undefined} />
     </>
   );
 }

@@ -23,6 +23,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "default values"
     )]
@@ -40,6 +41,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set bind address"
     )]
@@ -57,6 +59,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set tracing format to json"
     )]
@@ -74,6 +77,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set log level to debug"
     )]
@@ -91,6 +95,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set api url prefix"
     )]
@@ -108,6 +113,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set manifest db path"
     )]
@@ -125,6 +131,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set osv db path"
     )]
@@ -145,6 +152,7 @@ struct EnvVar {
             core_db_url: "sqlite:///var/data/core.db".to_string(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set core db url"
     )]
@@ -165,6 +173,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: Duration::from_mins(10),
             frontend_path: default_frontend_path(),
+            smtp_url: None,
         };
         "set osv sync interval"
     )]
@@ -185,6 +194,7 @@ struct EnvVar {
             core_db_url: default_core_db_url(),
             osv_sync_interval: default_osv_sync_interval(),
             frontend_path: PathBuf::from("/var/www/frontend"),
+            smtp_url: None,
         };
         "set frontend path"
     )]

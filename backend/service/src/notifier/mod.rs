@@ -1,4 +1,8 @@
-use std::{fmt::Debug, sync::Arc};
+mod discord;
+mod email;
+mod webhook;
+
+use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
@@ -7,7 +11,12 @@ use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
-    resources::Resource,
+    notifier::{
+        discord::osv_discord_event_payload, email::osv_email_event_payload,
+        webhook::osv_webhook_event_payload,
+    },
+    resources::{Resource, ResourceRegistry},
+    settings::Settings,
     types::{
         ManifestId, NotificationChannel, NotificationChannelConfInner, NotificationChannelId,
         NotificationEvent, NotificationEventId, NotificationEventMeta, WorkspaceId,
@@ -17,16 +26,21 @@ use crate::{
 pub struct Notifier {
     webhook: Arc<WebhookNotifier>,
     discord: Arc<DiscordNotifier>,
-    email: Arc<EmailNotifier>,
+    email: Option<Arc<EmailNotifier>>,
 }
 
 #[async_trait::async_trait]
 impl Resource for Notifier {
     async fn init() -> anyhow::Result<Self> {
+        let settings = ResourceRegistry::get::<Settings>()?;
+        let email = match settings.smtp_url.clone() {
+            Some(url) => Some(Arc::new(EmailNotifier::new(url).await?)),
+            None => None,
+        };
         Ok(Self {
             webhook: Arc::new(WebhookNotifier),
             discord: Arc::new(DiscordNotifier),
-            email: Arc::new(EmailNotifier),
+            email,
         })
     }
 }
@@ -71,47 +85,6 @@ impl Notifier {
             .map(TryInto::<NotificationChannel>::try_into)
             .collect::<Result<Vec<_>, _>>()?;
 
-        let tasks = channels
-            .into_iter()
-            .filter(|c| c.active)
-            .map(|channel| {
-                match channel.conf.inner {
-                    NotificationChannelConfInner::Webhook(conf) => {
-                        spawn_osv_notification(
-                            self.webhook.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
-                    },
-                    NotificationChannelConfInner::Discord(conf) => {
-                        spawn_osv_notification(
-                            self.discord.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
-                    },
-                    NotificationChannelConfInner::Email(conf) => {
-                        spawn_osv_notification(
-                            self.email.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
-                    },
-                }
-            })
-            .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
-                tasks.spawn(t);
-                tasks
-            });
-
-        let events = tasks.join_all().await;
-
         let osv_records_ids: Vec<_> = records.iter().map(|r| r.id.clone().into()).collect();
         let manifest_info = core_db.get_manifest(manifest_id).await?;
         let workspace_info = core_db.get_workspace(workspace_id).await?;
@@ -126,7 +99,18 @@ impl Notifier {
             osv_records: osv_records_ids,
         };
 
-        let events = events
+        let events = channels
+            .into_iter()
+            .filter(|c| c.active)
+            .map(|channel| {
+                Self::spawn_osv_notification(self.clone(), channel, meta.clone()).boxed()
+            })
+            .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
+                tasks.spawn(t);
+                tasks
+            })
+            .join_all()
+            .await
             .into_iter()
             .map(|(channel_id, id, res)| {
                 NotificationEvent {
@@ -137,16 +121,42 @@ impl Notifier {
                 }
             })
             .collect();
+
         core_db.add_notification_channel_events(events).await?;
         Ok(())
     }
+
+    async fn spawn_osv_notification(
+        self: Arc<Notifier>,
+        channel: NotificationChannel,
+        meta: NotificationEventMeta,
+    ) -> (
+        NotificationChannelId,
+        NotificationEventId,
+        anyhow::Result<()>,
+    ) {
+        match channel.conf.inner {
+            NotificationChannelConfInner::Webhook(conf) => {
+                let payload = osv_webhook_event_payload(&meta);
+                spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
+            },
+            NotificationChannelConfInner::Discord(conf) => {
+                let payload = osv_discord_event_payload(&meta);
+                spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
+            },
+            NotificationChannelConfInner::Email(conf) => {
+                let payload = osv_email_event_payload(&meta);
+                spawn_notification(self.email.clone(), conf, channel.id, payload).await
+            },
+        }
+    }
 }
 
-async fn spawn_osv_notification<N, C>(
-    notifier: Arc<N>,
+async fn spawn_notification<N, C, P>(
+    notifier: Option<Arc<N>>,
     event_conf: C,
     channel_id: NotificationChannelId,
-    records: Vec<OsvRecord>,
+    payload: P,
 ) -> (
     NotificationChannelId,
     NotificationEventId,
@@ -155,8 +165,18 @@ async fn spawn_osv_notification<N, C>(
 where
     N: notifier::Notifier,
     C: Into<N::EventConf> + Debug,
+    P: Into<N::EventPayload> + Debug,
 {
-    tracing::info!(records = records.len(), conf = ?event_conf, "Spawn OSV record notification");
-    let res = notifier.notify(event_conf.into(), records).await;
-    (channel_id, NotificationEventId::generate(), res)
+    if let Some(notifier) = notifier {
+        info!(type = %type_name::<N>(), conf = ?event_conf, "Spawn notification");
+        let res = notifier.notify(event_conf.into(), payload.into()).await;
+        (channel_id, NotificationEventId::generate(), res)
+    } else {
+        error!(type = %type_name::<N>(), "Notifier not configured");
+        (
+            channel_id,
+            NotificationEventId::generate(),
+            Err(anyhow::anyhow!("Notifier not configured")),
+        )
+    }
 }

@@ -21,3 +21,6 @@ reqwest.workspace = true
 hmac.workspace = true
 sha2.workspace = true
 hex.workspace = true
+
+lettre.workspace = true
+discord-webhook2.workspace = true

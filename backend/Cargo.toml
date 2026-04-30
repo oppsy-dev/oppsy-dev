@@ -103,3 +103,5 @@ clap = { version = "4", features = ["derive"] }
 sqlx = { version = "0.8.6", features = ["sqlite", "uuid", "runtime-tokio"] }
 strum = { version = "0.28", features = ["derive"] }
 
+lettre = { version = "0.11", default-features = false, features = ["smtp-transport", "builder", "tokio1", "serde", "rustls", "aws-lc-rs", "tokio1-rustls", "webpki-roots"] }
+discord-webhook2 = { version = "0.4.3", default-features = false, features = ["rustls-tls"] }

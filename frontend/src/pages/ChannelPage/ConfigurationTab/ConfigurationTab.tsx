@@ -1,29 +1,22 @@
 import type {
+  ChannelConf,
+  DiscordChannelConf,
+  EmailChannelConf,
   NotificationChannel,
   NotificationChannelType,
+  WebhookChannelConf,
 } from '../../../api/notification_channels';
 import styles from './ConfigurationTab.module.css';
-import {
-  DiscordConfiguration,
-  type DiscordConf,
-} from './DiscordConfiguration/DiscordConfiguration';
-import { EmailConfiguration, type EmailConf } from './EmailConfiguration/EmailConfiguration';
-import {
-  WebhookConfiguration,
-  type WebhookConf,
-} from './WebhookConfiguration/WebhookConfiguration';
-
-type NotificationChannelConf = WebhookConf | DiscordConf | EmailConf;
+import { DiscordConfiguration } from './DiscordConfiguration/DiscordConfiguration';
+import { EmailConfiguration } from './EmailConfiguration/EmailConfiguration';
+import { WebhookConfiguration } from './WebhookConfiguration/WebhookConfiguration';
 
 type Props = { channel: NotificationChannel };
 
-const CONF_RENDERERS: Record<
-  NotificationChannelType,
-  (conf: NotificationChannelConf) => React.ReactElement
-> = {
-  Webhook: (conf) => <WebhookConfiguration conf={conf as WebhookConf} />,
-  Discord: (conf) => <DiscordConfiguration conf={conf as DiscordConf} />,
-  Email: (conf) => <EmailConfiguration conf={conf as EmailConf} />,
+const CONF_RENDERERS: Record<NotificationChannelType, (conf: ChannelConf) => React.ReactElement> = {
+  Webhook: (conf) => <WebhookConfiguration conf={conf as WebhookChannelConf} />,
+  Discord: (conf) => <DiscordConfiguration conf={conf as DiscordChannelConf} />,
+  Email: (conf) => <EmailConfiguration conf={conf as EmailChannelConf} />,
 };
 
 const CHANNEL_DESCRIPTIONS: Record<NotificationChannelType, string> = {
@@ -36,13 +29,9 @@ export function ConfigurationTab({ channel }: Props) {
   return (
     <div className={styles.container}>
       <section className={styles.section}>
-        <p className={styles.sectionDesc}>
-          {CHANNEL_DESCRIPTIONS[channel.conf.type as NotificationChannelType]}
-        </p>
+        <p className={styles.sectionDesc}>{CHANNEL_DESCRIPTIONS[channel.conf.type]}</p>
         <div className={styles.card}>
-          {CONF_RENDERERS[channel.conf.type as NotificationChannelType](
-            channel.conf as NotificationChannelConf,
-          )}
+          {CONF_RENDERERS[channel.conf.type](channel.conf as ChannelConf)}
         </div>
       </section>
     </div>

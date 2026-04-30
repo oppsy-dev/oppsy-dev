@@ -1,20 +1,24 @@
+import type { EmailChannelConf } from '../../../../api/notification_channels';
 import styles from '../ConfigurationTab.module.css';
 import { Row } from '../Row/Row';
 
-export type EmailConf = { type: 'Email'; to_addresses: string[] };
-
-type EmailConfigurationProps = { conf: EmailConf };
+type EmailConfigurationProps = { conf: EmailChannelConf };
 
 export function EmailConfiguration({ conf }: EmailConfigurationProps) {
   return (
-    <Row label="Recipients">
-      <div className={styles.chipList}>
-        {conf.to_addresses.map((addr) => (
-          <span key={addr} className={styles.chip}>
-            {addr}
-          </span>
-        ))}
-      </div>
-    </Row>
+    <>
+      <Row label="Sender">
+        <span className={styles.chip}>{conf.from}</span>
+      </Row>
+      <Row label="Recipients">
+        <div className={styles.chipList}>
+          {conf.to.map((addr) => (
+            <span key={addr} className={styles.chip}>
+              {addr}
+            </span>
+          ))}
+        </div>
+      </Row>
+    </>
   );
 }

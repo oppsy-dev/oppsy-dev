@@ -1,9 +1,8 @@
+import type { DiscordChannelConf } from '../../../../api/notification_channels';
 import styles from '../ConfigurationTab.module.css';
 import { Row } from '../Row/Row';
 
-export type DiscordConf = { type: 'Discord'; discord_webhook_url: string };
-
-type DiscordConfigurationProps = { conf: DiscordConf };
+type DiscordConfigurationProps = { conf: DiscordChannelConf };
 
 export function DiscordConfiguration({ conf }: DiscordConfigurationProps) {
   return (

@@ -1,20 +1,25 @@
-import type { CreateChannelRequest } from '../../../../../api/notification_channels';
+import type {
+  CreateChannelRequest,
+  EmailChannelConf,
+} from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
 export type EmailFormState = {
   name: string;
+  from: string;
   addresses: string[];
 };
 
 export function buildEmailChannel(state: EmailFormState): CreateChannelRequest | null {
-  const valid = state.addresses.map((a) => a.trim()).filter(Boolean);
-  if (!state.name.trim() || valid.length === 0) return null;
+  const validTo = state.addresses.map((a) => a.trim()).filter(Boolean);
+  if (!state.name.trim() || !state.from.trim() || validTo.length === 0) return null;
   return {
     name: state.name.trim(),
     conf: {
       type: 'Email',
-      to_addresses: valid,
-    } as CreateChannelRequest['conf'],
+      from: state.from.trim(),
+      to: validTo,
+    } as EmailChannelConf,
   };
 }
 
@@ -48,7 +53,21 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Email addresses</label>
+        <label className={styles.fieldLabel} htmlFor="ch-email-from">
+          Sender address
+        </label>
+        <input
+          id="ch-email-from"
+          className={styles.input}
+          type="email"
+          value={value.from}
+          onChange={(e) => onChange({ ...value, from: e.target.value })}
+          placeholder="notifications@example.com"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Recipient addresses</label>
         <div className={styles.emailList}>
           {value.addresses.map((addr, i) => (
             // eslint-disable-next-line react/no-array-index-key
@@ -59,14 +78,14 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
                 value={addr}
                 onChange={(e) => updateAddress(i, e.target.value)}
                 placeholder="security@example.com"
-                aria-label={`Email address ${i + 1}`}
+                aria-label={`Recipient address ${i + 1}`}
               />
               {value.addresses.length > 1 && (
                 <button
                   type="button"
                   className={styles.removeEmailBtn}
                   onClick={() => removeAddress(i)}
-                  aria-label={`Remove email address ${i + 1}`}
+                  aria-label={`Remove recipient address ${i + 1}`}
                 >
                   ×
                 </button>
@@ -75,7 +94,7 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
           ))}
         </div>
         <button type="button" className={styles.addEmailBtn} onClick={addAddress}>
-          + Add another email
+          + Add another recipient
         </button>
       </div>
     </>
