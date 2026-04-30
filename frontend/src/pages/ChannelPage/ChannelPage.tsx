@@ -59,9 +59,7 @@ export function ChannelPage() {
         badges={
           channel && (
             <>
-              {channel.conf.type && (
-                <span className={styles.typeBadge}>{channel.conf.type}</span>
-              )}
+              {channel.conf.type && <span className={styles.typeBadge}>{channel.conf.type}</span>}
               <span className={channel.active ? styles.activeBadge : styles.inactiveBadge}>
                 {channel.active ? 'Active' : 'Inactive'}
               </span>

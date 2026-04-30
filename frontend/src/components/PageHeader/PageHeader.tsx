@@ -29,7 +29,9 @@ export function PageHeader({
   useEffect(() => {
     const el = iconRef.current;
     if (!el) return;
-    const sync = () => { el.style.width = `${el.offsetHeight}px`; };
+    const sync = () => {
+      el.style.width = `${el.offsetHeight}px`;
+    };
     const ro = new ResizeObserver(sync);
     ro.observe(el);
     return () => ro.disconnect();
@@ -69,9 +71,7 @@ export function PageHeader({
       <button
         type="button"
         className={
-          settingsActive
-            ? `${styles.settingsBtn} ${styles.settingsBtnActive}`
-            : styles.settingsBtn
+          settingsActive ? `${styles.settingsBtn} ${styles.settingsBtnActive}` : styles.settingsBtn
         }
         onClick={onSettingsClick}
       >
