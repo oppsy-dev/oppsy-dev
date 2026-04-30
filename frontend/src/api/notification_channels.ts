@@ -10,11 +10,28 @@ type V1ChannelsGetResp =
 type V1ChannelEventsGetResp =
   paths['/v1/channels/{channel_id}/events']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
-export type NotificationChannel = components['schemas']['NotificationChannel'];
-export type NotificationChannelId = NotificationChannel['id'];
+export type EmailChannelConf = { type: 'Email'; from: string; to: string[] };
+export type DiscordChannelConf = { type: 'Discord'; discord_webhook_url: string };
+export type WebhookChannelConf = { type: 'Webhook'; webhook_url: string; secret?: string | null };
+export type ChannelConf = EmailChannelConf | DiscordChannelConf | WebhookChannelConf;
+
 export type NotificationChannelType = components['schemas']['NotificationChannelType'];
-export type CreateChannelRequest = components['schemas']['CreateNotificationChannelRequest'];
-export type UpdateChannelRequest = components['schemas']['UpdateNotificationChannelRequest'];
+
+export type NotificationChannel = Omit<components['schemas']['NotificationChannel'], 'conf'> & {
+  conf: ChannelConf;
+};
+export type NotificationChannelId = NotificationChannel['id'];
+
+export type CreateChannelRequest = Omit<
+  components['schemas']['CreateNotificationChannelRequest'],
+  'conf'
+> & { conf: ChannelConf };
+
+export type UpdateChannelRequest = Omit<
+  components['schemas']['UpdateNotificationChannelRequest'],
+  'conf'
+> & { conf: ChannelConf };
+
 export type NotificationEvent = components['schemas']['NotificationEvent'];
 export type NotificationEventMeta = components['schemas']['NotificationEventMeta'];
 export type { PaginationParams } from './client';

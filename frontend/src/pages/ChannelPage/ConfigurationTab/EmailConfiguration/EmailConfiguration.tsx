@@ -1,9 +1,8 @@
+import type { EmailChannelConf } from '../../../../api/notification_channels';
 import styles from '../ConfigurationTab.module.css';
 import { Row } from '../Row/Row';
 
-export type EmailConf = { type: 'Email'; from: string; to: string[] };
-
-type EmailConfigurationProps = { conf: EmailConf };
+type EmailConfigurationProps = { conf: EmailChannelConf };
 
 export function EmailConfiguration({ conf }: EmailConfigurationProps) {
   return (

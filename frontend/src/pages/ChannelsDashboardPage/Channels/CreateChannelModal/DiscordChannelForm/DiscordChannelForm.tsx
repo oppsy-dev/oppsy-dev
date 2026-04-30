@@ -1,4 +1,4 @@
-import type { CreateChannelRequest } from '../../../../../api/notification_channels';
+import type { CreateChannelRequest, DiscordChannelConf } from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
 export type DiscordFormState = {
@@ -13,7 +13,7 @@ export function buildDiscordChannel(state: DiscordFormState): CreateChannelReque
     conf: {
       type: 'Discord',
       discord_webhook_url: state.webhookUrl.trim(),
-    } as CreateChannelRequest['conf'],
+    } satisfies DiscordChannelConf,
   };
 }
 
