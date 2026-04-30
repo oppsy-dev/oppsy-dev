@@ -9,6 +9,7 @@ use std::{
 
 use config::Config;
 use serde::Deserialize;
+use url::Url;
 
 use crate::resources::Resource;
 
@@ -109,6 +110,13 @@ pub struct Settings {
     /// Set `OSV_SERVICE_FRONTEND_PATH` to override.
     #[serde(default = "default_frontend_path")]
     pub frontend_path: PathBuf,
+    /// SMTP server URL used for email notifications.
+    ///
+    /// Format: `smtp://username:password@host:port`
+    /// If not set, email notifications are disabled.
+    /// Set `OSV_SERVICE_SMTP_URL` to enable.
+    #[serde(default)]
+    pub smtp_url: Option<Url>,
 }
 
 #[async_trait::async_trait]
