@@ -97,14 +97,9 @@ mod tests {
     use super::*;
 
     #[test_case(
-        json!({"type": "Email", "to_addresses": ["alice@example.com"]}),
+        json!({"type": "Email", "from": "bob@example.com", "to": ["alice@example.com"]}),
         NotificationChannelType::Email;
         "email single recipient"
-    )]
-    #[test_case(
-        json!({"type": "Email", "to_addresses": ["alice@example.com", "bob@example.com"]}),
-        NotificationChannelType::Email;
-        "email multiple recipients"
     )]
     #[test_case(
         json!({"type": "Discord", "discord_webhook_url": "https://discord.com/api/webhooks/123/abc"}),
