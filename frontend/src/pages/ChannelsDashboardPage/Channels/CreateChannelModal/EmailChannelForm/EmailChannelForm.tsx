@@ -1,4 +1,7 @@
-import type { CreateChannelRequest, EmailChannelConf } from '../../../../../api/notification_channels';
+import type {
+  CreateChannelRequest,
+  EmailChannelConf,
+} from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
 export type EmailFormState = {
@@ -16,7 +19,7 @@ export function buildEmailChannel(state: EmailFormState): CreateChannelRequest |
       type: 'Email',
       from: state.from.trim(),
       to: validTo,
-    } satisfies EmailChannelConf,
+    } as EmailChannelConf,
   };
 }
 

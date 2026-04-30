@@ -17,20 +17,11 @@ export type ChannelConf = EmailChannelConf | DiscordChannelConf | WebhookChannel
 
 export type NotificationChannelType = components['schemas']['NotificationChannelType'];
 
-export type NotificationChannel = Omit<components['schemas']['NotificationChannel'], 'conf'> & {
-  conf: ChannelConf;
-};
+export type NotificationChannel = components['schemas']['NotificationChannel'];
 export type NotificationChannelId = NotificationChannel['id'];
 
-export type CreateChannelRequest = Omit<
-  components['schemas']['CreateNotificationChannelRequest'],
-  'conf'
-> & { conf: ChannelConf };
-
-export type UpdateChannelRequest = Omit<
-  components['schemas']['UpdateNotificationChannelRequest'],
-  'conf'
-> & { conf: ChannelConf };
+export type CreateChannelRequest = components['schemas']['CreateNotificationChannelRequest'];
+export type UpdateChannelRequest = components['schemas']['UpdateNotificationChannelRequest'];
 
 export type NotificationEvent = components['schemas']['NotificationEvent'];
 export type NotificationEventMeta = components['schemas']['NotificationEventMeta'];
