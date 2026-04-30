@@ -135,23 +135,11 @@ impl Notifier {
         match channel.conf.inner {
             NotificationChannelConfInner::Webhook(conf) => {
                 let payload = meta.to_json().unwrap_or_default();
-                spawn_notification(
-                    Some(self.webhook.clone()),
-                    conf,
-                    channel.id,
-                    payload,
-                )
-                .await
+                spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Discord(conf) => {
                 let payload = meta.to_json().unwrap_or_default();
-                spawn_notification(
-                    Some(self.discord.clone()),
-                    conf,
-                    channel.id,
-                    payload,
-                )
-                .await
+                spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Email(conf) => {
                 let payload = osv_email_event_payload(meta);
