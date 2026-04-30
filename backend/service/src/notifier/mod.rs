@@ -1,4 +1,4 @@
-use std::{any::type_name, fmt::Debug, sync::Arc};
+use std::{fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
@@ -25,12 +25,10 @@ pub struct Notifier {
 impl Resource for Notifier {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
-
-        let email = match settings.smtp_url.clone() {
+        let email = match settings.smtp_url {
             Some(url) => Some(Arc::new(EmailNotifier::new(url).await?)),
             None => None,
         };
-
         Ok(Self {
             webhook: Arc::new(WebhookNotifier),
             discord: Arc::new(DiscordNotifier),
@@ -86,7 +84,7 @@ impl Notifier {
                 match channel.conf.inner {
                     NotificationChannelConfInner::Webhook(conf) => {
                         spawn_osv_notification(
-                            Some(self.webhook.clone()),
+                            self.webhook.clone(),
                             conf,
                             channel.id,
                             records.clone(),
@@ -95,7 +93,7 @@ impl Notifier {
                     },
                     NotificationChannelConfInner::Discord(conf) => {
                         spawn_osv_notification(
-                            Some(self.discord.clone()),
+                            self.discord.clone(),
                             conf,
                             channel.id,
                             records.clone(),
@@ -103,13 +101,26 @@ impl Notifier {
                         .boxed()
                     },
                     NotificationChannelConfInner::Email(conf) => {
-                        spawn_osv_notification(
-                            self.email.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
+                        match self.email.clone() {
+                            Some(email) => {
+                                spawn_osv_notification(email, conf, channel.id, records.clone())
+                                    .boxed()
+                            },
+                            None => {
+                                let channel_id = channel.id;
+                                async move {
+                                    (
+                                        channel_id,
+                                        NotificationEventId::generate(),
+                                        Err(anyhow::anyhow!(
+                                            "Email notifications not configured: set \
+                                             OSV_SERVICE_SMTP_URL"
+                                        )),
+                                    )
+                                }
+                                .boxed()
+                            },
+                        }
                     },
                 }
             })
@@ -151,7 +162,7 @@ impl Notifier {
 }
 
 async fn spawn_osv_notification<N, C>(
-    notifier: Option<Arc<N>>,
+    notifier: Arc<N>,
     event_conf: C,
     channel_id: NotificationChannelId,
     records: Vec<OsvRecord>,
@@ -164,16 +175,7 @@ where
     N: notifier::Notifier,
     C: Into<N::EventConf> + Debug,
 {
-    if let Some(notifier) = notifier {
-        info!(records = records.len(), conf = ?event_conf, "Spawn OSV record notification");
-        let res = notifier.notify(event_conf.into(), records).await;
-        (channel_id, NotificationEventId::generate(), res)
-    } else {
-        error!(type = %type_name::<N>(), "Notifier not configured");
-        (
-            channel_id,
-            NotificationEventId::generate(),
-            Err(anyhow::anyhow!("Notifier not configured")),
-        )
-    }
+    tracing::info!(records = records.len(), conf = ?event_conf, "Spawn OSV record notification");
+    let res = notifier.notify(event_conf.into(), records).await;
+    (channel_id, NotificationEventId::generate(), res)
 }
