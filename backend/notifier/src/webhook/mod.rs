@@ -14,11 +14,12 @@ pub struct WebhookEventConf {
 #[async_trait::async_trait]
 impl Notifier for WebhookNotifier {
     type EventConf = WebhookEventConf;
+    type EventPayload = serde_json::Value;
 
     async fn notify(
         &self,
         conf: Self::EventConf,
-        payload: impl serde::Serialize + Send + Sync,
+        payload: Self::EventPayload,
     ) -> anyhow::Result<()> {
         let body = serde_json::to_vec(&payload)?;
         let signature = conf.secret.map(|s| sign_payload(&s, &body)).transpose()?;

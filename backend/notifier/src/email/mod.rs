@@ -7,6 +7,7 @@ use reqwest::Url;
 
 use crate::Notifier;
 
+#[derive(Debug, Clone)]
 pub struct EmailNotifier {
     smtp: AsyncSmtpTransport<Tokio1Executor>,
 }
@@ -35,31 +36,38 @@ impl EmailNotifier {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct EmailEventConfig {
     pub from: Address,
     pub to: Vec<Address>,
 }
 
+#[derive(Debug, Clone)]
+pub struct EmailEventPayload {
+    pub subject: String,
+    pub body: String,
+}
+
 #[async_trait::async_trait]
 impl Notifier for EmailNotifier {
     type EventConf = EmailEventConfig;
+    type EventPayload = EmailEventPayload;
 
     async fn notify(
         &self,
         conf: Self::EventConf,
-        payload: impl serde::Serialize + Send + Sync,
+        payload: Self::EventPayload,
     ) -> anyhow::Result<()> {
         let mut email_builder = Message::builder()
             .from(Mailbox::new(None, conf.from))
-            .subject("OSV Vulnerability Report")
+            .subject(payload.subject)
             .header(ContentType::TEXT_PLAIN);
 
         email_builder = conf.to.into_iter().fold(email_builder, |b, to_addr| {
             b.to(Mailbox::new(None, to_addr))
         });
 
-        let body = serde_json::to_string_pretty(&payload)?;
-        let email = email_builder.body(body)?;
+        let email = email_builder.body(payload.body)?;
 
         self.smtp.send(email).await?;
         Ok(())

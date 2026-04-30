@@ -11,11 +11,12 @@ pub struct DiscordEventConf {
 #[async_trait::async_trait]
 impl Notifier for DiscordNotifier {
     type EventConf = DiscordEventConf;
+    type EventPayload = serde_json::Value;
 
     async fn notify(
         &self,
         conf: Self::EventConf,
-        payload: impl serde::Serialize + Send + Sync,
+        payload: Self::EventPayload,
     ) -> anyhow::Result<()> {
         let body = serde_json::to_vec(&payload)?;
         let request = reqwest::Client::new()

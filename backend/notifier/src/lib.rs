@@ -11,10 +11,11 @@ pub mod webhook;
 #[async_trait::async_trait]
 pub trait Notifier {
     type EventConf;
+    type EventPayload;
 
     async fn notify(
         &self,
         conf: Self::EventConf,
-        payload: impl serde::Serialize + Send + Sync,
+        payload: Self::EventPayload,
     ) -> anyhow::Result<()>;
 }

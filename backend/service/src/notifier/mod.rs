@@ -1,12 +1,16 @@
-use std::{fmt::Debug, sync::Arc};
+mod email;
+
+use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
 use osv_db::types::OsvRecord;
+use poem_openapi::types::ToJSON;
 use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
+    notifier::email::osv_email_event_payload,
     resources::{Resource, ResourceRegistry},
     settings::Settings,
     types::{
@@ -77,60 +81,6 @@ impl Notifier {
             .map(TryInto::<NotificationChannel>::try_into)
             .collect::<Result<Vec<_>, _>>()?;
 
-        let tasks = channels
-            .into_iter()
-            .filter(|c| c.active)
-            .map(|channel| {
-                match channel.conf.inner {
-                    NotificationChannelConfInner::Webhook(conf) => {
-                        spawn_osv_notification(
-                            self.webhook.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
-                    },
-                    NotificationChannelConfInner::Discord(conf) => {
-                        spawn_osv_notification(
-                            self.discord.clone(),
-                            conf,
-                            channel.id,
-                            records.clone(),
-                        )
-                        .boxed()
-                    },
-                    NotificationChannelConfInner::Email(conf) => {
-                        match self.email.clone() {
-                            Some(email) => {
-                                spawn_osv_notification(email, conf, channel.id, records.clone())
-                                    .boxed()
-                            },
-                            None => {
-                                let channel_id = channel.id;
-                                async move {
-                                    (
-                                        channel_id,
-                                        NotificationEventId::generate(),
-                                        Err(anyhow::anyhow!(
-                                            "Email notifications not configured: set \
-                                             OSV_SERVICE_SMTP_URL"
-                                        )),
-                                    )
-                                }
-                                .boxed()
-                            },
-                        }
-                    },
-                }
-            })
-            .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
-                tasks.spawn(t);
-                tasks
-            });
-
-        let events = tasks.join_all().await;
-
         let osv_records_ids: Vec<_> = records.iter().map(|r| r.id.clone().into()).collect();
         let manifest_info = core_db.get_manifest(manifest_id).await?;
         let workspace_info = core_db.get_workspace(workspace_id).await?;
@@ -144,6 +94,19 @@ impl Notifier {
             manifest_tag: manifest_info.tag.map(Into::into),
             osv_records: osv_records_ids,
         };
+
+        let tasks = channels
+            .into_iter()
+            .filter(|c| c.active)
+            .map(|channel| {
+                Self::spawn_osv_notification(self.clone(), channel, meta.clone()).boxed()
+            })
+            .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
+                tasks.spawn(t);
+                tasks
+            });
+
+        let events = tasks.join_all().await;
 
         let events = events
             .into_iter()
@@ -159,13 +122,50 @@ impl Notifier {
         core_db.add_notification_channel_events(events).await?;
         Ok(())
     }
+
+    async fn spawn_osv_notification(
+        self: Arc<Notifier>,
+        channel: NotificationChannel,
+        meta: NotificationEventMeta,
+    ) -> (
+        NotificationChannelId,
+        NotificationEventId,
+        anyhow::Result<()>,
+    ) {
+        match channel.conf.inner {
+            NotificationChannelConfInner::Webhook(conf) => {
+                let payload = meta.to_json().unwrap_or_default();
+                spawn_notification(
+                    Some(self.webhook.clone()),
+                    conf,
+                    channel.id,
+                    payload,
+                )
+                .await
+            },
+            NotificationChannelConfInner::Discord(conf) => {
+                let payload = meta.to_json().unwrap_or_default();
+                spawn_notification(
+                    Some(self.discord.clone()),
+                    conf,
+                    channel.id,
+                    payload,
+                )
+                .await
+            },
+            NotificationChannelConfInner::Email(conf) => {
+                let payload = osv_email_event_payload(meta);
+                spawn_notification(self.email.clone(), conf, channel.id, payload).await
+            },
+        }
+    }
 }
 
-async fn spawn_osv_notification<N, C>(
-    notifier: Arc<N>,
+async fn spawn_notification<N, C, P>(
+    notifier: Option<Arc<N>>,
     event_conf: C,
     channel_id: NotificationChannelId,
-    records: Vec<OsvRecord>,
+    payload: P,
 ) -> (
     NotificationChannelId,
     NotificationEventId,
@@ -174,8 +174,18 @@ async fn spawn_osv_notification<N, C>(
 where
     N: notifier::Notifier,
     C: Into<N::EventConf> + Debug,
+    P: Into<N::EventPayload> + Debug,
 {
-    tracing::info!(records = records.len(), conf = ?event_conf, "Spawn OSV record notification");
-    let res = notifier.notify(event_conf.into(), records).await;
-    (channel_id, NotificationEventId::generate(), res)
+    if let Some(notifier) = notifier {
+        info!(type = %type_name::<N>(), payload = ?payload, conf = ?event_conf, "Spawn notification");
+        let res = notifier.notify(event_conf.into(), payload.into()).await;
+        (channel_id, NotificationEventId::generate(), res)
+    } else {
+        error!(type = %type_name::<N>(), "Notifier not configured");
+        (
+            channel_id,
+            NotificationEventId::generate(),
+            Err(anyhow::anyhow!("Notifier not configured")),
+        )
+    }
 }
