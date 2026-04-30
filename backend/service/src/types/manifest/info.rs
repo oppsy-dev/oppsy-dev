@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use poem_openapi::Object;
 
 use crate::types::{ManifestId, ManifestType, OsvId};
+use super::{name::ManifestName, tag::ManifestTag};
 
 /// Metadata and detected vulnerabilities for a manifest.
 #[derive(Object, Debug, Clone)]
@@ -11,9 +12,9 @@ pub struct ManifestInfo {
     /// The lock file ecosystem type.
     pub manifest_type: ManifestType,
     /// Human-readable name for this manifest.
-    pub name: String,
+    pub name: ManifestName,
     /// Optional label for versioning or environment disambiguation.
-    pub tag: Option<String>,
+    pub tag: Option<ManifestTag>,
     /// Vulnerabilities detected when this manifest was last scanned.
     pub vulnerabilities: Vec<ManifestVuln>,
 }

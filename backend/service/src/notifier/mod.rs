@@ -61,7 +61,7 @@ impl Notifier {
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
         workspace_id: WorkspaceId,
-        _manifest_id: ManifestId,
+        manifest_id: ManifestId,
         records: Vec<OsvRecord>,
     ) -> anyhow::Result<()> {
         let channels = core_db
@@ -77,16 +77,37 @@ impl Notifier {
             .map(|channel| {
                 match channel.conf.inner {
                     NotificationChannelConfInner::Webhook(conf) => {
-                        notify_about_osv(self.webhook.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        notify_about_osv(
+                            self.webhook.clone(),
+                            conf,
+                            channel.id,
+                            workspace_id,
+                            manifest_id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                     NotificationChannelConfInner::Discord(conf) => {
-                        notify_about_osv(self.discord.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        notify_about_osv(
+                            self.discord.clone(),
+                            conf,
+                            channel.id,
+                            workspace_id,
+                            manifest_id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                     NotificationChannelConfInner::Email(conf) => {
-                        notify_about_osv(self.email.clone(), conf, channel.id, records.clone())
-                            .boxed()
+                        notify_about_osv(
+                            self.email.clone(),
+                            conf,
+                            channel.id,
+                            workspace_id,
+                            manifest_id,
+                            records.clone(),
+                        )
+                        .boxed()
                     },
                 }
             })
@@ -105,6 +126,8 @@ async fn notify_about_osv<N, C>(
     notifier: Arc<N>,
     event_conf: C,
     channel_id: NotificationChannelId,
+    workspace_id: WorkspaceId,
+    manifest_id: ManifestId,
     records: Vec<OsvRecord>,
 ) -> NotificationEvent
 where
@@ -120,6 +143,10 @@ where
         id,
         channel_id,
         error,
-        meta: NotificationEventMeta { osv_records },
+        meta: NotificationEventMeta {
+            workspace_id,
+            manifest_id,
+            osv_records,
+        },
     }
 }
