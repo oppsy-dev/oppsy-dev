@@ -7,8 +7,6 @@ use poem_openapi::{
 use serde::{Deserialize, Serialize};
 use uuid::{Uuid, Version, uuid};
 
-const EXAMPLE: &str = "019d4dd6-511f-70cf-810b-89ddf58ead9c";
-
 /// Wrapper around [`uuid::Uuid`] that enforces UUID v7 (time-ordered, monotonic) format.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct UuidV7(Uuid);
@@ -22,7 +20,7 @@ impl UuidV7 {
 
 impl Example for UuidV7 {
     fn example() -> Self {
-        Self(uuid!(EXAMPLE))
+        Self(uuid!("019d4dd6-511f-70cf-810b-89ddf58ead9c"))
     }
 }
 
