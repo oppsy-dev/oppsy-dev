@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatDate } from '../cveUtils';
 import type { OsvRecord } from '../cveUtils';
+import { AppRoute } from '../../../routes/Routes';
 import styles from './Hero.module.css';
 
 type HeroProps = {
@@ -27,7 +28,7 @@ export function Hero({ record }: HeroProps) {
               <span className={styles.chipsGroupLabel}>Aliases</span>
               <div className={styles.chips}>
                 {record.aliases.map((alias) => (
-                  <Link to={`/record/${alias}`} key={alias} className={styles.chip}>
+                  <Link key={alias} to={AppRoute.CveRecord.replace(':name', alias)} className={styles.chip}>
                     {alias}
                   </Link>
                 ))}
@@ -39,7 +40,7 @@ export function Hero({ record }: HeroProps) {
               <span className={styles.chipsGroupLabel}>Related</span>
               <div className={styles.chips}>
                 {record.related.map((rel) => (
-                  <Link to={`/record/${rel}`} key={rel} className={styles.chipAccent}>
+                  <Link key={rel} to={AppRoute.CveRecord.replace(':name', rel)} className={styles.chipAccent}>
                     {rel}
                   </Link>
                 ))}

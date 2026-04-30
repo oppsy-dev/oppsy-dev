@@ -2931,9 +2931,15 @@ export interface components {
     CreateManifestRequest: {
       /** @description The lock file ecosystem that determines which parser is used. */
       manifest_type: components['schemas']['ManifestType'] & unknown;
-      /** @description Human-readable name for this manifest (e.g. the filename or repo path). */
+      /**
+       * Human-readable name for a manifest (e.g. the filename or repo path).
+       * @description Human-readable name for this manifest (e.g. the filename or repo path).
+       */
       name: string;
-      /** @description Optional label for versioning or environment disambiguation. */
+      /**
+       * Optional label for versioning or environment disambiguation.
+       * @description Optional label for versioning or environment disambiguation.
+       */
       tag?: string;
     };
     /**
@@ -2951,7 +2957,10 @@ export interface components {
      * @description Request body for workspace creation.
      */
     CreateWorkspaceRequest: {
-      /** @description Workspace name */
+      /**
+       * Display name of a workspace.
+       * @description Workspace name
+       */
       name: string;
     };
     /**
@@ -3010,9 +3019,15 @@ export interface components {
       id: string;
       /** @description The lock file ecosystem type. */
       manifest_type: components['schemas']['ManifestType'] & unknown;
-      /** @description Human-readable name for this manifest. */
+      /**
+       * Human-readable name for a manifest (e.g. the filename or repo path).
+       * @description Human-readable name for this manifest.
+       */
       name: string;
-      /** @description Optional label for versioning or environment disambiguation. */
+      /**
+       * Optional label for versioning or environment disambiguation.
+       * @description Optional label for versioning or environment disambiguation.
+       */
       tag?: string;
       /** @description Vulnerabilities detected when this manifest was last scanned. */
       vulnerabilities: components['schemas']['ManifestVuln'][];
@@ -3189,6 +3204,38 @@ export interface components {
      * @description Contextual data describing what triggered a notification event.
      */
     NotificationEventMeta: {
+      /**
+       * UUID v7 identifier for a workspace.
+       * Format: uuid
+       * @description Identifier of the workspace whose manifest triggered this notification.
+       * @example 019d4dd6-511f-70cf-810b-89ddf58ead9c
+       */
+      workspace_id: string;
+      /**
+       * Display name of a workspace.
+       * @description Display name of the workspace at the time the notification was dispatched.
+       */
+      workspace_name: string;
+      /**
+       * UUID v7 identifier for a manifest.
+       * Format: uuid
+       * @description Identifier of the manifest that was scanned and produced new vulnerability hits.
+       * @example 019d4dd6-511f-70cf-810b-89ddf58ead9c
+       */
+      manifest_id: string;
+      /** @description The lock file ecosystem type. */
+      manifest_type: components['schemas']['ManifestType'] & unknown;
+      /**
+       * Human-readable name for a manifest (e.g. the filename or repo path).
+       * @description Human-readable name of the manifest (e.g. the lock file path or repo label).
+       */
+      manifest_name: string;
+      /**
+       * Optional label for versioning or environment disambiguation.
+       * @description Optional tag that was set on the manifest for versioning or environment
+       *     disambiguation.
+       */
+      manifest_tag?: string;
       /** @description OSV record identifiers for the vulnerabilities included in this notification. */
       osv_records: string[];
     };
@@ -3353,7 +3400,10 @@ export interface components {
        * @example 019d4dd6-511f-70cf-810b-89ddf58ead9c
        */
       id: string;
-      /** @description Display name of the workspace. */
+      /**
+       * Display name of a workspace.
+       * @description Display name of the workspace.
+       */
       name: string;
       /**
        * Format: uint32
