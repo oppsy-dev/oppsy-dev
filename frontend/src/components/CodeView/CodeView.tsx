@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './JsonView.module.css';
+import styles from './CodeView.module.css';
 
 type JsonViewProps = {
   value: unknown;
@@ -41,7 +41,7 @@ function CheckIcon() {
   );
 }
 
-export function JsonView({ value, filename = 'data.json' }: JsonViewProps) {
+export function CodeView({ value, filename = 'data.json' }: JsonViewProps) {
   const [copied, setCopied] = useState(false);
   const json = JSON.stringify(value, null, 2);
   const lines = json.split('\n');
