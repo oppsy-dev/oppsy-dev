@@ -58,18 +58,20 @@ export function CodeView({ code, filename }: CodeViewProps) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardHeader}>
-        {filename && <span className={styles.label}>{filename}</span>}
-        <button
-          className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
-          type="button"
-          onClick={handleCopy}
-          aria-label="Copy JSON"
-        >
-          {copied ? <CheckIcon /> : <CopyIcon />}
-          {copied ? 'Copied!' : 'Copy'}
-        </button>
-      </div>
+      {filename && (
+        <div className={styles.cardHeader}>
+          <span className={styles.label}>{filename}</span>
+          <button
+            className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
+            type="button"
+            onClick={handleCopy}
+            aria-label="Copy JSON"
+          >
+            {copied ? <CheckIcon /> : <CopyIcon />}
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      )}
       <div
         className={styles.codeArea}
         style={{ '--line-num-width': gutterWidth } as React.CSSProperties}
