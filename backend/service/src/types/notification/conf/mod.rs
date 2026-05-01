@@ -38,7 +38,6 @@ impl NotificationChannelConf {
     pub fn verify(&self) -> anyhow::Result<()> {
         const INVALID_TYPE_MSG: &str =
             "Notification channel configuration must correspond with the type value";
-        
 
         let cue_ctx = cue_rs::Ctx::new()?;
         let example_meta = NotificationEventMeta::example();

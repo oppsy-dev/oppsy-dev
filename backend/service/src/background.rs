@@ -83,12 +83,9 @@ async fn run_osv_sync(
             )
             .await?;
         // spawn notifications
-        notifier.clone().spawn_osv_events(
-            core_db.clone(),
-            *workspace_id,
-            manifest_id,
-            records,
-        );
+        notifier
+            .clone()
+            .spawn_osv_events(core_db.clone(), *workspace_id, manifest_id, records);
     }
 
     Ok(())
