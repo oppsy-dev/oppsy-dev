@@ -4,6 +4,7 @@ use chrono::Utc;
 use tracing::{error, info};
 
 use crate::{
+    cue::CueCtx,
     db::{CoreDb, OsvDb},
     notifier::Notifier,
     resources::ResourceRegistry,
@@ -68,6 +69,8 @@ async fn run_osv_sync(
         .map(|(m, v)| anyhow::Ok((m.try_into()?, v.try_into()?)))
         .collect::<Result<_, _>>()?;
 
+    let cue_ctx = ResourceRegistry::get::<CueCtx>()?;
+
     for (manifest_id, records) in hits {
         let workspace_id = manifest_to_workspace
             .get(&manifest_id)
@@ -83,9 +86,13 @@ async fn run_osv_sync(
             )
             .await?;
         // spawn notifications
-        notifier
-            .clone()
-            .spawn_osv_events(core_db.clone(), *workspace_id, manifest_id, records);
+        notifier.clone().spawn_osv_events(
+            core_db.clone(),
+            cue_ctx.clone(),
+            *workspace_id,
+            manifest_id,
+            records,
+        );
     }
 
     Ok(())

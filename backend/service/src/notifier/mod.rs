@@ -6,10 +6,14 @@ use osv_db::types::OsvRecord;
 use tracing::{error, info};
 
 use crate::{
-    cue::CueCtx, db::CoreDb,  resources::{Resource, ResourceRegistry}, settings::Settings, types::{
+    cue::CueCtx,
+    db::CoreDb,
+    resources::{Resource, ResourceRegistry},
+    settings::Settings,
+    types::{
         ManifestId, NotificationChannel, NotificationChannelConfInner, NotificationChannelId,
         NotificationEvent, NotificationEventId, NotificationEventMeta, WorkspaceId,
-    }
+    },
 };
 
 pub struct Notifier {
@@ -52,9 +56,15 @@ impl Notifier {
             "Spawning OSV events"
         );
         tokio::spawn(async move {
-            if let Err(err) =
-                Self::spawn_osv_events_inner(self, core_db,  cue_ctx, workspace_id, manifest_id, records)
-                    .await
+            if let Err(err) = Self::spawn_osv_events_inner(
+                self,
+                core_db,
+                cue_ctx,
+                workspace_id,
+                manifest_id,
+                records,
+            )
+            .await
             {
                 error!(error = ?err, "Cannot spawn osv notification events");
             }
@@ -94,7 +104,8 @@ impl Notifier {
             .into_iter()
             .filter(|c| c.active)
             .map(|channel| {
-                Self::spawn_osv_notification(self.clone(), cue_ctx.clone(), channel, meta.clone()).boxed()
+                Self::spawn_osv_notification(self.clone(), cue_ctx.clone(), channel, meta.clone())
+                    .boxed()
             })
             .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
                 tasks.spawn(t);
@@ -162,7 +173,7 @@ where
     if let Some(notifier) = notifier {
         info!(type = %type_name::<N>(), conf = ?event_conf, "Spawn notification");
 
-        let res= match payload {
+        let res = match payload {
             Ok(payload) => notifier.notify(event_conf.into(), payload.into()).await,
             Err(err) => Err(err),
         };
