@@ -77,6 +77,14 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
 
       {open && (
         <>
+          <a
+              href="https://cuelang.org/docs/reference/spec/#introduction"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.schemaTooltipLink}
+            >
+              Templating is resolved with the help of CUE ↗
+            </a>
           <div
             className={styles.schemaInfoAnchor}
             onMouseEnter={showSchema}
@@ -91,17 +99,9 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
                 onMouseEnter={showSchema}
                 onMouseLeave={hideSchema}
               >
-                <CodeView code={SCHEMA} type={CodeType.CUE} filename="schema.cue" height="9rem" />
+                <CodeView code={SCHEMA} type={CodeType.CUE} height="10rem" />
               </div>
             )}
-            <a
-              href="https://cuelang.org/docs/reference/spec/#introduction"
-              target="_blank"
-              rel="noreferrer"
-              className={styles.schemaTooltipLink}
-            >
-              CUE language reference ↗
-            </a>
           </div>
           <CodeView code={value} type={CodeType.CUE} height="14rem" onChange={onChange} />
         </>
