@@ -65,7 +65,7 @@ export function CodeView({ code, filename }: CodeViewProps) {
             className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
             type="button"
             onClick={handleCopy}
-            aria-label="Copy JSON"
+            aria-label="Copy"
           >
             {copied ? <CheckIcon /> : <CopyIcon />}
             {copied ? 'Copied!' : 'Copy'}
@@ -81,7 +81,7 @@ export function CodeView({ code, filename }: CodeViewProps) {
             // eslint-disable-next-line react/no-array-index-key
             <div key={i} className={styles.line}>
               <span className={styles.lineNum}>{i + 1}</span>
-              <span className={styles.lineContent}>{line}</span>
+              <span className={styles.lineContent} contentEditable={true}>{line}</span>
             </div>
           ))}
         </div>
