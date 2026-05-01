@@ -3,14 +3,10 @@ use poem_openapi::{
     types::{Example, ToJSON},
 };
 
-use crate::{
-    types::{
-        ManifestId, ManifestName, ManifestTag, ManifestType, OsvId, WorkspaceId, WorkspaceName,
-        parse_from_json,
-    },
+use crate::types::{
+    ManifestId, ManifestName, ManifestTag, ManifestType, OsvId, WorkspaceId, WorkspaceName,
+    parse_from_json,
 };
-
-pub const META_SCHEMA: &[u8] = include_bytes!("meta_schema.cue");
 
 /// Contextual data describing what triggered a notification event.
 #[derive(Debug, Clone, Object)]
@@ -33,16 +29,14 @@ pub struct NotificationEventMeta {
 }
 
 impl NotificationEventMeta {
+    pub const SCHEMA: &[u8] = include_bytes!("schema.cue");
+
     pub fn to_cue(
         &self,
         cue_ctx: &cue_rs::Ctx,
     ) -> anyhow::Result<cue_rs::Value> {
-        let meta_schema = cue_rs::Value::compile_bytes(cue_ctx, META_SCHEMA)?;
-        meta_schema.is_valid()?;
         let meta_json_str = self.to_json_string();
         let meta = cue_rs::Value::compile_string(cue_ctx, &meta_json_str)?;
-
-        let meta = cue_rs::Value::unify(&meta_schema, &meta);
         meta.is_valid()?;
         Ok(meta)
     }
@@ -88,6 +82,8 @@ mod tests {
     fn notification_event_meta_cue() {
         let meta = NotificationEventMeta::example();
         let cue_ctx = cue_rs::Ctx::new().unwrap();
-        let _cue = meta.to_cue(&cue_ctx).unwrap();
+        let cue: cue_rs::Value = meta.to_cue(&cue_ctx).unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&cue.to_json_bytes().unwrap()).unwrap();
+        println!("{}", json);
     }
 }

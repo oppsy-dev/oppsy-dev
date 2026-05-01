@@ -1,0 +1,2 @@
+subject: string
+body: string

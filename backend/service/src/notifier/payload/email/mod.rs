@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use notifier::email::EmailEventPayload;
 
 use crate::types::NotificationEventMeta;
