@@ -109,22 +109,22 @@ mod tests {
     use super::*;
 
     #[test_case(
-        json!({"type": "Email", "from": "bob@example.com", "to": ["alice@example.com"]}),
+        json!({"type": "Email", "from": "bob@example.com", "to": ["alice@example.com"], "template": ""}),
         NotificationChannelType::Email;
         "email single recipient"
     )]
     #[test_case(
-        json!({"type": "Discord", "discord_webhook_url": "https://discord.com/api/webhooks/123/abc"}),
+        json!({"type": "Discord", "discord_webhook_url": "https://discord.com/api/webhooks/123/abc", "template": ""}),
         NotificationChannelType::Discord;
         "discord"
     )]
     #[test_case(
-        json!({"type": "Webhook", "webhook_url": "https://example.com/hook", "secret": "s3cr3t"}),
+        json!({"type": "Webhook", "webhook_url": "https://example.com/hook", "secret": "s3cr3t", "template": ""}),
         NotificationChannelType::Webhook;
         "webhook with secret"
     )]
     #[test_case(
-        json!({"type": "Webhook", "webhook_url": "https://example.com/hook", "secret": null}),
+        json!({"type": "Webhook", "webhook_url": "https://example.com/hook", "secret": null, "template": ""}),
         NotificationChannelType::Webhook;
         "webhook with null secret"
     )]
