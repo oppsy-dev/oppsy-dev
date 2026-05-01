@@ -41,9 +41,8 @@ function CheckIcon() {
   );
 }
 
-export function CodeView({ code: value, filename }: CodeViewProps) {
+export function CodeView({ code, filename }: CodeViewProps) {
   const [copied, setCopied] = useState(false);
-  const code = JSON.stringify(value, null, 2);
   const lines = code.split('\n');
   const gutterWidth = `${String(lines.length).length}ch`;
 
