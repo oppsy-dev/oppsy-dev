@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import styles from './ChannelSettingsSection.module.css';
 import { BackIcon } from '../../../components/Icons';
-import type { NotificationChannel } from '../../../api/notification_channels';
+import type { ChannelConf, NotificationChannel } from '../../../api/notification_channels';
 import { useUpdateChannel } from '../../../hooks/notification_channels';
 import { DangerZone } from '../../../components/DangerZone/DangerZone';
+import { ChannelConfSection } from './ChannelConfSection/ChannelConfSection';
 
 type Props = {
   channel: NotificationChannel;
@@ -14,15 +15,18 @@ type Props = {
 
 export function ChannelSettingsSection({ channel, onBack, onDelete, onDeleted }: Props) {
   const [active, setActive] = useState(channel.active);
+  const [conf, setConf] = useState<ChannelConf>(channel.conf as unknown as ChannelConf);
 
   const { mutate: saveChannel, isPending: saving } = useUpdateChannel();
 
-  const isDirty = active !== channel.active;
+  const isDirty =
+    active !== channel.active ||
+    JSON.stringify(conf) !== JSON.stringify(channel.conf);
 
   const handleSave = () => {
     saveChannel({
       channelId: channel.id,
-      req: { name: channel.name, conf: channel.conf, active },
+      req: { name: channel.name, active, conf: conf as unknown as NotificationChannel['conf'] },
     });
   };
 
@@ -62,6 +66,9 @@ export function ChannelSettingsSection({ channel, onBack, onDelete, onDeleted }:
           </div>
         </div>
       </div>
+
+      {/* ── Configuration ── */}
+      <ChannelConfSection value={conf} onChange={setConf} />
 
       {/* ── Save ── */}
       <div className={styles.formFooter}>
