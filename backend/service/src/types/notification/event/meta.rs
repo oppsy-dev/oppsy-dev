@@ -35,10 +35,10 @@ impl NotificationEventMeta {
         &self,
         cue_ctx: &cue_rs::Ctx,
     ) -> anyhow::Result<cue_rs::Value> {
-        let meta_json_str = self.to_json_string();
-        let meta = cue_rs::Value::compile_string(cue_ctx, &meta_json_str)?;
-        meta.is_valid()?;
-        Ok(meta)
+        let json = self
+            .to_json()
+            .ok_or_else(|| anyhow::anyhow!("NotificationEventMeta must convert to JSON value"))?;
+        crate::cue::json_object_to_hidden_fields(cue_ctx, &json)
     }
 }
 

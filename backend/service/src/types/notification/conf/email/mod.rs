@@ -87,7 +87,7 @@ mod tests {
             body: "Some body".to_string(),
         });
 
-        conf.template = r#"body: "Some body with \(manifest_name)", subject: "Some subject with \(workspace_name)""#.to_string();
+        conf.template = r#"body: "Some body with \(_manifest_name)", subject: "Some subject with \(_workspace_name)""#.to_string();
         let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(payload, EmailEventPayload {
             subject: format!("Some subject with {}", meta.workspace_name),

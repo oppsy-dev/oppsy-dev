@@ -6,18 +6,17 @@ import styles from '../CreateChannelModal.module.css';
 
 const BT = '`';
 
-export const DISCORD_DEFAULT_TEMPLATE = `_count: len(osv_records)
+export const DISCORD_DEFAULT_TEMPLATE = `_count: len(_osv_records)
 _plural: *"ies" | "y"
 if _count == 1 {
 \t_plural: "y"
 }
-manifest_tag: *null | string | null
 _tag_line: *"" | string
-if manifest_tag != null {
-\t_tag_line: "\\n**Tag:** ${BT}\\(manifest_tag)${BT}"
+if _manifest_tag != null {
+\t_tag_line: "\\n**Tag:** ${BT}\\(_manifest_tag)${BT}"
 }
 
-content: ":shield: **OPPSY** detected **\\(_count)** new open-source vulnerabilit\\(_plural)\\n\\n**Workspace:** \\(workspace_name)\\n**Manifest:** ${BT}\\(manifest_name)${BT} (\\(manifest_type))\\(_tag_line)\\n\\n*To stop receiving these notifications, disable or delete this channel in OPPSY.*"`;
+content: ":shield: **OPPSY** detected **\\(_count)** new open-source vulnerabilit\\(_plural)\\n\\n**Workspace:** \\(_workspace_name)\\n**Manifest:** ${BT}\\(_manifest_name)${BT} (\\(_manifest_type))\\(_tag_line)\\n\\n*To stop receiving these notifications, disable or delete this channel in OPPSY.*"`;
 
 export type DiscordFormState = {
   name: string;

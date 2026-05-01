@@ -83,7 +83,7 @@ mod tests {
             content: "Some content".to_string(),
         });
 
-        conf.template = r#"content: "Some content with \(workspace_name)""#.to_string();
+        conf.template = r#"content: "Some content with \(_workspace_name)""#.to_string();
         let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(payload, DiscordEventPayload {
             content: format!("Some content with {}", meta.workspace_name),

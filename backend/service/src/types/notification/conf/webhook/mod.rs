@@ -69,7 +69,6 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore = ""]
     fn payload() {
         let cue_ctx = cue_rs::Ctx::new().unwrap();
 
@@ -80,7 +79,7 @@ mod tests {
         let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(payload, serde_json::json!({"webhook": "Some value"}));
 
-        conf.template = r#"webhook: "Some value with \(workspace_name)""#.to_string();
+        conf.template = r#"webhook: "Some value with \(_workspace_name)""#.to_string();
         let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(
             payload,
