@@ -36,9 +36,11 @@ pub enum NotificationChannelConfInner {
 impl NotificationChannelConf {
     /// Returns `true` if `channel_type` is consistent with the active `inner` variant.
     pub fn verify(&self) -> anyhow::Result<()> {
-        let cue_ctx = cue_rs::Ctx::new()?;
         const INVALID_TYPE_MSG: &str =
             "Notification channel configuration must correspond with the type value";
+        
+
+        let cue_ctx = cue_rs::Ctx::new()?;
         let example_meta = NotificationEventMeta::example();
         match &self.inner {
             NotificationChannelConfInner::Webhook(conf) => {
