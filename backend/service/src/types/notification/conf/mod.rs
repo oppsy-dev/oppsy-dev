@@ -12,7 +12,7 @@ pub use self::{
     discord::DiscordChannelConf, email::EmailChannelConf, r#type::NotificationChannelType,
     webhook::WebhookChannelConf,
 };
-use crate::types::parse_from_json;
+use crate::types::{NotificationEventMeta, parse_from_json};
 
 /// Channel delivery configuration combining a type discriminant with provider-specific
 /// settings.
@@ -35,18 +35,35 @@ pub enum NotificationChannelConfInner {
 
 impl NotificationChannelConf {
     /// Returns `true` if `channel_type` is consistent with the active `inner` variant.
-    pub fn verify_type(&self) -> bool {
+    pub fn verify(&self) -> anyhow::Result<()> {
+        let cue_ctx = cue_rs::Ctx::new()?;
+        const INVALID_TYPE_MSG: &str =
+            "Notification channel configuration must correspond with the type value";
+        let example_meta = NotificationEventMeta::example();
         match &self.inner {
-            NotificationChannelConfInner::Webhook(_) => {
-                self.channel_type == NotificationChannelType::Webhook
+            NotificationChannelConfInner::Webhook(conf) => {
+                anyhow::ensure!(
+                    self.channel_type == NotificationChannelType::Webhook,
+                    INVALID_TYPE_MSG
+                );
+                conf.event_payload(&cue_ctx, &example_meta)?;
             },
-            NotificationChannelConfInner::Discord(_) => {
-                self.channel_type == NotificationChannelType::Discord
+            NotificationChannelConfInner::Discord(conf) => {
+                anyhow::ensure!(
+                    self.channel_type == NotificationChannelType::Discord,
+                    INVALID_TYPE_MSG
+                );
+                conf.event_payload(&cue_ctx, &example_meta)?;
             },
-            NotificationChannelConfInner::Email(_) => {
-                self.channel_type == NotificationChannelType::Email
+            NotificationChannelConfInner::Email(conf) => {
+                anyhow::ensure!(
+                    self.channel_type == NotificationChannelType::Email,
+                    INVALID_TYPE_MSG
+                );
+                conf.event_payload(&cue_ctx, &example_meta)?;
             },
         }
+        Ok(())
     }
 }
 
@@ -63,10 +80,7 @@ impl TryFrom<NotificationChannelConf> for core_db::notification_channel::Notific
     type Error = anyhow::Error;
 
     fn try_from(value: NotificationChannelConf) -> Result<Self, Self::Error> {
-        anyhow::ensure!(
-            value.verify_type(),
-            "Provided NotificationChannelConf has an incossistent type '{value:?}'"
-        );
+        value.verify()?;
         value.to_json().ok_or(anyhow::anyhow!(
             "NotificationChannelConf must convert to the JSON value"
         ))
@@ -80,10 +94,7 @@ impl TryFrom<core_db::notification_channel::NotificationChannelConf> for Notific
         value: core_db::notification_channel::NotificationChannelConf
     ) -> Result<Self, Self::Error> {
         let res: Self = parse_from_json(value)?;
-        anyhow::ensure!(
-            res.verify_type(),
-            "Parsed from db NotificationChannelConf has an incossistent type '{res:?}'"
-        );
+        res.verify()?;
         Ok(res)
     }
 }

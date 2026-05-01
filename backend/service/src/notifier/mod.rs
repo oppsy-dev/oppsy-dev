@@ -6,7 +6,6 @@ use osv_db::types::OsvRecord;
 use tracing::{error, info};
 
 use crate::{
-    cue::CueCtx,
     db::CoreDb,
     resources::{Resource, ResourceRegistry},
     settings::Settings,
@@ -42,7 +41,6 @@ impl Notifier {
     pub fn spawn_osv_events(
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
-        cue_ctx: Arc<CueCtx>,
         workspace_id: WorkspaceId,
         manifest_id: ManifestId,
         records: Vec<OsvRecord>,
@@ -56,15 +54,9 @@ impl Notifier {
             "Spawning OSV events"
         );
         tokio::spawn(async move {
-            if let Err(err) = Self::spawn_osv_events_inner(
-                self,
-                core_db,
-                cue_ctx,
-                workspace_id,
-                manifest_id,
-                records,
-            )
-            .await
+            if let Err(err) =
+                Self::spawn_osv_events_inner(self, core_db, workspace_id, manifest_id, records)
+                    .await
             {
                 error!(error = ?err, "Cannot spawn osv notification events");
             }
@@ -74,7 +66,6 @@ impl Notifier {
     async fn spawn_osv_events_inner(
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
-        cue_ctx: Arc<CueCtx>,
         workspace_id: WorkspaceId,
         manifest_id: ManifestId,
         records: Vec<OsvRecord>,
@@ -99,6 +90,8 @@ impl Notifier {
             manifest_tag: manifest_info.tag.map(Into::into),
             osv_records: osv_records_ids,
         };
+
+        let cue_ctx = Arc::new(cue_rs::Ctx::new()?);
 
         let events = channels
             .into_iter()
@@ -130,7 +123,7 @@ impl Notifier {
 
     async fn spawn_osv_notification(
         self: Arc<Notifier>,
-        cue_ctx: Arc<CueCtx>,
+        cue_ctx: Arc<cue_rs::Ctx>,
         channel: NotificationChannel,
         meta: NotificationEventMeta,
     ) -> (

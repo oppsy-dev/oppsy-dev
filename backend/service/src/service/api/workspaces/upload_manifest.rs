@@ -6,7 +6,6 @@ use poem_openapi::{ApiResponse, payload::Json};
 use tracing::info;
 
 use crate::{
-    cue::CueCtx,
     db::{CoreDb, ManifestDb, OsvDb},
     notifier::Notifier,
     resources::ResourceRegistry,
@@ -52,7 +51,6 @@ pub async fn endpoint(
     let osv_db = try_or_return!(ResourceRegistry::get::<OsvDb>());
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
     let notifier = try_or_return!(ResourceRegistry::get::<Notifier>());
-    let cue_ctx = try_or_return!(ResourceRegistry::get::<CueCtx>());
 
     let manifest_info = match core_db.get_manifest(manifest_id).await {
         Ok(manifest) => manifest,
@@ -94,7 +92,7 @@ pub async fn endpoint(
             .await
     );
 
-    notifier.spawn_osv_events(core_db, cue_ctx, workspace_id, manifest_id, records);
+    notifier.spawn_osv_events(core_db, workspace_id, manifest_id, records);
 
     Responses::NoContent.into()
 }
