@@ -35,7 +35,11 @@ export function WebhookChannelConfForm({ value, onChange }: Props) {
           placeholder="Used to sign HMAC-SHA256 payloads"
         />
       </div>
-      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} alwaysOpen />
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        alwaysOpen
+      />
     </>
   );
 }

@@ -84,7 +84,11 @@ export function TemplateField({ value, onChange, templateSchema, alwaysOpen }: T
       <div className={styles.fieldToggleRow}>
         <span className={styles.fieldLabel}>Payload template</span>
         {!alwaysOpen && (
-          <button type="button" className={styles.fieldToggleBtn} onClick={() => setOpen((o) => !o)}>
+          <button
+            type="button"
+            className={styles.fieldToggleBtn}
+            onClick={() => setOpen((o) => !o)}
+          >
             Customize <ChevronIcon open={open} />
           </button>
         )}
