@@ -81,7 +81,7 @@ export function CodeView({ code, filename }: CodeViewProps) {
             // eslint-disable-next-line react/no-array-index-key
             <div key={i} className={styles.line}>
               <span className={styles.lineNum}>{i + 1}</span>
-              <span className={styles.lineContent} contentEditable={true}>{line}</span>
+              <span className={styles.lineContent}>{line}</span>
             </div>
           ))}
         </div>
