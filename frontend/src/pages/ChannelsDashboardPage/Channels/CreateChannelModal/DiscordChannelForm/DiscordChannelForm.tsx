@@ -11,6 +11,7 @@ _plural: *"ies" | "y"
 if _count == 1 {
 \t_plural: "y"
 }
+manifest_tag: *null | string | null
 _tag_line: *"" | string
 if manifest_tag != null {
 \t_tag_line: "\\n**Tag:** ${BT}\\(manifest_tag)${BT}"
