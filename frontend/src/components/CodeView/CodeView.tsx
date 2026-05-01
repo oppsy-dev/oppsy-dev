@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styles from './CodeView.module.css';
 
-type JsonViewProps = {
-  value: unknown;
+type CodeViewProps = {
+  code: string;
   filename?: string;
 };
 
@@ -41,15 +41,15 @@ function CheckIcon() {
   );
 }
 
-export function CodeView({ value, filename = 'data.json' }: JsonViewProps) {
+export function CodeView({ code: value, filename }: CodeViewProps) {
   const [copied, setCopied] = useState(false);
-  const json = JSON.stringify(value, null, 2);
-  const lines = json.split('\n');
+  const code = JSON.stringify(value, null, 2);
+  const lines = code.split('\n');
   const gutterWidth = `${String(lines.length).length}ch`;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(json);
+      await navigator.clipboard.writeText(code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -60,7 +60,7 @@ export function CodeView({ value, filename = 'data.json' }: JsonViewProps) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <span className={styles.label}>{filename}</span>
+        {filename && <span className={styles.label}>{filename}</span>}
         <button
           className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
           type="button"
