@@ -2,6 +2,7 @@ import type {
   CreateChannelRequest,
   DiscordChannelConf,
 } from '../../../../../api/notification_channels';
+import { CodeView } from '../../../../../components/CodeView/CodeView';
 import styles from '../CreateChannelModal.module.css';
 
 const BT = '`';
@@ -68,6 +69,11 @@ export function DiscordChannelForm({ value, onChange }: DiscordChannelFormProps)
           onChange={(e) => onChange({ ...value, webhookUrl: e.target.value })}
           placeholder="https://discord.com/api/webhooks/…"
         />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Payload template</label>
+        <CodeView code={value.template} />
       </div>
     </>
   );
