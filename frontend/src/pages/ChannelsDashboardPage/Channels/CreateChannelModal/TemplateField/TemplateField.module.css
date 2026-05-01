@@ -37,6 +37,13 @@
 }
 
 /* ── Schema info anchor + tooltip ── */
+.schemaInfoRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
 .schemaInfoAnchor {
   position: relative;
   display: inline-flex;

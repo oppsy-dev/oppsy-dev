@@ -50,12 +50,15 @@ function ChevronIcon({ open }: { open: boolean }) {
 type TemplateFieldProps = {
   value: string;
   onChange: (value: string) => void;
+  templateSchema?: string;
 };
 
-export function TemplateField({ value, onChange }: TemplateFieldProps) {
+export function TemplateField({ value, onChange, templateSchema }: TemplateFieldProps) {
   const [open, setOpen] = useState(false);
   const [schemaVisible, setSchemaVisible] = useState(false);
+  const [templateSchemaVisible, setTemplateSchemaVisible] = useState(false);
   const hideTimer = useRef<number>(undefined);
+  const hideTemplateTimer = useRef<number>(undefined);
 
   const showSchema = () => {
     window.clearTimeout(hideTimer.current);
@@ -64,6 +67,15 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
 
   const hideSchema = () => {
     hideTimer.current = window.setTimeout(() => setSchemaVisible(false), 150);
+  };
+
+  const showTemplateSchema = () => {
+    window.clearTimeout(hideTemplateTimer.current);
+    setTemplateSchemaVisible(true);
+  };
+
+  const hideTemplateSchema = () => {
+    hideTemplateTimer.current = window.setTimeout(() => setTemplateSchemaVisible(false), 150);
   };
 
   return (
@@ -78,31 +90,55 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
       {open && (
         <>
           <a
-              href="https://cuelang.org/docs/reference/spec/#introduction"
-              target="_blank"
-              rel="noreferrer"
-              className={styles.schemaTooltipLink}
-            >
-              Templating is resolved with the help of CUE ↗
-            </a>
-          <div
-            className={styles.schemaInfoAnchor}
-            onMouseEnter={showSchema}
-            onMouseLeave={hideSchema}
+            href="https://cuelang.org/docs/reference/spec/#introduction"
+            target="_blank"
+            rel="noreferrer"
+            className={styles.schemaTooltipLink}
           >
-            <span>Available fields</span>
-            <InfoIcon />
+            Templating is resolved with the help of CUE ↗
+          </a>
+          <div className={styles.schemaInfoRow}>
+            <div
+              className={styles.schemaInfoAnchor}
+              onMouseEnter={showSchema}
+              onMouseLeave={hideSchema}
+            >
+              <span>Available fields</span>
+              <InfoIcon />
 
-            {schemaVisible && (
+              {schemaVisible && (
+                <div
+                  className={styles.schemaTooltip}
+                  onMouseEnter={showSchema}
+                  onMouseLeave={hideSchema}
+                >
+                  <CodeView code={SCHEMA} type={CodeType.CUE} height="10rem" />
+                </div>
+              )}
+            </div>
+
+            {templateSchema && (
               <div
-                className={styles.schemaTooltip}
-                onMouseEnter={showSchema}
-                onMouseLeave={hideSchema}
+                className={styles.schemaInfoAnchor}
+                onMouseEnter={showTemplateSchema}
+                onMouseLeave={hideTemplateSchema}
               >
-                <CodeView code={SCHEMA} type={CodeType.CUE} height="10rem" />
+                <span>Template schema</span>
+                <InfoIcon />
+
+                {templateSchemaVisible && (
+                  <div
+                    className={styles.schemaTooltip}
+                    onMouseEnter={showTemplateSchema}
+                    onMouseLeave={hideTemplateSchema}
+                  >
+                    <CodeView code={templateSchema} type={CodeType.CUE} height="5rem" />
+                  </div>
+                )}
               </div>
             )}
           </div>
+
           <CodeView code={value} type={CodeType.CUE} height="14rem" onChange={onChange} />
         </>
       )}

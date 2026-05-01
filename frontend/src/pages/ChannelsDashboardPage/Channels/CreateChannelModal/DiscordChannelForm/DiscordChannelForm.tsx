@@ -7,6 +7,8 @@ import styles from '../CreateChannelModal.module.css';
 
 const BT = '`';
 
+export const DISCORD_TEMPLATE_SCHEMA = `content: string`;
+
 export const DISCORD_DEFAULT_TEMPLATE = `
 content: """
 :shield: **OPPSY** detected new open-source vulnerabilities
@@ -67,7 +69,11 @@ export function DiscordChannelForm({ value, onChange }: DiscordChannelFormProps)
           placeholder="https://discord.com/api/webhooks/…"
         />
       </div>
-      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} />
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        templateSchema={DISCORD_TEMPLATE_SCHEMA}
+      />
     </>
   );
 }

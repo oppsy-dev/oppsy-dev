@@ -5,6 +5,8 @@ import type {
 import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
+export const EMAIL_TEMPLATE_SCHEMA = `subject: string\nbody: string`;
+
 export const EMAIL_DEFAULT_TEMPLATE = `
 subject: """
 [OPPSY] New vulnerabilities detected in \\(_workspace_name)/\\(_manifest_name)
@@ -114,7 +116,11 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
         </button>
       </div>
 
-      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} />
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        templateSchema={EMAIL_TEMPLATE_SCHEMA}
+      />
     </>
   );
 }
