@@ -12,7 +12,12 @@ type V1ChannelEventsGetResp =
 
 export type EmailChannelConf = { type: 'Email'; from: string; to: string[]; template: string };
 export type DiscordChannelConf = { type: 'Discord'; discord_webhook_url: string; template: string };
-export type WebhookChannelConf = { type: 'Webhook'; webhook_url: string; secret?: string | null; template: string };
+export type WebhookChannelConf = {
+  type: 'Webhook';
+  webhook_url: string;
+  secret?: string | null;
+  template: string;
+};
 export type ChannelConf = EmailChannelConf | DiscordChannelConf | WebhookChannelConf;
 
 export type NotificationChannelType = components['schemas']['NotificationChannelType'];
