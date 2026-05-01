@@ -2,7 +2,7 @@ import type {
   CreateChannelRequest,
   WebhookChannelConf,
 } from '../../../../../api/notification_channels';
-import { CodeView } from '../../../../../components/CodeView/CodeView';
+import { TemplateField } from '../TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 export const WEBHOOK_DEFAULT_TEMPLATE = '';
@@ -72,11 +72,10 @@ export function WebhookChannelForm({ value, onChange }: WebhookChannelFormProps)
           placeholder="Used to sign HMAC-SHA256 payloads"
         />
       </div>
-
-      <div className={styles.field}>
-        <label className={styles.fieldLabel}>Payload template</label>
-        <CodeView code={value.template} />
-      </div>
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+      />
     </>
   );
 }

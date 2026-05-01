@@ -2,7 +2,7 @@ import type {
   CreateChannelRequest,
   EmailChannelConf,
 } from '../../../../../api/notification_channels';
-import { CodeView } from '../../../../../components/CodeView/CodeView';
+import { TemplateField } from '../TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 export const EMAIL_DEFAULT_TEMPLATE = `_count: len(_osv_records)
@@ -114,10 +114,10 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
         </button>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.fieldLabel}>Payload template</label>
-        <CodeView code={value.template} />
-      </div>
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+      />
     </>
   );
 }

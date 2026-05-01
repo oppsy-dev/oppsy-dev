@@ -1,16 +1,25 @@
 import { useState } from 'react';
+import { Editor } from '@monaco-editor/react';
 import styles from './CodeView.module.css';
+
+export enum CodeType {
+  JSON = 'json',
+  CUE = 'cue',
+}
 
 type CodeViewProps = {
   code: string;
+  type: CodeType;
   filename?: string;
+  onChange?: (value: string) => void;
+  height?: string;
 };
 
 function CopyIcon() {
   return (
     <svg
-      width="13"
-      height="13"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -27,12 +36,12 @@ function CopyIcon() {
 function CheckIcon() {
   return (
     <svg
-      width="13"
-      height="13"
+      width="12"
+      height="12"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.25"
+      strokeWidth="2.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -41,10 +50,8 @@ function CheckIcon() {
   );
 }
 
-export function CodeView({ code, filename }: CodeViewProps) {
+export function CodeView({ code, type, filename, onChange, height = '50vh' }: CodeViewProps) {
   const [copied, setCopied] = useState(false);
-  const lines = code.split('\n');
-  const gutterWidth = `${String(lines.length).length}ch`;
 
   const handleCopy = async () => {
     try {
@@ -52,18 +59,30 @@ export function CodeView({ code, filename }: CodeViewProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // clipboard unavailable (insecure context or permission denied)
+      // clipboard unavailable
     }
   };
 
+  const readOnly = onChange === undefined;
+
+  const options = {
+    minimap: { enabled: false },
+    scrollBeyondLastLine: false,
+    fontSize: 13,
+    fontFamily: "'JetBrains Mono', monospace",
+    padding: { top: 10, bottom: 10 },
+    readOnly,
+    ...(readOnly ? { readOnlyMessage: { value: '' } } : {}),
+  };
+
   return (
-    <div className={styles.card}>
+    <div className={styles.card} data-interactive={!readOnly ? true : undefined}>
       {filename && (
         <div className={styles.cardHeader}>
-          <span className={styles.label}>{filename}</span>
+          <span className={styles.fileLabel}>{filename}</span>
           <button
-            className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
             type="button"
+            className={copied ? `${styles.copyBtn} ${styles.copyBtnDone}` : styles.copyBtn}
             onClick={handleCopy}
             aria-label="Copy"
           >
@@ -72,20 +91,14 @@ export function CodeView({ code, filename }: CodeViewProps) {
           </button>
         </div>
       )}
-      <div
-        className={styles.codeArea}
-        style={{ '--line-num-width': gutterWidth } as React.CSSProperties}
-      >
-        <div className={styles.lines}>
-          {lines.map((line, i) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <div key={i} className={styles.line}>
-              <span className={styles.lineNum}>{i + 1}</span>
-              <span className={styles.lineContent}>{line}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Editor
+        defaultLanguage={type}
+        value={code}
+        height={height}
+        theme="vs"
+        options={options}
+        onChange={(v) => onChange?.(v ?? '')}
+      />
     </div>
   );
 }

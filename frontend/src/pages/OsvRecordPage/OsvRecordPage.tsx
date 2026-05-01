@@ -15,7 +15,7 @@ import styles from './OsvRecordPage.module.css';
 import { PageBackground } from '../../components/PageBackground/PageBackground';
 import { AppRoute } from '../../routes/Routes';
 import { BackIcon } from '../../components/Icons';
-import { CodeView } from '../../components/CodeView/CodeView';
+import { CodeType, CodeView } from '../../components/CodeView/CodeView';
 
 enum Tab {
   Overview = 'overview',
@@ -104,7 +104,11 @@ export function OsvRecordPage() {
 
         {viewMode === ViewMode.Raw ? (
           <div className={styles.rawJson}>
-            <CodeView code={JSON.stringify(record, null, 2)} filename={`${record.id}.json`} />
+            <CodeView
+              code={JSON.stringify(record, null, 2)}
+              filename={`${record.id}.json`}
+              type={CodeType.JSON}
+            />
           </div>
         ) : (
           <div className={styles.tabContent}>
