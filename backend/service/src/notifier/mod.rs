@@ -1,6 +1,4 @@
-mod discord;
-mod email;
-mod webhook;
+mod payload;
 
 use std::{any::type_name, fmt::Debug, sync::Arc};
 
@@ -11,9 +9,8 @@ use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
-    notifier::{
-        discord::osv_discord_event_payload, email::osv_email_event_payload,
-        webhook::osv_webhook_event_payload,
+    notifier::payload::{
+        osv_discord_event_payload, osv_email_event_payload, osv_webhook_event_payload,
     },
     resources::{Resource, ResourceRegistry},
     settings::Settings,

@@ -1,8 +1,14 @@
-use poem_openapi::NewType;
+use poem_openapi::{NewType, types::Example};
 
 /// OSV vulnerability identifier (e.g. "GHSA-xxxx-xxxx-xxxx" or "CVE-xxxx-xxxx").
 #[derive(NewType, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct OsvId(String);
+
+impl Example for OsvId {
+    fn example() -> Self {
+        Self("GHSA-jw36-hf63-69r9".to_string())
+    }
+}
 
 impl From<String> for OsvId {
     fn from(value: String) -> Self {
