@@ -1,5 +1,3 @@
-mod payload;
-
 use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
@@ -8,16 +6,10 @@ use osv_db::types::OsvRecord;
 use tracing::{error, info};
 
 use crate::{
-    db::CoreDb,
-    notifier::payload::{
-        osv_discord_event_payload, osv_email_event_payload, osv_webhook_event_payload,
-    },
-    resources::{Resource, ResourceRegistry},
-    settings::Settings,
-    types::{
+    cue::CueCtx, db::CoreDb,  resources::{Resource, ResourceRegistry}, settings::Settings, types::{
         ManifestId, NotificationChannel, NotificationChannelConfInner, NotificationChannelId,
         NotificationEvent, NotificationEventId, NotificationEventMeta, WorkspaceId,
-    },
+    }
 };
 
 pub struct Notifier {
@@ -46,6 +38,7 @@ impl Notifier {
     pub fn spawn_osv_events(
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
+        cue_ctx: Arc<CueCtx>,
         workspace_id: WorkspaceId,
         manifest_id: ManifestId,
         records: Vec<OsvRecord>,
@@ -60,7 +53,7 @@ impl Notifier {
         );
         tokio::spawn(async move {
             if let Err(err) =
-                Self::spawn_osv_events_inner(self, core_db, workspace_id, manifest_id, records)
+                Self::spawn_osv_events_inner(self, core_db,  cue_ctx, workspace_id, manifest_id, records)
                     .await
             {
                 error!(error = ?err, "Cannot spawn osv notification events");
@@ -71,6 +64,7 @@ impl Notifier {
     async fn spawn_osv_events_inner(
         self: Arc<Notifier>,
         core_db: Arc<CoreDb>,
+        cue_ctx: Arc<CueCtx>,
         workspace_id: WorkspaceId,
         manifest_id: ManifestId,
         records: Vec<OsvRecord>,
@@ -100,7 +94,7 @@ impl Notifier {
             .into_iter()
             .filter(|c| c.active)
             .map(|channel| {
-                Self::spawn_osv_notification(self.clone(), channel, meta.clone()).boxed()
+                Self::spawn_osv_notification(self.clone(), cue_ctx.clone(), channel, meta.clone()).boxed()
             })
             .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
                 tasks.spawn(t);
@@ -125,6 +119,7 @@ impl Notifier {
 
     async fn spawn_osv_notification(
         self: Arc<Notifier>,
+        cue_ctx: Arc<CueCtx>,
         channel: NotificationChannel,
         meta: NotificationEventMeta,
     ) -> (
@@ -134,15 +129,15 @@ impl Notifier {
     ) {
         match channel.conf.inner {
             NotificationChannelConfInner::Webhook(conf) => {
-                let payload = osv_webhook_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Discord(conf) => {
-                let payload = osv_discord_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Email(conf) => {
-                let payload = osv_email_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(self.email.clone(), conf, channel.id, payload).await
             },
         }
@@ -153,7 +148,7 @@ async fn spawn_notification<N, C, P>(
     notifier: Option<Arc<N>>,
     event_conf: C,
     channel_id: NotificationChannelId,
-    payload: P,
+    payload: anyhow::Result<P>,
 ) -> (
     NotificationChannelId,
     NotificationEventId,
@@ -166,7 +161,11 @@ where
 {
     if let Some(notifier) = notifier {
         info!(type = %type_name::<N>(), conf = ?event_conf, "Spawn notification");
-        let res = notifier.notify(event_conf.into(), payload.into()).await;
+
+        let res= match payload {
+            Ok(payload) => notifier.notify(event_conf.into(), payload.into()).await,
+            Err(err) => Err(err),
+        };
         (channel_id, NotificationEventId::generate(), res)
     } else {
         error!(type = %type_name::<N>(), "Notifier not configured");

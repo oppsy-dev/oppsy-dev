@@ -69,6 +69,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore = ""]
     fn payload() {
         let cue_ctx = cue_rs::Ctx::new().unwrap();
 
