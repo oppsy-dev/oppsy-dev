@@ -1,4 +1,5 @@
 mod background;
+mod cue;
 mod db;
 mod logger;
 mod notifier;
@@ -11,7 +12,7 @@ use clap::{Parser, Subcommand};
 use db::{ManifestDb, OsvDb};
 use tracing::info;
 
-use crate::{db::CoreDb, notifier::Notifier, resources::ResourceRegistry};
+use crate::{cue::CueCtx, db::CoreDb, notifier::Notifier, resources::ResourceRegistry};
 
 #[derive(Parser)]
 #[command(version, about = "OPPSY backend")]
@@ -47,6 +48,7 @@ async fn run_server() -> anyhow::Result<()> {
 
     let mut tasks = tokio::task::JoinSet::new();
 
+    tasks.spawn(async { ResourceRegistry::register::<CueCtx>().await });
     tasks.spawn(async { ResourceRegistry::register::<ManifestDb>().await });
     tasks.spawn(async { ResourceRegistry::register::<OsvDb>().await });
     tasks.spawn(async { ResourceRegistry::register::<CoreDb>().await });
