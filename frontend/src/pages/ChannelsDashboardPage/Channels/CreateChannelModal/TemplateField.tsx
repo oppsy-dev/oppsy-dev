@@ -1,6 +1,51 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { CodeType, CodeView } from '../../../../components/CodeView/CodeView';
 import styles from './CreateChannelModal.module.css';
+
+const SCHEMA = `_workspace_id: string
+_workspace_name: string
+_manifest_id: string
+_manifest_type: string
+_manifest_name: string
+_manifest_tag?: string | null
+_osv_records: [string, ...string]`;
+
+function InfoIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.18s ease' }}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
 
 type TemplateFieldProps = {
   value: string;
@@ -9,16 +54,58 @@ type TemplateFieldProps = {
 
 export function TemplateField({ value, onChange }: TemplateFieldProps) {
   const [open, setOpen] = useState(false);
+  const [schemaVisible, setSchemaVisible] = useState(false);
+  const hideTimer = useRef<number>(undefined);
+
+  const showSchema = () => {
+    window.clearTimeout(hideTimer.current);
+    setSchemaVisible(true);
+  };
+
+  const hideSchema = () => {
+    hideTimer.current = window.setTimeout(() => setSchemaVisible(false), 150);
+  };
 
   return (
     <div className={styles.field}>
       <div className={styles.fieldToggleRow}>
         <span className={styles.fieldLabel}>Payload template</span>
         <button type="button" className={styles.fieldToggleBtn} onClick={() => setOpen((o) => !o)}>
-          {open ? 'Hide' : 'Customize'}
+          Customize <ChevronIcon open={open} />
         </button>
       </div>
-      {open && <CodeView code={value} type={CodeType.CUE} height="220px" onChange={onChange} />}
+
+      {open && (
+        <>
+          <div
+            className={styles.schemaInfoAnchor}
+            onMouseEnter={showSchema}
+            onMouseLeave={hideSchema}
+          >
+            <span>Written in CUE</span>
+            <InfoIcon />
+
+            {schemaVisible && (
+              <div
+                className={styles.schemaTooltip}
+                onMouseEnter={showSchema}
+                onMouseLeave={hideSchema}
+              >
+                <CodeView code={SCHEMA} type={CodeType.CUE} filename="schema.cue" height="9rem" />
+                <a
+                  href="https://cuelang.org/docs/reference/spec/#introduction"
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.schemaTooltipLink}
+                >
+                  CUE language reference ↗
+                </a>
+              </div>
+            )}
+          </div>
+          <CodeView code={value} type={CodeType.CUE} height="14rem" onChange={onChange} />
+        </>
+      )}
     </div>
   );
 }
