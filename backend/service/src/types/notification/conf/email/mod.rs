@@ -17,18 +17,24 @@ pub struct EmailChannelConf {
 
 impl EmailChannelConf {
     pub const TEMPLATE_SCHEMA: &[u8] = include_bytes!("schema.cue");
+
     pub fn event_payload(
         &self,
         cue_ctx: &cue_rs::Ctx,
         meta: &NotificationEventMeta,
     ) -> anyhow::Result<EmailEventPayload> {
-
-        let schema = cue_rs::Value::compile_bytes(cue_ctx, &Self::TEMPLATE_SCHEMA)?;
+        let schema = cue_rs::Value::compile_bytes(cue_ctx, Self::TEMPLATE_SCHEMA)?;
         schema.is_valid()?;
 
-        // Combine with [`NotificationEventMeta::SCHEMA`] so the template compiles in a scope where all meta field
-        // types (e.g. manifest_name, workspace_name) are defined alongside the output field constraints.
-        let template_bytes = [NotificationEventMeta::SCHEMA, b"\n", self.template.as_bytes()].concat();
+        // Combine with [`NotificationEventMeta::SCHEMA`] so the template compiles in a scope
+        // where all meta field types (e.g. manifest_name, workspace_name) are defined
+        // alongside the output field constraints.
+        let template_bytes = [
+            NotificationEventMeta::SCHEMA,
+            b"\n",
+            self.template.as_bytes(),
+        ]
+        .concat();
 
         let template = cue_rs::Value::compile_bytes(cue_ctx, &template_bytes)?;
         let template = cue_rs::Value::unify(&schema, &template);
@@ -48,7 +54,8 @@ impl Example for EmailChannelConf {
         Self {
             from: EmailAddress::example(),
             to: vec![EmailAddress::example()],
-            template: r#"body: "Some body" subject: "Some subject""#.to_string(),
+            // TODO: proper template value
+            template: String::new(),
         }
     }
 }
@@ -67,21 +74,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn email_channel_conf_verify() {
+    fn payload() {
         let cue_ctx = cue_rs::Ctx::new().unwrap();
 
         let mut conf = EmailChannelConf::example();
         let meta = &NotificationEventMeta::example();
 
         conf.template = r#"body: "Some body", subject: "Some subject""#.to_string();
-        let payload = conf.event_payload(&cue_ctx, &meta).unwrap();
+        let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(payload, EmailEventPayload {
             subject: "Some subject".to_string(),
             body: "Some body".to_string(),
         });
 
         conf.template = r#"body: "Some body with \(manifest_name)", subject: "Some subject with \(workspace_name)""#.to_string();
-        let payload = conf.event_payload(&cue_ctx, &meta).unwrap();
+        let payload = conf.event_payload(&cue_ctx, meta).unwrap();
         assert_eq!(payload, EmailEventPayload {
             subject: format!("Some subject with {}", meta.workspace_name),
             body: format!("Some body with {}", meta.manifest_name),

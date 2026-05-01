@@ -1,5 +1,8 @@
+use notifier::webhook::WebhookEventPayload;
 use poem_openapi::{Object, types::Example};
 use url::Url;
+
+use crate::types::NotificationEventMeta;
 
 /// Configuration for a webhook notification channel.
 #[derive(Debug, Clone, Object)]
@@ -9,6 +12,35 @@ pub struct WebhookChannelConf {
     pub webhook_url: Url,
     /// Optional HMAC-SHA256 secret used to sign the payload.
     pub secret: Option<String>,
+    /// Webhook event payload template, as a CUE encoded string.
+    pub template: String,
+}
+
+impl WebhookChannelConf {
+    pub fn event_payload(
+        &self,
+        cue_ctx: &cue_rs::Ctx,
+        meta: &NotificationEventMeta,
+    ) -> anyhow::Result<WebhookEventPayload> {
+        // Combine with [`NotificationEventMeta::SCHEMA`] so the template compiles in a scope
+        // where all meta field types (e.g. manifest_name, workspace_name) are defined
+        // alongside the output field constraints.
+        let template_bytes = [
+            NotificationEventMeta::SCHEMA,
+            b"\n",
+            self.template.as_bytes(),
+        ]
+        .concat();
+
+        let template = cue_rs::Value::compile_bytes(cue_ctx, &template_bytes)?;
+        let meta_cue = meta.to_cue(cue_ctx)?;
+        let payload = cue_rs::Value::unify(&meta_cue, &template);
+        payload.is_valid()?;
+
+        let payload_bytes = payload.to_json_bytes()?;
+        let payload = serde_json::from_slice(&payload_bytes)?;
+        Ok(payload)
+    }
 }
 
 impl Example for WebhookChannelConf {
@@ -17,6 +49,8 @@ impl Example for WebhookChannelConf {
         Self {
             webhook_url: Url::parse("https://example.com/webhooks/oppsy").unwrap(),
             secret: None,
+            // TODO: proper template value
+            template: String::new(),
         }
     }
 }
@@ -27,5 +61,29 @@ impl From<WebhookChannelConf> for notifier::webhook::WebhookEventConf {
             url: value.webhook_url,
             secret: value.secret,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn payload() {
+        let cue_ctx = cue_rs::Ctx::new().unwrap();
+
+        let mut conf = WebhookChannelConf::example();
+        let meta = &NotificationEventMeta::example();
+
+        conf.template = r#"webhook: "Some value""#.to_string();
+        let payload = conf.event_payload(&cue_ctx, meta).unwrap();
+        assert_eq!(payload, serde_json::json!({"webhook": "Some value"}));
+
+        conf.template = r#"webhook: "Some value with \(workspace_name)""#.to_string();
+        let payload = conf.event_payload(&cue_ctx, meta).unwrap();
+        assert_eq!(
+            payload,
+            serde_json::json!({"webhook": format!("Some value with {}", meta.workspace_name)})
+        );
     }
 }

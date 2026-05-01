@@ -83,7 +83,8 @@ mod tests {
         let meta = NotificationEventMeta::example();
         let cue_ctx = cue_rs::Ctx::new().unwrap();
         let cue: cue_rs::Value = meta.to_cue(&cue_ctx).unwrap();
-        let json: serde_json::Value = serde_json::from_slice(&cue.to_json_bytes().unwrap()).unwrap();
-        println!("{}", json);
+        let json: serde_json::Value =
+            serde_json::from_slice(&cue.to_json_bytes().unwrap()).unwrap();
+        println!("{json}");
     }
 }

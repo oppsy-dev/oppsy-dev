@@ -11,10 +11,12 @@ pub struct WebhookEventConf {
     pub secret: Option<String>,
 }
 
+pub type WebhookEventPayload = serde_json::Value;
+
 #[async_trait::async_trait]
 impl Notifier for WebhookNotifier {
     type EventConf = WebhookEventConf;
-    type EventPayload = serde_json::Value;
+    type EventPayload = WebhookEventPayload;
 
     async fn notify(
         &self,
