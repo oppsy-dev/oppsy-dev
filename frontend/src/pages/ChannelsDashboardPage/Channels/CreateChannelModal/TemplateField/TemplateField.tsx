@@ -51,10 +51,11 @@ type TemplateFieldProps = {
   value: string;
   onChange: (value: string) => void;
   templateSchema?: string;
+  alwaysOpen?: boolean;
 };
 
-export function TemplateField({ value, onChange, templateSchema }: TemplateFieldProps) {
-  const [open, setOpen] = useState(false);
+export function TemplateField({ value, onChange, templateSchema, alwaysOpen }: TemplateFieldProps) {
+  const [open, setOpen] = useState(alwaysOpen ?? false);
   const [schemaVisible, setSchemaVisible] = useState(false);
   const [templateSchemaVisible, setTemplateSchemaVisible] = useState(false);
   const hideTimer = useRef<number>(undefined);
@@ -82,9 +83,11 @@ export function TemplateField({ value, onChange, templateSchema }: TemplateField
     <div className={styles.field}>
       <div className={styles.fieldToggleRow}>
         <span className={styles.fieldLabel}>Payload template</span>
-        <button type="button" className={styles.fieldToggleBtn} onClick={() => setOpen((o) => !o)}>
-          Customize <ChevronIcon open={open} />
-        </button>
+        {!alwaysOpen && (
+          <button type="button" className={styles.fieldToggleBtn} onClick={() => setOpen((o) => !o)}>
+            Customize <ChevronIcon open={open} />
+          </button>
+        )}
       </div>
 
       {open && (
