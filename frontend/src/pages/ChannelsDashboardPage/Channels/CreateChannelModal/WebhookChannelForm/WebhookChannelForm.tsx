@@ -2,7 +2,7 @@ import type {
   CreateChannelRequest,
   WebhookChannelConf,
 } from '../../../../../api/notification_channels';
-import { TemplateField } from '../TemplateField';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 export const WEBHOOK_DEFAULT_TEMPLATE = '';

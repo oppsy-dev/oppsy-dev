@@ -2,7 +2,7 @@ import type {
   CreateChannelRequest,
   DiscordChannelConf,
 } from '../../../../../api/notification_channels';
-import { TemplateField } from '../TemplateField';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 const BT = '`';

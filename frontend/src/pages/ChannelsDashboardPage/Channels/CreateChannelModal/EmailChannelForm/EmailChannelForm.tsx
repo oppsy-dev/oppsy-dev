@@ -2,7 +2,7 @@ import type {
   CreateChannelRequest,
   EmailChannelConf,
 } from '../../../../../api/notification_channels';
-import { TemplateField } from '../TemplateField';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 export const EMAIL_DEFAULT_TEMPLATE = `_count: len(_osv_records)

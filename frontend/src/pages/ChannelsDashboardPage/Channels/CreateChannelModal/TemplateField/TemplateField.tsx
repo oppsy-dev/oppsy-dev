@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
-import { CodeType, CodeView } from '../../../../components/CodeView/CodeView';
-import styles from './CreateChannelModal.module.css';
+import { CodeType, CodeView } from '../../../../../components/CodeView/CodeView';
+import styles from './TemplateField.module.css';
 
 const SCHEMA = `_workspace_id: string
 _workspace_name: string
@@ -82,7 +82,7 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
             onMouseEnter={showSchema}
             onMouseLeave={hideSchema}
           >
-            <span>Written in CUE</span>
+            <span>Available fields</span>
             <InfoIcon />
 
             {schemaVisible && (
@@ -92,16 +92,16 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
                 onMouseLeave={hideSchema}
               >
                 <CodeView code={SCHEMA} type={CodeType.CUE} filename="schema.cue" height="9rem" />
-                <a
-                  href="https://cuelang.org/docs/reference/spec/#introduction"
-                  target="_blank"
-                  rel="noreferrer"
-                  className={styles.schemaTooltipLink}
-                >
-                  CUE language reference ↗
-                </a>
               </div>
             )}
+            <a
+              href="https://cuelang.org/docs/reference/spec/#introduction"
+              target="_blank"
+              rel="noreferrer"
+              className={styles.schemaTooltipLink}
+            >
+              CUE language reference ↗
+            </a>
           </div>
           <CodeView code={value} type={CodeType.CUE} height="14rem" onChange={onChange} />
         </>
