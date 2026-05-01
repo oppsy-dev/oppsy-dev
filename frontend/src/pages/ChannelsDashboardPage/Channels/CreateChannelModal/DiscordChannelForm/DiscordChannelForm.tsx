@@ -70,10 +70,7 @@ export function DiscordChannelForm({ value, onChange }: DiscordChannelFormProps)
           placeholder="https://discord.com/api/webhooks/…"
         />
       </div>
-      <TemplateField
-        value={value.template}
-        onChange={(v) => onChange({ ...value, template: v })}
-      />
+      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} />
     </>
   );
 }

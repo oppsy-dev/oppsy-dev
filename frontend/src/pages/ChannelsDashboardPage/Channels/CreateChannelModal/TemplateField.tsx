@@ -14,22 +14,11 @@ export function TemplateField({ value, onChange }: TemplateFieldProps) {
     <div className={styles.field}>
       <div className={styles.fieldToggleRow}>
         <span className={styles.fieldLabel}>Payload template</span>
-        <button
-          type="button"
-          className={styles.fieldToggleBtn}
-          onClick={() => setOpen((o) => !o)}
-        >
+        <button type="button" className={styles.fieldToggleBtn} onClick={() => setOpen((o) => !o)}>
           {open ? 'Hide' : 'Customize'}
         </button>
       </div>
-      {open && (
-        <CodeView
-          code={value}
-          type={CodeType.CUE}
-          height="220px"
-          onChange={onChange}
-        />
-      )}
+      {open && <CodeView code={value} type={CodeType.CUE} height="220px" onChange={onChange} />}
     </div>
   );
 }

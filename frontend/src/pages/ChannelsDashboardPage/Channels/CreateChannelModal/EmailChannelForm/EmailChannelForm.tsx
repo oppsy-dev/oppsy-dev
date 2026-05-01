@@ -114,10 +114,7 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
         </button>
       </div>
 
-      <TemplateField
-        value={value.template}
-        onChange={(v) => onChange({ ...value, template: v })}
-      />
+      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} />
     </>
   );
 }
