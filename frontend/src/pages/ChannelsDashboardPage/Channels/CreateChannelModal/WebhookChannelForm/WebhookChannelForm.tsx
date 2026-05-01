@@ -4,10 +4,13 @@ import type {
 } from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
+export const WEBHOOK_DEFAULT_TEMPLATE = '';
+
 export type WebhookFormState = {
   name: string;
   url: string;
   secret: string;
+  template: string;
 };
 
 export function buildWebhookChannel(state: WebhookFormState): CreateChannelRequest | null {
@@ -17,6 +20,7 @@ export function buildWebhookChannel(state: WebhookFormState): CreateChannelReque
     conf: {
       type: 'Webhook',
       webhook_url: state.url.trim(),
+      template: state.template,
       ...(state.secret.trim() ? { secret: state.secret.trim() } : {}),
     } as WebhookChannelConf,
   };
