@@ -41,11 +41,7 @@ export function DangerZone({ name, title, description, onDelete, onDeleted }: Pr
             <p className={styles.actionTitle}>{title}</p>
             <p className={styles.actionDesc}>{description}</p>
           </div>
-          <button
-            type="button"
-            className={styles.deleteBtn}
-            onClick={() => setShowConfirm(true)}
-          >
+          <button type="button" className={styles.deleteBtn} onClick={() => setShowConfirm(true)}>
             <TrashIcon width={13} height={13} />
             Delete
           </button>
@@ -75,7 +71,10 @@ export function DangerZone({ name, title, description, onDelete, onDeleted }: Pr
             <button
               type="button"
               className={styles.cancelBtn}
-              onClick={() => { setShowConfirm(false); setConfirmText(''); }}
+              onClick={() => {
+                setShowConfirm(false);
+                setConfirmText('');
+              }}
               disabled={deleting}
             >
               Cancel

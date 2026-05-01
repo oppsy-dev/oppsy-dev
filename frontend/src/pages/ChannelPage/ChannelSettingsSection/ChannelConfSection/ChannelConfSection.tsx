@@ -23,15 +23,9 @@ export function ChannelConfSection({ value, onChange }: Props) {
         <p className={styles.sectionDesc}>{DESCRIPTIONS[value.type]}</p>
       </div>
       <div className={styles.card}>
-        {value.type === 'Webhook' && (
-          <WebhookChannelConfForm value={value} onChange={onChange} />
-        )}
-        {value.type === 'Discord' && (
-          <DiscordChannelConfForm value={value} onChange={onChange} />
-        )}
-        {value.type === 'Email' && (
-          <EmailChannelConfForm value={value} onChange={onChange} />
-        )}
+        {value.type === 'Webhook' && <WebhookChannelConfForm value={value} onChange={onChange} />}
+        {value.type === 'Discord' && <DiscordChannelConfForm value={value} onChange={onChange} />}
+        {value.type === 'Email' && <EmailChannelConfForm value={value} onChange={onChange} />}
       </div>
     </div>
   );

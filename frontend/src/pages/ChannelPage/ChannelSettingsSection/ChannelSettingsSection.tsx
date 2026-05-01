@@ -20,8 +20,7 @@ export function ChannelSettingsSection({ channel, onBack, onDelete, onDeleted }:
   const { mutate: saveChannel, isPending: saving } = useUpdateChannel();
 
   const isDirty =
-    active !== channel.active ||
-    JSON.stringify(conf) !== JSON.stringify(channel.conf);
+    active !== channel.active || JSON.stringify(conf) !== JSON.stringify(channel.conf);
 
   const handleSave = () => {
     saveChannel({
@@ -58,7 +57,11 @@ export function ChannelSettingsSection({ channel, onBack, onDelete, onDeleted }:
             <button
               type="button"
               aria-pressed={active}
-              className={active ? `${styles.toggle} ${styles.toggleOn}` : `${styles.toggle} ${styles.toggleOff}`}
+              className={
+                active
+                  ? `${styles.toggle} ${styles.toggleOn}`
+                  : `${styles.toggle} ${styles.toggleOff}`
+              }
               onClick={() => setActive((v) => !v)}
             >
               <span className={styles.toggleThumb} />
