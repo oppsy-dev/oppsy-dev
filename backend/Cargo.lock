@@ -800,6 +800,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "cue-rs"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8b579667a79cc863d8efe88b7053fba2246ca6bc6977ad1f11ee432a06b7604"
+dependencies = [
+ "bytes",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "curve25519-dalek"
 version = "4.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2608,7 +2618,7 @@ checksum = "044b1fa4f259f4df9ad5078e587b208f5d288a25407575fcddb9face30c7c692"
 dependencies = [
  "rand 0.9.4",
  "socket2",
- "thiserror 2.0.18",
+ "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -3663,6 +3673,7 @@ dependencies = [
  "clap",
  "config",
  "core-db",
+ "cue-rs",
  "dashmap",
  "dotenvy",
  "ed25519-dalek",

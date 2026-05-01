@@ -8,16 +8,19 @@ import {
 import {
   DiscordChannelForm,
   buildDiscordChannel,
+  DISCORD_DEFAULT_TEMPLATE,
   type DiscordFormState,
 } from './DiscordChannelForm/DiscordChannelForm';
 import {
   WebhookChannelForm,
   buildWebhookChannel,
+  WEBHOOK_DEFAULT_TEMPLATE,
   type WebhookFormState,
 } from './WebhookChannelForm/WebhookChannelForm';
 import {
   EmailChannelForm,
   buildEmailChannel,
+  EMAIL_DEFAULT_TEMPLATE,
   type EmailFormState,
 } from './EmailChannelForm/EmailChannelForm';
 import styles from './CreateChannelModal.module.css';
@@ -30,9 +33,9 @@ type FormStates = {
 };
 
 const INITIAL_FORM_STATES: FormStates = {
-  Discord: { name: '', webhookUrl: '' },
-  Webhook: { name: '', url: '', secret: '' },
-  Email: { name: '', from: '', addresses: [''] },
+  Discord: { name: '', webhookUrl: '', template: DISCORD_DEFAULT_TEMPLATE },
+  Webhook: { name: '', url: '', secret: '', template: WEBHOOK_DEFAULT_TEMPLATE },
+  Email: { name: '', from: '', addresses: [''], template: EMAIL_DEFAULT_TEMPLATE },
 };
 
 function buildChannel(

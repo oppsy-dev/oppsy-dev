@@ -1,4 +1,7 @@
-use poem_openapi::{Object, types::ToJSON};
+use poem_openapi::{
+    Object,
+    types::{Example, ToJSON},
+};
 
 use crate::types::{
     ManifestId, ManifestName, ManifestTag, ManifestType, OsvId, WorkspaceId, WorkspaceName,
@@ -25,6 +28,34 @@ pub struct NotificationEventMeta {
     pub osv_records: Vec<OsvId>,
 }
 
+impl NotificationEventMeta {
+    pub const SCHEMA: &[u8] = include_bytes!("schema.cue");
+
+    pub fn to_cue(
+        &self,
+        cue_ctx: &cue_rs::Ctx,
+    ) -> anyhow::Result<cue_rs::Value> {
+        let json = self
+            .to_json()
+            .ok_or_else(|| anyhow::anyhow!("NotificationEventMeta must convert to JSON value"))?;
+        crate::cue::json_object_to_hidden_fields(cue_ctx, &json)
+    }
+}
+
+impl Example for NotificationEventMeta {
+    fn example() -> Self {
+        Self {
+            workspace_id: WorkspaceId::example(),
+            workspace_name: "OPPSY".to_string().into(),
+            manifest_id: ManifestId::example(),
+            manifest_type: ManifestType::Cargo,
+            manifest_name: "Cargo.lock".to_string().into(),
+            manifest_tag: None,
+            osv_records: vec![OsvId::example()],
+        }
+    }
+}
+
 impl TryFrom<NotificationEventMeta> for core_db::notification_event::Meta {
     type Error = anyhow::Error;
 
@@ -40,5 +71,20 @@ impl TryFrom<core_db::notification_event::Meta> for NotificationEventMeta {
 
     fn try_from(value: core_db::notification_event::Meta) -> Result<Self, Self::Error> {
         parse_from_json(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn notification_event_meta_cue() {
+        let meta = NotificationEventMeta::example();
+        let cue_ctx = cue_rs::Ctx::new().unwrap();
+        let cue: cue_rs::Value = meta.to_cue(&cue_ctx).unwrap();
+        let json: serde_json::Value =
+            serde_json::from_slice(&cue.to_json_bytes().unwrap()).unwrap();
+        println!("{json}");
     }
 }

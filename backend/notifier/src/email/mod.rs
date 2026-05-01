@@ -4,6 +4,7 @@ use lettre::{
     transport::smtp::authentication::Credentials,
 };
 use reqwest::Url;
+use serde::Deserialize;
 
 use crate::Notifier;
 
@@ -42,7 +43,7 @@ pub struct EmailEventConfig {
     pub to: Vec<Address>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct EmailEventPayload {
     pub subject: String,
     pub body: String,

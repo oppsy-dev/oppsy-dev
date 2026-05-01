@@ -10,9 +10,14 @@ type V1ChannelsGetResp =
 type V1ChannelEventsGetResp =
   paths['/v1/channels/{channel_id}/events']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
-export type EmailChannelConf = { type: 'Email'; from: string; to: string[] };
-export type DiscordChannelConf = { type: 'Discord'; discord_webhook_url: string };
-export type WebhookChannelConf = { type: 'Webhook'; webhook_url: string; secret?: string | null };
+export type EmailChannelConf = { type: 'Email'; from: string; to: string[]; template: string };
+export type DiscordChannelConf = { type: 'Discord'; discord_webhook_url: string; template: string };
+export type WebhookChannelConf = {
+  type: 'Webhook';
+  webhook_url: string;
+  secret?: string | null;
+  template: string;
+};
 export type ChannelConf = EmailChannelConf | DiscordChannelConf | WebhookChannelConf;
 
 export type NotificationChannelType = components['schemas']['NotificationChannelType'];

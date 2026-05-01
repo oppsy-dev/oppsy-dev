@@ -1,7 +1,3 @@
-mod discord;
-mod email;
-mod webhook;
-
 use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
@@ -11,10 +7,6 @@ use tracing::{error, info};
 
 use crate::{
     db::CoreDb,
-    notifier::{
-        discord::osv_discord_event_payload, email::osv_email_event_payload,
-        webhook::osv_webhook_event_payload,
-    },
     resources::{Resource, ResourceRegistry},
     settings::Settings,
     types::{
@@ -99,11 +91,14 @@ impl Notifier {
             osv_records: osv_records_ids,
         };
 
+        let cue_ctx = Arc::new(cue_rs::Ctx::new()?);
+
         let events = channels
             .into_iter()
             .filter(|c| c.active)
             .map(|channel| {
-                Self::spawn_osv_notification(self.clone(), channel, meta.clone()).boxed()
+                Self::spawn_osv_notification(self.clone(), cue_ctx.clone(), channel, meta.clone())
+                    .boxed()
             })
             .fold(tokio::task::JoinSet::new(), |mut tasks, t| {
                 tasks.spawn(t);
@@ -128,6 +123,7 @@ impl Notifier {
 
     async fn spawn_osv_notification(
         self: Arc<Notifier>,
+        cue_ctx: Arc<cue_rs::Ctx>,
         channel: NotificationChannel,
         meta: NotificationEventMeta,
     ) -> (
@@ -137,15 +133,15 @@ impl Notifier {
     ) {
         match channel.conf.inner {
             NotificationChannelConfInner::Webhook(conf) => {
-                let payload = osv_webhook_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(Some(self.webhook.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Discord(conf) => {
-                let payload = osv_discord_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(Some(self.discord.clone()), conf, channel.id, payload).await
             },
             NotificationChannelConfInner::Email(conf) => {
-                let payload = osv_email_event_payload(&meta);
+                let payload = conf.event_payload(&cue_ctx, &meta);
                 spawn_notification(self.email.clone(), conf, channel.id, payload).await
             },
         }
@@ -156,7 +152,7 @@ async fn spawn_notification<N, C, P>(
     notifier: Option<Arc<N>>,
     event_conf: C,
     channel_id: NotificationChannelId,
-    payload: P,
+    payload: anyhow::Result<P>,
 ) -> (
     NotificationChannelId,
     NotificationEventId,
@@ -169,7 +165,11 @@ where
 {
     if let Some(notifier) = notifier {
         info!(type = %type_name::<N>(), conf = ?event_conf, "Spawn notification");
-        let res = notifier.notify(event_conf.into(), payload.into()).await;
+
+        let res = match payload {
+            Ok(payload) => notifier.notify(event_conf.into(), payload.into()).await,
+            Err(err) => Err(err),
+        };
         (channel_id, NotificationEventId::generate(), res)
     } else {
         error!(type = %type_name::<N>(), "Notifier not configured");

@@ -92,7 +92,7 @@ pub async fn endpoint(
             .await
     );
 
-    Notifier::spawn_osv_events(notifier, core_db, workspace_id, manifest_id, records);
+    notifier.spawn_osv_events(core_db, workspace_id, manifest_id, records);
 
     Responses::NoContent.into()
 }

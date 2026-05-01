@@ -4,10 +4,24 @@ import type {
 } from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
+export const EMAIL_DEFAULT_TEMPLATE = `_count: len(_osv_records)
+_plural: *"ies" | "y"
+if _count == 1 {
+\t_plural: "y"
+}
+_tag_line: *"" | string
+if _manifest_tag != null {
+\t_tag_line: "  Tag:            \\(_manifest_tag)\\n"
+}
+
+subject: "[OPPSY] \\(_count) new vulnerabilit\\(_plural) detected in \\(_workspace_name)/\\(_manifest_name)"
+body: "OPPSY detected \\(_count) new open-source vulnerabilit\\(_plural) in your manifest.\\n\\nWorkspace:      \\(_workspace_name)\\nManifest:       \\(_manifest_name) (\\(_manifest_type))\\n\\(_tag_line)\\nReview each finding at https://osv.dev and assess whether your project is affected.\\n\\n--\\nTo stop receiving these emails, disable or delete this notification channel in OPPSY."`;
+
 export type EmailFormState = {
   name: string;
   from: string;
   addresses: string[];
+  template: string;
 };
 
 export function buildEmailChannel(state: EmailFormState): CreateChannelRequest | null {
@@ -19,6 +33,7 @@ export function buildEmailChannel(state: EmailFormState): CreateChannelRequest |
       type: 'Email',
       from: state.from.trim(),
       to: validTo,
+      template: state.template,
     } as EmailChannelConf,
   };
 }

@@ -1,5 +1,6 @@
 use discord_webhook2::{message::Message, webhook::DiscordWebhook};
 use reqwest::Url;
+use serde::Deserialize;
 
 use crate::Notifier;
 
@@ -13,7 +14,7 @@ pub struct DiscordEventConf {
     pub url: Url,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct DiscordEventPayload {
     pub content: String,
 }

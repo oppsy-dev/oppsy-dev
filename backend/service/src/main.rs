@@ -1,4 +1,5 @@
 mod background;
+mod cue;
 mod db;
 mod logger;
 mod notifier;

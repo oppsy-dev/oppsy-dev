@@ -4,9 +4,24 @@ import type {
 } from '../../../../../api/notification_channels';
 import styles from '../CreateChannelModal.module.css';
 
+const BT = '`';
+
+export const DISCORD_DEFAULT_TEMPLATE = `_count: len(_osv_records)
+_plural: *"ies" | "y"
+if _count == 1 {
+\t_plural: "y"
+}
+_tag_line: *"" | string
+if _manifest_tag != null {
+\t_tag_line: "\\n**Tag:** ${BT}\\(_manifest_tag)${BT}"
+}
+
+content: ":shield: **OPPSY** detected **\\(_count)** new open-source vulnerabilit\\(_plural)\\n\\n**Workspace:** \\(_workspace_name)\\n**Manifest:** ${BT}\\(_manifest_name)${BT} (\\(_manifest_type))\\(_tag_line)\\n\\n*To stop receiving these notifications, disable or delete this channel in OPPSY.*"`;
+
 export type DiscordFormState = {
   name: string;
   webhookUrl: string;
+  template: string;
 };
 
 export function buildDiscordChannel(state: DiscordFormState): CreateChannelRequest | null {
@@ -16,6 +31,7 @@ export function buildDiscordChannel(state: DiscordFormState): CreateChannelReque
     conf: {
       type: 'Discord',
       discord_webhook_url: state.webhookUrl.trim(),
+      template: state.template,
     } as DiscordChannelConf,
   };
 }

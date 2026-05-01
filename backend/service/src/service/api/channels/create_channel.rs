@@ -38,11 +38,8 @@ pub type AllResponses = WithErrorResponses<Responses>;
 
 pub async fn endpoint(req: CreateNotificationChannelRequest) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
-    if !req.conf.verify_type() {
-        return Responses::UnprocessableContent(Json(
-            "Notification channel configuration must correspond with the type value".into(),
-        ))
-        .into();
+    if let Err(err) = req.conf.verify() {
+        return Responses::UnprocessableContent(Json(err.into())).into();
     }
 
     let id = NotificationChannelId::generate();
