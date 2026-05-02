@@ -1,4 +1,4 @@
-import { NotFoundError } from './errors';
+import { UnprocessableContent, NotFoundError } from './errors';
 
 export type PaginationParams = {
   page?: number;
@@ -15,8 +15,16 @@ function apiUrl(path: string, params?: Record<string, string | undefined>): URL 
   return url;
 }
 
-function assertOk(response: Response, method: string, path: string): void {
+async function assertOk(response: Response, method: string, path: string): Promise<void> {
   if (response.status === 404) throw new NotFoundError();
+  if (response.status === 422) {
+    let message = 'Unprocessable content';
+    try {
+      const body: unknown = await response.json();
+      if (typeof body === 'string' && body.length > 0) message = body;
+    } catch {}
+    throw new UnprocessableContent(message);
+  }
   if (!response.ok)
     throw new Error(`${method} ${path} failed: ${response.status} ${response.statusText}`);
 }
@@ -26,7 +34,7 @@ export async function get(
   params?: Record<string, string | undefined>,
 ): Promise<Response> {
   const response = await fetch(apiUrl(path, params), { credentials: 'include' });
-  assertOk(response, 'GET', path);
+  await assertOk(response,'GET', path);
   return response;
 }
 
@@ -41,7 +49,7 @@ export async function postBinary(
     body,
     credentials: 'include',
   });
-  assertOk(response, 'POST', path);
+  await assertOk(response,'POST', path);
   return response;
 }
 
@@ -56,7 +64,7 @@ export async function putBinary(
     body,
     credentials: 'include',
   });
-  assertOk(response, 'PUT', path);
+  await assertOk(response,'PUT', path);
   return response;
 }
 
@@ -65,7 +73,7 @@ export async function del(
   params?: Record<string, string | undefined>,
 ): Promise<Response> {
   const response = await fetch(apiUrl(path, params), { method: 'DELETE', credentials: 'include' });
-  assertOk(response, 'DELETE', path);
+  await assertOk(response,'DELETE', path);
   return response;
 }
 
@@ -80,7 +88,7 @@ export async function post(path: string, body?: unknown): Promise<Response> {
     body: body !== undefined ? JSON.stringify(body) : undefined,
     credentials: 'include',
   });
-  assertOk(response, 'POST', path);
+  await assertOk(response,'POST', path);
   return response;
 }
 
@@ -95,6 +103,6 @@ export async function patch(path: string, body?: unknown): Promise<Response> {
     body: body !== undefined ? JSON.stringify(body) : undefined,
     credentials: 'include',
   });
-  assertOk(response, 'PATCH', path);
+  await assertOk(response,'PATCH', path);
   return response;
 }
