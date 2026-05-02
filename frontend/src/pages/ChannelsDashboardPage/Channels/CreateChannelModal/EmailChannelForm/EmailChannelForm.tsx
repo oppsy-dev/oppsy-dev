@@ -2,20 +2,23 @@ import type {
   CreateChannelRequest,
   EmailChannelConf,
 } from '../../../../../api/notification_channels';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
-export const EMAIL_DEFAULT_TEMPLATE = `_count: len(_osv_records)
-_plural: *"ies" | "y"
-if _count == 1 {
-\t_plural: "y"
-}
-_tag_line: *"" | string
-if _manifest_tag != null {
-\t_tag_line: "  Tag:            \\(_manifest_tag)\\n"
-}
+export const EMAIL_TEMPLATE_SCHEMA = `subject: string\nbody: string`;
 
-subject: "[OPPSY] \\(_count) new vulnerabilit\\(_plural) detected in \\(_workspace_name)/\\(_manifest_name)"
-body: "OPPSY detected \\(_count) new open-source vulnerabilit\\(_plural) in your manifest.\\n\\nWorkspace:      \\(_workspace_name)\\nManifest:       \\(_manifest_name) (\\(_manifest_type))\\n\\(_tag_line)\\nReview each finding at https://osv.dev and assess whether your project is affected.\\n\\n--\\nTo stop receiving these emails, disable or delete this notification channel in OPPSY."`;
+export const EMAIL_DEFAULT_TEMPLATE = `subject: """
+[OPPSY] New vulnerabilities detected in \\(_workspace_name) \\(_manifest_name)
+"""
+
+body: """
+OPPSY detected
+Workspace:      \\(_workspace_name)
+Manifest:       \\(_manifest_name) (\\(_manifest_type))
+Review each finding at https://osv.dev and assess whether your project is affected.
+--
+To stop receiving these emails, disable or delete this notification channel in OPPSY.
+"""`;
 
 export type EmailFormState = {
   name: string;
@@ -112,6 +115,12 @@ export function EmailChannelForm({ value, onChange }: EmailChannelFormProps) {
           + Add another recipient
         </button>
       </div>
+
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        templateSchema={EMAIL_TEMPLATE_SCHEMA}
+      />
     </>
   );
 }

@@ -1,0 +1,68 @@
+/* ── Card (shared by all modes) ── */
+.card {
+  border: 1px solid var(--border-2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+
+.card:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* ── Header bar ── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.875rem;
+  border-bottom: 1px solid var(--border-2);
+  background: var(--surface-2);
+}
+
+.fileLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-2);
+}
+
+/* ── Copy button ── */
+.copyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  cursor: pointer;
+  transition:
+    color 0.12s,
+    border-color 0.12s,
+    background 0.12s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.copyBtn:hover {
+  color: var(--text-2);
+  border-color: var(--border-2);
+  background: var(--surface);
+}
+
+.copyBtnDone {
+  color: var(--green);
+  background: var(--green-dim);
+}

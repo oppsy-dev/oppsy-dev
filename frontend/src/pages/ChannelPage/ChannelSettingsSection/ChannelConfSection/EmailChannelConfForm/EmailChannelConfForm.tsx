@@ -1,4 +1,6 @@
 import type { EmailChannelConf } from '../../../../../api/notification_channels';
+import { TemplateField } from '../../../../ChannelsDashboardPage/Channels/CreateChannelModal/TemplateField/TemplateField';
+import { EMAIL_TEMPLATE_SCHEMA } from '../../../../ChannelsDashboardPage/Channels/CreateChannelModal/EmailChannelForm/EmailChannelForm';
 import styles from '../ChannelConfSection.module.css';
 
 type Props = {
@@ -61,6 +63,12 @@ export function EmailChannelConfForm({ value, onChange }: Props) {
           + Add another recipient
         </button>
       </div>
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        templateSchema={EMAIL_TEMPLATE_SCHEMA}
+        alwaysOpen
+      />
     </>
   );
 }

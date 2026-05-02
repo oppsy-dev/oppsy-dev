@@ -2,21 +2,20 @@ import type {
   CreateChannelRequest,
   DiscordChannelConf,
 } from '../../../../../api/notification_channels';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 const BT = '`';
 
-export const DISCORD_DEFAULT_TEMPLATE = `_count: len(_osv_records)
-_plural: *"ies" | "y"
-if _count == 1 {
-\t_plural: "y"
-}
-_tag_line: *"" | string
-if _manifest_tag != null {
-\t_tag_line: "\\n**Tag:** ${BT}\\(_manifest_tag)${BT}"
-}
+export const DISCORD_TEMPLATE_SCHEMA = `content: string`;
 
-content: ":shield: **OPPSY** detected **\\(_count)** new open-source vulnerabilit\\(_plural)\\n\\n**Workspace:** \\(_workspace_name)\\n**Manifest:** ${BT}\\(_manifest_name)${BT} (\\(_manifest_type))\\(_tag_line)\\n\\n*To stop receiving these notifications, disable or delete this channel in OPPSY.*"`;
+export const DISCORD_DEFAULT_TEMPLATE = `content: """
+:shield: **OPPSY** detected new open-source vulnerabilities
+
+**Workspace:** \\(_workspace_name)
+**Manifest:** ${BT}\\(_manifest_name)${BT} (\\(_manifest_type))
+*To stop receiving these notifications, disable or delete this channel in OPPSY.*
+"""`;
 
 export type DiscordFormState = {
   name: string;
@@ -69,6 +68,11 @@ export function DiscordChannelForm({ value, onChange }: DiscordChannelFormProps)
           placeholder="https://discord.com/api/webhooks/…"
         />
       </div>
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        templateSchema={DISCORD_TEMPLATE_SCHEMA}
+      />
     </>
   );
 }

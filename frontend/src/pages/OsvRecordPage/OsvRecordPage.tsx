@@ -11,11 +11,11 @@ import { CreditsTab } from './CreditsTab/CreditsTab';
 import { OppsyLogo } from '../../components/OppsyLogo/OppsyLogo';
 import { ViewToggle, ViewMode } from './ViewToggle/ViewToggle';
 import { Hero } from './Hero/Hero';
-import { JsonView } from '../../components/JsonView/JsonView';
 import styles from './OsvRecordPage.module.css';
 import { PageBackground } from '../../components/PageBackground/PageBackground';
 import { AppRoute } from '../../routes/Routes';
 import { BackIcon } from '../../components/Icons';
+import { CodeType, CodeView } from '../../components/CodeView/CodeView';
 
 enum Tab {
   Overview = 'overview',
@@ -104,7 +104,11 @@ export function OsvRecordPage() {
 
         {viewMode === ViewMode.Raw ? (
           <div className={styles.rawJson}>
-            <JsonView value={record} filename={`${record.id}.json`} />
+            <CodeView
+              code={JSON.stringify(record, null, 2)}
+              filename={`${record.id}.json`}
+              type={CodeType.JSON}
+            />
           </div>
         ) : (
           <div className={styles.tabContent}>

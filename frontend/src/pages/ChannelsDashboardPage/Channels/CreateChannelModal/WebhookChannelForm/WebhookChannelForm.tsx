@@ -2,6 +2,7 @@ import type {
   CreateChannelRequest,
   WebhookChannelConf,
 } from '../../../../../api/notification_channels';
+import { TemplateField } from '../TemplateField/TemplateField';
 import styles from '../CreateChannelModal.module.css';
 
 export const WEBHOOK_DEFAULT_TEMPLATE = '';
@@ -71,6 +72,7 @@ export function WebhookChannelForm({ value, onChange }: WebhookChannelFormProps)
           placeholder="Used to sign HMAC-SHA256 payloads"
         />
       </div>
+      <TemplateField value={value.template} onChange={(v) => onChange({ ...value, template: v })} />
     </>
   );
 }

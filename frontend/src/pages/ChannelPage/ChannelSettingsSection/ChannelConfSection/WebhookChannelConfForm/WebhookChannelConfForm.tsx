@@ -1,4 +1,5 @@
 import type { WebhookChannelConf } from '../../../../../api/notification_channels';
+import { TemplateField } from '../../../../ChannelsDashboardPage/Channels/CreateChannelModal/TemplateField/TemplateField';
 import styles from '../ChannelConfSection.module.css';
 
 type Props = {
@@ -34,6 +35,11 @@ export function WebhookChannelConfForm({ value, onChange }: Props) {
           placeholder="Used to sign HMAC-SHA256 payloads"
         />
       </div>
+      <TemplateField
+        value={value.template}
+        onChange={(v) => onChange({ ...value, template: v })}
+        alwaysOpen
+      />
     </>
   );
 }
