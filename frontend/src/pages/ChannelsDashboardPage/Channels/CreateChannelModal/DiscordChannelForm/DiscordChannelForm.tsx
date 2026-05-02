@@ -9,8 +9,7 @@ const BT = '`';
 
 export const DISCORD_TEMPLATE_SCHEMA = `content: string`;
 
-export const DISCORD_DEFAULT_TEMPLATE = `
-content: """
+export const DISCORD_DEFAULT_TEMPLATE = `content: """
 :shield: **OPPSY** detected new open-source vulnerabilities
 
 **Workspace:** \\(_workspace_name)

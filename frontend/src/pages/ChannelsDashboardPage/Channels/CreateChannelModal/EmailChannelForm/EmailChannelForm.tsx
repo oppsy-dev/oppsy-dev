@@ -7,18 +7,18 @@ import styles from '../CreateChannelModal.module.css';
 
 export const EMAIL_TEMPLATE_SCHEMA = `subject: string\nbody: string`;
 
-export const EMAIL_DEFAULT_TEMPLATE = `
-subject: """
-[OPPSY] New vulnerabilities detected in \\(_workspace_name)/\\(_manifest_name)
+export const EMAIL_DEFAULT_TEMPLATE = `subject: """
+[OPPSY] New vulnerabilities detected in \(_workspace_name) \(_manifest_name)
 """
 
-body: "OPPSY detected
-Workspace:      \\(_workspace_name)
-Manifest:       \\(_manifest_name) (\\(_manifest_type))
+body: """
+OPPSY detected
+Workspace:      \(_workspace_name)
+Manifest:       \(_manifest_name) (\(_manifest_type))
 Review each finding at https://osv.dev and assess whether your project is affected.
 --
 To stop receiving these emails, disable or delete this notification channel in OPPSY.
-""""`;
+"""`;
 
 export type EmailFormState = {
   name: string;
