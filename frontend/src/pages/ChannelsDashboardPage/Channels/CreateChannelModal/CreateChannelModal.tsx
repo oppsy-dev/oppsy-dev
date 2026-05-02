@@ -54,13 +54,15 @@ function buildChannel(
 
 type AddChannelModalProps = {
   onClose: () => void;
-  onSuccess: (body: CreateChannelRequest) => void;
+  onSuccess: (body: CreateChannelRequest) => Promise<void>;
 };
 
 export function CreateChannelModal({ onClose, onSuccess }: AddChannelModalProps) {
-  const [selectedType, setSelectedType] = useState<NotificationChannelType | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [status, setStatus] = useState<{
+    selectedType: NotificationChannelType | null;
+    creating: boolean;
+    hasError: boolean;
+  }>({ selectedType: null, creating: false, hasError: false });
 
   const [forms, setForms] = useState<FormStates>(INITIAL_FORM_STATES);
   const setForm =
@@ -68,9 +70,10 @@ export function CreateChannelModal({ onClose, onSuccess }: AddChannelModalProps)
     (value: FormStates[K]) =>
       setForms((prev) => ({ ...prev, [key]: value }));
 
+  const { selectedType, creating, hasError } = status;
+
   const handleBack = () => {
-    setHasError(false);
-    setSelectedType(null);
+    setStatus((s) => ({ ...s, selectedType: null, hasError: false }));
   };
 
   const handleAdd = async () => {
@@ -78,13 +81,11 @@ export function CreateChannelModal({ onClose, onSuccess }: AddChannelModalProps)
     const reqBody = buildChannel(selectedType, forms);
     if (!reqBody) return;
 
-    setCreating(true);
-    setHasError(false);
+    setStatus((s) => ({ ...s, creating: true, hasError: false }));
     try {
-      onSuccess(reqBody);
+      await onSuccess(reqBody);
     } catch {
-      setHasError(true);
-      setCreating(false);
+      setStatus((s) => ({ ...s, creating: false, hasError: true }));
     }
   };
 
@@ -118,7 +119,7 @@ export function CreateChannelModal({ onClose, onSuccess }: AddChannelModalProps)
 
         <div className={styles.body}>
           {selectedType === null ? (
-            <ChannelTypePicker onSelect={setSelectedType} />
+            <ChannelTypePicker onSelect={(t) => setStatus((s) => ({ ...s, selectedType: t }))} />
           ) : (
             <div className={styles.formBody}>
               {selectedType === 'Discord' && (

@@ -4,3 +4,10 @@ export class NotFoundError extends Error {
     this.name = 'NotFoundError';
   }
 }
+
+export class UnprocessableContent extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnprocessableContent';
+  }
+}
