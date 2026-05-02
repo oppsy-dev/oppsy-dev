@@ -34,7 +34,7 @@ export async function get(
   params?: Record<string, string | undefined>,
 ): Promise<Response> {
   const response = await fetch(apiUrl(path, params), { credentials: 'include' });
-  await assertOk(response,'GET', path);
+  await assertOk(response, 'GET', path);
   return response;
 }
 
@@ -49,7 +49,7 @@ export async function postBinary(
     body,
     credentials: 'include',
   });
-  await assertOk(response,'POST', path);
+  await assertOk(response, 'POST', path);
   return response;
 }
 
@@ -64,7 +64,7 @@ export async function putBinary(
     body,
     credentials: 'include',
   });
-  await assertOk(response,'PUT', path);
+  await assertOk(response, 'PUT', path);
   return response;
 }
 
@@ -73,7 +73,7 @@ export async function del(
   params?: Record<string, string | undefined>,
 ): Promise<Response> {
   const response = await fetch(apiUrl(path, params), { method: 'DELETE', credentials: 'include' });
-  await assertOk(response,'DELETE', path);
+  await assertOk(response, 'DELETE', path);
   return response;
 }
 
@@ -88,7 +88,7 @@ export async function post(path: string, body?: unknown): Promise<Response> {
     body: body !== undefined ? JSON.stringify(body) : undefined,
     credentials: 'include',
   });
-  await assertOk(response,'POST', path);
+  await assertOk(response, 'POST', path);
   return response;
 }
 
@@ -103,6 +103,6 @@ export async function patch(path: string, body?: unknown): Promise<Response> {
     body: body !== undefined ? JSON.stringify(body) : undefined,
     credentials: 'include',
   });
-  await assertOk(response,'PATCH', path);
+  await assertOk(response, 'PATCH', path);
   return response;
 }
