@@ -80,6 +80,34 @@ Six crates, each with a single responsibility:
 - Package manager: **yarn**
 - The frontend is a SPA. In production, run `yarn build` and point `OSV_SERVICE_FRONTEND_PATH` at the resulting `build/` directory. The backend serves all static assets and falls back to `index.html` for client-side routes. No separate frontend process is needed.
 
+### Building the service binary (Dagger)
+
+The service binary is built via a [Dagger](https://dagger.io) pipeline defined in `dagger/src/main.py`. Dagger runs the build inside a container and exports just the compiled binary — no Docker knowledge required beyond having the Dagger CLI installed.
+
+**Project structure:**
+```
+dagger.json          # module root — kept at repo root so dagger commands run from here
+dagger/
+  src/
+    main.py          # pipeline code (Python SDK)
+  sdk/               # generated SDK bindings (after dagger develop)
+  pyproject.toml     # generated Python project file (after dagger develop)
+```
+
+`dagger.json` has `"source": "dagger"` which tells the CLI that the module source lives in the `dagger/` subdirectory.
+
+**`@object_type` and `@function`:** Dagger modules expose functionality as a typed API. `@object_type` marks a class as a Dagger type — it becomes callable via `dagger call <type>`. `@function` marks a method as an exposed function within that type. The class name (`Oppsy`) and method name (`service_build`) map directly to CLI subcommands: `dagger call service-build ...`.
+
+**First-time setup** (generates `pyproject.toml`, `uv.lock`, and SDK bindings):
+```bash
+dagger develop
+```
+
+**Build and export the binary:**
+```bash
+dagger call service-build --src=. export --path=./service
+```
+
 ### CI
 
 | Workflow | Trigger | What it does |

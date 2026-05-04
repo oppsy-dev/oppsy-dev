@@ -1,0 +1,8 @@
+{
+  "name": "oppsy",
+  "engineVersion": "v0.20.6",
+  "source": "dagger",
+  "sdk": {
+    "source": "python"
+  }
+}

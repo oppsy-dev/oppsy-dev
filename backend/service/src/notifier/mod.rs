@@ -3,7 +3,7 @@ use std::{any::type_name, fmt::Debug, sync::Arc};
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
 use osv_db::types::OsvRecord;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 use crate::{
     db::CoreDb,
@@ -25,9 +25,14 @@ pub struct Notifier {
 impl Resource for Notifier {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
-        let email = match settings.smtp_url.clone() {
-            Some(url) => Some(Arc::new(EmailNotifier::new(url).await?)),
-            None => None,
+        let email = if let Some(url) = settings.smtp_url.clone() {
+            EmailNotifier::new(url).await
+                .inspect_err(|err| error!(error = ?err, "Failed to initialize SMTP — email notifications are disabled"))
+                .ok()
+                .map(Arc::new)
+        } else {
+            warn!("SMTP is not configured — email notifications are disabled");
+            None
         };
         Ok(Self {
             webhook: Arc::new(WebhookNotifier),
