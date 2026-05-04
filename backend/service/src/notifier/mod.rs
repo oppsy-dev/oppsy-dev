@@ -26,7 +26,10 @@ impl Resource for Notifier {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
         let email = match settings.smtp_url.clone() {
-            Some(url) => Some(Arc::new(EmailNotifier::new(url).await?)),
+            Some(url) => EmailNotifier::new(url).await
+                .inspect_err(|err| error!(error = ?err, "Failed to initialize SMTP — email notifications are disabled"))
+                .ok()
+                .map(Arc::new),
             None => {
                 warn!("SMTP is not configured — email notifications are disabled");
                 None
