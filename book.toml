@@ -1,0 +1,8 @@
+[book]
+title = "OPPSY Documentation"
+authors = ["OPPSY Contributors"]
+language = "en"
+src = "docs"
+
+[build]
+build-dir = "book"
