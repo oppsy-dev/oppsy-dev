@@ -39,12 +39,22 @@ class Oppsy:
     @function
     def core_db(
         self, src: Annotated[dagger.Directory, DefaultPath(".")]
-    ) -> dagger.Directory:
+    ) -> dagger.Container:
         core_db_src = src.directory("backend/core-db")
         return (
-            dag.directory()
-            .with_file("atlas.hcl", core_db_src.file("atlas.hcl"))
-            .with_directory("sqlite-migrations", core_db_src.directory("sqlite-migrations"))
+            dag.container()
+            .from_("debian:trixie-slim")
+            .with_exec(["apt-get", "update"])
+            .with_exec(["apt-get", "install", "-y", "--no-install-recommends",
+                        "ca-certificates", "curl"])
+            .with_exec(["apt-get", "clean"])
+            .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
+            .with_exec(["sh", "-c", "curl -sSf https://atlasgo.sh | sh"])
+            .with_directory("/core-db",
+                dag.directory()
+                .with_file("atlas.hcl", core_db_src.file("atlas.hcl"))
+                .with_directory("sqlite-migrations", core_db_src.directory("sqlite-migrations"))
+            )
         )
 
     @function
@@ -59,21 +69,18 @@ class Oppsy:
             dag.container()
             .from_("debian:trixie-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "--no-install-recommends",
-                        "ca-certificates", "curl"])
+            .with_exec(["apt-get", "install", "-y", "--no-install-recommends", "ca-certificates"])
             .with_exec(["apt-get", "clean"])
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
-            .with_exec(["sh", "-c", "curl -sSf https://atlasgo.sh | sh"])
+            .with_file("/usr/local/bin/atlas", core_db.file("/usr/local/bin/atlas"))
             .with_file("/usr/local/bin/service", binary)
-            .with_directory("/core-db", core_db)
+            .with_directory("/core-db", core_db.directory("/core-db"))
             .with_directory("/frontend", frontend)
+            .with_file("/entrypoint.sh", src.file("dagger/scripts/entrypoint.sh"), permissions=0o755)
+            .with_mounted_cache("/data", dag.cache_volume("oppsy-data"))
             .with_env_variable("OSV_SERVICE_FRONTEND_PATH", "/frontend")
             .with_env_variable("OSV_SERVICE_CORE_DB_URL", "sqlite:///data/oppsy.db")
             .with_env_variable("OSV_SERVICE_BIND_ADDRESS", "0.0.0.0:3030")
             .with_exposed_port(3030)
-            .with_entrypoint([
-                "sh", "-c",
-                "atlas migrate apply --url sqlite:///data/oppsy.db --env sqlite --config file:///core-db/atlas.hcl"
-                " && exec /usr/local/bin/service",
-            ])
+            .with_entrypoint(["/entrypoint.sh"])
         )
