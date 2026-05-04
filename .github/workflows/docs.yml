@@ -6,11 +6,6 @@ on:
     paths:
       - "docs/**"
       - "book.toml"
-  pull_request:
-    branches: ["main"]
-    paths:
-      - "docs/**"
-      - "book.toml"
 
 jobs:
   build:
