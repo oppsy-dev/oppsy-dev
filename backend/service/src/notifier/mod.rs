@@ -25,15 +25,14 @@ pub struct Notifier {
 impl Resource for Notifier {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
-        let email = match settings.smtp_url.clone() {
-            Some(url) => EmailNotifier::new(url).await
+        let email = if let Some(url) = settings.smtp_url.clone() {
+            EmailNotifier::new(url).await
                 .inspect_err(|err| error!(error = ?err, "Failed to initialize SMTP — email notifications are disabled"))
                 .ok()
-                .map(Arc::new),
-            None => {
-                warn!("SMTP is not configured — email notifications are disabled");
-                None
-            }
+                .map(Arc::new)
+        } else {
+            warn!("SMTP is not configured — email notifications are disabled");
+            None
         };
         Ok(Self {
             webhook: Arc::new(WebhookNotifier),
