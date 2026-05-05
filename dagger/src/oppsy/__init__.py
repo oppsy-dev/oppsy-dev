@@ -73,7 +73,7 @@ class Oppsy:
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
             .with_file("/usr/local/bin/atlas", core_db.file("/usr/local/bin/atlas"))
             .with_file("/usr/local/bin/service", binary)
-            .with_directory("/core-db", core_db.directory("/core-db"))
+            .with_directory("/data/core-db", core_db.directory("/core-db"))
             .with_directory("/frontend", frontend)
             .with_file("/entrypoint.sh", src.file("dagger/scripts/entrypoint.sh"), permissions=0o755)
             .with_env_variable("OSV_SERVICE_FRONTEND_PATH", "/frontend")
