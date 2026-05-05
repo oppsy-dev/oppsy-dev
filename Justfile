@@ -1,5 +1,6 @@
 backend_manifest := "backend/Cargo.toml"
 frontend_dir := "frontend"
+openapi_spec := "api/oppsy-openapi.json"
 
 # List available recipes
 default:
@@ -15,10 +16,14 @@ backend-lint-check:
     cargo +nightly clippy --manifest-path {{backend_manifest}} --all-targets --all-features -- -D warnings
     cargo deny --manifest-path {{backend_manifest}} check
 
+# Export the backend OpenAPI schema to api/oppsy-openapi.json
+gen-openapi:
+    mkdir -p $(dirname {{openapi_spec}})
+    cargo run --manifest-path {{backend_manifest}} -p service -- docs > {{openapi_spec}}
+
 # Generate the TypeScript API client from the backend OpenAPI schema
-frontend-gen-api-client:
-    cargo run --manifest-path {{backend_manifest}} -p service -- docs > /tmp/oppsy-openapi.json
-    npx openapi-typescript /tmp/oppsy-openapi.json -o {{frontend_dir}}/src/api/schema.d.ts
+frontend-gen-api-client: gen-openapi
+    npx openapi-typescript {{openapi_spec}} -o {{frontend_dir}}/src/api/schema.d.ts
 
 frontend-build-dev: frontend-gen-api-client frontend-lint-fix
     cd {{frontend_dir}} && yarn build
@@ -38,6 +43,11 @@ dev: backend-lint-check frontend-lint-check backend-unit-tests
 # Run unit tests
 backend-unit-tests:
     cargo test --manifest-path {{backend_manifest}} --all-targets --locked
+
+# Build the mdBook documentation site (generates OpenAPI spec first)
+build-docs: gen-openapi
+    mdbook build
+    cp {{openapi_spec}} book/oppsy-openapi.json
 
 oppsy-build:
     dagger call oppsy-build --src=. export-image --name oppsy:latest
