@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OPPSY API Reference</title>
+  <style>
+    body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="redoc-container"></div>
+
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  <script>
+    const spec = {
+      openapi: "3.0.3",
+      info: {
+        title: "OPPSY API",
+        version: "1.0.0",
+        description: "REST API for the OPPSY open-source vulnerability management platform.\n\nOPPSY scans dependency lock files against the [OSV database](https://osv.dev) and delivers vulnerability alerts via webhooks, Discord, or email."
+      },
+      servers: [
+        { url: "http://localhost:3030", description: "Local development" }
+      ],
+      tags: [
+        { name: "Workspaces", description: "Create and manage workspaces. A workspace is a logical container for manifests and notification channels belonging to one project." },
+        { name: "Manifests", description: "Upload and manage dependency lock files inside a workspace. Each manifest is scanned against the OSV database on upload and whenever the database is updated." },
+        { name: "Channels", description: "Create and manage notification channels. Channels are delivery targets (webhook, Discord, email) that receive vulnerability alerts." },
+        { name: "OSV", description: "Retrieve raw OSV vulnerability records matched against your manifests." },
+        { name: "Health", description: "Service health and readiness probes." }
+      ],
+      paths: {
+        "/health": {
+          get: {
+            tags: ["Health"],
+            summary: "Health check",
+            description: "Returns 200 when the service is ready to accept traffic.",
+            operationId: "healthCheck",
+            responses: {
+              "200": { description: "Service is healthy" }
+            }
+          }
+        },
+
+        "/v1/workspaces": {
+          get: {
+            tags: ["Workspaces"],
+            summary: "List workspaces",
+            operationId: "listWorkspaces",
+            responses: {
+              "200": {
+                description: "Array of workspaces",
+                content: {
+                  "application/json": {
+                    schema: { type: "array", items: { $ref: "#/components/schemas/Workspace" } }
+                  }
+                }
+              }
+            }
+          },
+          post: {
+            tags: ["Workspaces"],
+            summary: "Create a workspace",
+            operationId: "createWorkspace",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/CreateWorkspaceRequest" }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Workspace created",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/WorkspaceId" }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "/v1/workspaces/{workspace_id}": {
+          get: {
+            tags: ["Workspaces"],
+            summary: "Get a workspace",
+            operationId: "getWorkspace",
+            parameters: [{ $ref: "#/components/parameters/WorkspaceId" }],
+            responses: {
+              "200": {
+                description: "Workspace details",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/Workspace" }
+                  }
+                }
+              },
+              "404": { description: "Workspace not found" }
+            }
+          },
+          delete: {
+            tags: ["Workspaces"],
+            summary: "Delete a workspace",
+            operationId: "deleteWorkspace",
+            parameters: [{ $ref: "#/components/parameters/WorkspaceId" }],
+            responses: {
+              "204": { description: "Workspace deleted" },
+              "404": { description: "Workspace not found" }
+            }
+          }
+        },
+
+        "/v1/workspaces/{workspace_id}/manifests": {
+          get: {
+            tags: ["Manifests"],
+            summary: "List manifests",
+            operationId: "listManifests",
+            parameters: [{ $ref: "#/components/parameters/WorkspaceId" }],
+            responses: {
+              "200": {
+                description: "Array of manifests",
+                content: {
+                  "application/json": {
+                    schema: { type: "array", items: { $ref: "#/components/schemas/Manifest" } }
+                  }
+                }
+              }
+            }
+          },
+          post: {
+            tags: ["Manifests"],
+            summary: "Reserve a manifest slot",
+            description: "Creates a manifest record and returns its ID. Follow up with `PUT /v1/workspaces/{workspace_id}/manifests/{manifest_id}` to upload the file bytes.",
+            operationId: "createManifest",
+            parameters: [{ $ref: "#/components/parameters/WorkspaceId" }],
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/CreateManifestRequest" }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Manifest slot reserved — use the returned ID for the upload step",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/ManifestId" }
+                  }
+                }
+              },
+              "422": { $ref: "#/components/responses/UnprocessableContent" }
+            }
+          }
+        },
+
+        "/v1/workspaces/{workspace_id}/manifests/{manifest_id}": {
+          put: {
+            tags: ["Manifests"],
+            summary: "Upload manifest file bytes",
+            description: "Upload the raw lock file content. The backend parses it, matches packages against OSV, and schedules notifications. Maximum size: **1 MB**.",
+            operationId: "uploadManifest",
+            parameters: [
+              { $ref: "#/components/parameters/WorkspaceId" },
+              { $ref: "#/components/parameters/ManifestId" }
+            ],
+            requestBody: {
+              required: true,
+              content: {
+                "application/octet-stream": {
+                  schema: { type: "string", format: "binary" }
+                }
+              }
+            },
+            responses: {
+              "204": { description: "File stored and vulnerability scan scheduled" },
+              "413": { description: "Payload exceeds 1 MB limit" },
+              "422": { $ref: "#/components/responses/UnprocessableContent" }
+            }
+          },
+          delete: {
+            tags: ["Manifests"],
+            summary: "Delete a manifest",
+            operationId: "deleteManifest",
+            parameters: [
+              { $ref: "#/components/parameters/WorkspaceId" },
+              { $ref: "#/components/parameters/ManifestId" }
+            ],
+            responses: {
+              "204": { description: "Manifest deleted" },
+              "404": { description: "Manifest not found" }
+            }
+          }
+        },
+
+        "/v1/channels": {
+          get: {
+            tags: ["Channels"],
+            summary: "List channels",
+            operationId: "listChannels",
+            responses: {
+              "200": {
+                description: "Array of notification channels",
+                content: {
+                  "application/json": {
+                    schema: { type: "array", items: { $ref: "#/components/schemas/Channel" } }
+                  }
+                }
+              }
+            }
+          },
+          post: {
+            tags: ["Channels"],
+            summary: "Create a channel",
+            operationId: "createChannel",
+            requestBody: {
+              required: true,
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/CreateChannelRequest" }
+                }
+              }
+            },
+            responses: {
+              "201": {
+                description: "Channel created",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/ChannelId" }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "/v1/channels/{channel_id}": {
+          get: {
+            tags: ["Channels"],
+            summary: "Get a channel",
+            operationId: "getChannel",
+            parameters: [{ $ref: "#/components/parameters/ChannelId" }],
+            responses: {
+              "200": {
+                description: "Channel details",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/Channel" }
+                  }
+                }
+              },
+              "404": { description: "Channel not found" }
+            }
+          },
+          delete: {
+            tags: ["Channels"],
+            summary: "Delete a channel",
+            operationId: "deleteChannel",
+            parameters: [{ $ref: "#/components/parameters/ChannelId" }],
+            responses: {
+              "204": { description: "Channel deleted" },
+              "404": { description: "Channel not found" }
+            }
+          }
+        },
+
+        "/v1/osv/{osv_id}": {
+          get: {
+            tags: ["OSV"],
+            summary: "Get an OSV record",
+            description: "Returns the full OSV vulnerability record for the given ID (e.g. `CVE-2024-12345` or `GHSA-xxxx-yyyy-zzzz`).",
+            operationId: "getOsvRecord",
+            parameters: [
+              {
+                name: "osv_id",
+                in: "path",
+                required: true,
+                schema: { type: "string", example: "GHSA-qwbp-6jwm-8hxr" }
+              }
+            ],
+            responses: {
+              "200": {
+                description: "OSV vulnerability record",
+                content: {
+                  "application/json": {
+                    schema: { $ref: "#/components/schemas/OsvRecord" }
+                  }
+                }
+              },
+              "404": { description: "Record not found" }
+            }
+          }
+        }
+      },
+
+      components: {
+        parameters: {
+          WorkspaceId: {
+            name: "workspace_id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid", example: "01926f4e-2a1b-7c3d-9e5f-0a1b2c3d4e5f" }
+          },
+          ManifestId: {
+            name: "manifest_id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid", example: "01926f4e-aaaa-bbbb-cccc-0a1b2c3d4e5f" }
+          },
+          ChannelId: {
+            name: "channel_id",
+            in: "path",
+            required: true,
+            schema: { type: "string", format: "uuid", example: "01926f4e-dddd-eeee-ffff-0a1b2c3d4e5f" }
+          }
+        },
+        responses: {
+          UnprocessableContent: {
+            description: "Unprocessable content",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        },
+        schemas: {
+          WorkspaceId: {
+            type: "string",
+            format: "uuid",
+            example: "01926f4e-2a1b-7c3d-9e5f-0a1b2c3d4e5f"
+          },
+          ManifestId: {
+            type: "string",
+            format: "uuid",
+            example: "01926f4e-aaaa-bbbb-cccc-0a1b2c3d4e5f"
+          },
+          ChannelId: {
+            type: "string",
+            format: "uuid",
+            example: "01926f4e-dddd-eeee-ffff-0a1b2c3d4e5f"
+          },
+          CreateWorkspaceRequest: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string", example: "my-backend-service" },
+              description: { type: "string", example: "Production Rust service dependencies" }
+            }
+          },
+          Workspace: {
+            type: "object",
+            properties: {
+              id: { $ref: "#/components/schemas/WorkspaceId" },
+              name: { type: "string", example: "my-backend-service" },
+              description: { type: "string", example: "Production Rust service dependencies" },
+              manifest_count: { type: "integer", example: 3 },
+              channel_count: { type: "integer", example: 1 },
+              last_scanned_at: { type: "string", format: "date-time", nullable: true }
+            }
+          },
+          CreateManifestRequest: {
+            type: "object",
+            required: ["manifest_type", "name"],
+            properties: {
+              manifest_type: { $ref: "#/components/schemas/ManifestType" },
+              name: { type: "string", description: "Human-readable label, e.g. the file path or repo it came from.", example: "backend/Cargo.lock" },
+              tag: { type: "string", description: "Optional label for versioning or environment disambiguation.", example: "production", nullable: true }
+            }
+          },
+          Manifest: {
+            type: "object",
+            properties: {
+              id: { $ref: "#/components/schemas/ManifestId" },
+              manifest_type: { $ref: "#/components/schemas/ManifestType" },
+              name: { type: "string", example: "backend/Cargo.lock" },
+              tag: { type: "string", nullable: true, example: "production" },
+              vulnerability_count: { type: "integer", example: 2 },
+              uploaded_at: { type: "string", format: "date-time", nullable: true }
+            }
+          },
+          ManifestType: {
+            type: "string",
+            enum: ["Cargo", "Npm", "Uv", "Poetry", "Go"],
+            description: "Package ecosystem whose lock file format the manifest conforms to."
+          },
+          CreateChannelRequest: {
+            type: "object",
+            required: ["name", "channel_type"],
+            properties: {
+              name: { type: "string", example: "security-alerts" },
+              channel_type: { $ref: "#/components/schemas/ChannelType" },
+              config: {
+                type: "object",
+                description: "Delivery-specific configuration. Shape depends on `channel_type`.",
+                example: { url: "https://hooks.example.com/abc123", secret: "hmac-signing-secret" }
+              }
+            }
+          },
+          Channel: {
+            type: "object",
+            properties: {
+              id: { $ref: "#/components/schemas/ChannelId" },
+              name: { type: "string", example: "security-alerts" },
+              channel_type: { $ref: "#/components/schemas/ChannelType" },
+              created_at: { type: "string", format: "date-time" }
+            }
+          },
+          ChannelType: {
+            type: "string",
+            enum: ["Webhook", "Discord", "Email"],
+            description: "Delivery method for vulnerability alerts."
+          },
+          OsvRecord: {
+            type: "object",
+            properties: {
+              id: { type: "string", example: "GHSA-qwbp-6jwm-8hxr" },
+              summary: { type: "string", example: "Remote code execution in example-crate" },
+              details: { type: "string" },
+              severity: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string", example: "CVSS_V3" },
+                    score: { type: "string", example: "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H" }
+                  }
+                }
+              },
+              affected: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    package: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string", example: "example-crate" },
+                        ecosystem: { type: "string", example: "crates.io" }
+                      }
+                    },
+                    ranges: { type: "array", items: { type: "object" } }
+                  }
+                }
+              },
+              published: { type: "string", format: "date-time" },
+              modified: { type: "string", format: "date-time" }
+            }
+          },
+          ErrorMessage: {
+            type: "object",
+            properties: {
+              message: { type: "string", example: "The specified resource does not exist." }
+            }
+          }
+        }
+      }
+    };
+
+    Redoc.init(spec, {
+      scrollYOffset: 0,
+      hideDownloadButton: false,
+      expandResponses: "200,201",
+      theme: {
+        colors: { primary: { main: "#e06b3a" } },
+        typography: {
+          fontSize: "15px",
+          fontFamily: "Inter, system-ui, sans-serif",
+          headings: { fontFamily: "Inter, system-ui, sans-serif" }
+        },
+        sidebar: { width: "260px" }
+      }
+    }, document.getElementById("redoc-container"));
+  </script>
+</body>
+</html>
