@@ -1,7 +1,8 @@
 use poem_openapi::{ApiResponse, Object, payload::Json};
+use tracing::warn;
 
 use crate::{
-    db::CoreDb,
+    db::{CoreDb, ManifestDb},
     resources::ResourceRegistry,
     service::common::{
         responses::{WithErrorResponses, try_or_return},
@@ -48,6 +49,7 @@ pub async fn endpoint(
     limit: Option<Limit>,
 ) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
+    let manifest_db = try_or_return!(ResourceRegistry::get::<ManifestDb>());
     let page_info = PageInfo {
         page: page.unwrap_or_default(),
         limit: limit.unwrap_or_default(),
@@ -62,6 +64,16 @@ pub async fn endpoint(
     let mut manifests = Vec::with_capacity(db_manifests.len());
     for db_manifest in db_manifests {
         let manifest_id = try_or_return!(ManifestId::try_from(db_manifest.id));
+        if try_or_return!(manifest_db.get(&manifest_id)).is_none() {
+            warn!(
+                id=%manifest_id,
+                name=db_manifest.name,
+                type=%db_manifest.manifest_type,
+                "Manifest does not exists in the manifest storage, need to upload it first"
+            );
+            continue;
+        }
+
         let manifest_type = try_or_return!(ManifestType::try_from(db_manifest.manifest_type));
         let vulns = try_or_return!(core_db.get_manifest_osv_vulns(manifest_id).await);
         let vulnerabilities =
