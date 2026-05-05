@@ -8,11 +8,7 @@ OPPSY is an open-source vulnerability management platform. It watches your proje
 
 ## Documentation
 
-- [Introduction](docs/introduction.md) — core concepts: workspaces, manifests, and notification channels
-- [Supported ecosystems](docs/ecosystems.md) — Cargo, npm, pip/uv, Poetry, Go
-- [Manifest upload](docs/manifest-upload.md) — how to upload lock files
-- [Build and run](docs/build-and-run.md) — building the image with Dagger and running it
-- [API Reference](docs/api-reference.html) — full REST API reference
+[https://oppsy-dev.github.io/oppsy-dev/](https://oppsy-dev.github.io/oppsy-dev/)
 
 ## Quick start
 

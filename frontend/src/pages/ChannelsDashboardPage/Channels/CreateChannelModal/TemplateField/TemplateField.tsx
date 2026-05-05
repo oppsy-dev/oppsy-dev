@@ -82,7 +82,7 @@ export function TemplateField({ value, onChange, templateSchema, alwaysOpen }: T
   return (
     <div className={styles.field}>
       <div className={styles.fieldToggleRow}>
-        <span className={styles.fieldLabel}>Payload template</span>
+        <span className={styles.fieldLabel}>Message template</span>
         {!alwaysOpen && (
           <button
             type="button"
