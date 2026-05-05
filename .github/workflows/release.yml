@@ -33,8 +33,12 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          IS_LATEST=$(gh release view ${{ github.event.release.tag_name }} --repo ${{ github.repository }} --json isLatest --jq '.isLatest')
-          echo "is_latest=${IS_LATEST}" >> "$GITHUB_OUTPUT"
+          LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+          if [ "${LATEST_TAG}" = "${{ github.event.release.tag_name }}" ]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Publish latest tag
         if: steps.check_latest.outputs.is_latest == 'true'
