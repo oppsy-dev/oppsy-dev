@@ -13,7 +13,7 @@ OPPSY is an open-source vulnerability management platform. It watches your proje
 ## Quick start
 
 ```bash
-docker run -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
+docker run --name oppsy -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
 ```
 
 The service is available at [http://localhost:3030](http://localhost:3030).

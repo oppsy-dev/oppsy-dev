@@ -3,7 +3,7 @@
 ## Run Docker
 
 ```bash
-docker run -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
+docker run --name oppsy -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
 ```
 
 Mount a volume at `/data` so the SQLite database persists across restarts. The service will be available at <http://localhost:3030>.
