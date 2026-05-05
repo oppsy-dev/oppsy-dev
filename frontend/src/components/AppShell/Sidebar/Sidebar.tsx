@@ -4,6 +4,24 @@ import { AppRoute } from '../../../routes/Routes';
 import styles from './Sidebar.module.css';
 import { NotificationIcon } from '../../Icons';
 
+function BookIcon() {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+    </svg>
+  );
+}
+
 function GridIcon() {
   return (
     <svg
@@ -52,6 +70,18 @@ export function Sidebar() {
           <NotificationIcon width={15} height={15} />
           <span>Notifications</span>
         </NavLink>
+      </div>
+
+      <div className={styles.bottomSection}>
+        <a
+          href="https://oppsy-dev.github.io/oppsy-dev/"
+          target="_blank"
+          rel="noreferrer"
+          className={styles.docsLink}
+        >
+          <BookIcon />
+          <span>Docs</span>
+        </a>
       </div>
 
       {/* <div className={styles.teamsSection}>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OPPSY API Reference</title>
+  <style>
+    body { margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="redoc-container"></div>
+
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  <script>
+    Redoc.init('./oppsy-openapi.json', {
+      scrollYOffset: 0,
+      hideDownloadButton: false,
+      expandResponses: "200,201",
+      theme: {
+        colors: { primary: { main: "#e06b3a" } },
+        typography: {
+          fontSize: "15px",
+          fontFamily: "Inter, system-ui, sans-serif",
+          headings: { fontFamily: "Inter, system-ui, sans-serif" }
+        },
+        sidebar: { width: "260px" }
+      }
+    }, document.getElementById("redoc-container"));
+  </script>
+</body>
+</html>
