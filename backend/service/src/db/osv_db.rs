@@ -53,9 +53,9 @@ impl OsvDb {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
         let ecosystems = OsvGsEcosystems::all()
-            // .add(OsvGsEcosystem::Go)
-            // .add(OsvGsEcosystem::PyPI)
-            // .add(OsvGsEcosystem::Npm)
+            .add(OsvGsEcosystem::Go)
+            .add(OsvGsEcosystem::PyPI)
+            .add(OsvGsEcosystem::Npm)
             .add(OsvGsEcosystem::CratesIo);
 
         // TODO: properly check if the data is existed already

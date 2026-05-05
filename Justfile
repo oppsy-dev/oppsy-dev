@@ -53,8 +53,8 @@ oppsy-build:
     dagger call oppsy-build --src=. export-image --name oppsy:latest
 
 oppsy-run:
-    docker run -d --name oppsy -p 3030:3030 -v oppsy-data:/data oppsy:latest
+    podman run -d --name oppsy -p 3030:3030 -v oppsy-data:/data oppsy:latest
 
 oppsy-stop:
-    docker rm -f oppsy
+    podman rm -f oppsy
 
