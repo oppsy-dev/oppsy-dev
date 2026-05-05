@@ -16,17 +16,12 @@ OPPSY is an open-source vulnerability management platform. It watches your proje
 
 ## Quick start
 
-Build the image with [Dagger](https://dagger.io) (no local Rust or Node toolchain required):
-
 ```bash
-dagger develop
-dagger call oppsy-build --src=. export-image --name oppsy:latest
-```
-
-Run it (mount `/data` so the SQLite database persists):
-
-```bash
-docker run -p 3030:3030 -v oppsy-data:/data oppsy:latest
+docker run -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
 ```
 
 The service is available at [http://localhost:3030](http://localhost:3030).
+
+## Community
+
+**Our Discord server** [https://discord.gg/9UFcrp38](https://discord.gg/9UFcrp38)

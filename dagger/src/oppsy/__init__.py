@@ -84,3 +84,18 @@ class Oppsy:
             .with_exposed_port(3030)
             .with_entrypoint(["/entrypoint.sh"])
         )
+
+    @function
+    async def oppsy_publish(
+        self,
+        src: Annotated[dagger.Directory, DefaultPath(".")],
+        address: str,
+        username: str,
+        secret: dagger.Secret,
+    ) -> str:
+        container = await self.oppsy_build(src)
+        return await (
+            container
+            .with_registry_auth("ghcr.io", username, secret)
+            .publish(address)
+        )

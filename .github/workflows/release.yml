@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  publish:
+    name: Publish Docker image
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger CLI
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.6 BIN_DIR=/usr/local/bin sh
+
+      - name: Publish version tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dagger call oppsy-publish \
+            --src=. \
+            --address=ghcr.io/${{ github.repository_owner }}/oppsy:${{ github.event.release.tag_name }} \
+            --username=${{ github.actor }} \
+            --secret=env:GITHUB_TOKEN
+
+      - name: Check if latest release
+        id: check_latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name')
+          if [ "${LATEST_TAG}" = "${{ github.event.release.tag_name }}" ]; then
+            echo "is_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_latest=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish latest tag
+        if: steps.check_latest.outputs.is_latest == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dagger call oppsy-publish \
+            --src=. \
+            --address=ghcr.io/${{ github.repository_owner }}/oppsy:latest \
+            --username=${{ github.actor }} \
+            --secret=env:GITHUB_TOKEN
+
+  announce:
+    name: Discord announcement
+    needs: [publish]
+    if: ${{ always() && needs.publish.result == 'success' }}
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Prepare announcement message
+        id: message
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+        run: |
+          echo "content<<EOF" >> "$GITHUB_OUTPUT"
+          echo "**${RELEASE_NAME}** is out!" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          echo "${RELEASE_BODY}" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Send Discord announcement
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_ANNOUNCEMENTS }}
+          content: ${{ steps.message.outputs.content }}
