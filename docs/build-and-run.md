@@ -3,7 +3,6 @@
 ## Run Docker
 
 ```bash
-docker pull ghcr.io/oppsy-dev/oppsy:latest
 docker run -p 3030:3030 -v oppsy-data:/data ghcr.io/oppsy-dev/oppsy:latest
 ```
 
