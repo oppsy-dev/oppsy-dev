@@ -43,11 +43,7 @@ pub async fn endpoint(
         page: page.unwrap_or_default(),
         limit: limit.unwrap_or_default(),
     };
-    let db_events = try_or_return!(
-        core_db
-            .get_all_notification_events(page_info)
-            .await
-    );
+    let db_events = try_or_return!(core_db.get_all_notification_events(page_info).await);
 
     let events = db_events
         .into_iter()

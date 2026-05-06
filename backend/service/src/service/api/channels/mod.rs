@@ -72,7 +72,8 @@ impl Api {
 
     /// List all notification events across all channels.
     ///
-    /// Returns all notification delivery attempts across every channel, ordered from newest to oldest.
+    /// Returns all notification delivery attempts across every channel, ordered from
+    /// newest to oldest.
     #[oai(path = "/v1/channels/events", method = "get")]
     async fn list_all_notification_events(
         &self,
