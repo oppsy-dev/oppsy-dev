@@ -114,14 +114,3 @@
   color: var(--text);
   border-bottom: 2px solid var(--accent);
 }
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .page {
-    padding: 1.5rem 1.25rem 3rem;
-  }
-
-  .statsStrip {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}

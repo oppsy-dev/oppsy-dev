@@ -117,14 +117,3 @@
 .heroTimelineWithdrawn {
   color: var(--red);
 }
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .hero {
-    flex-direction: column;
-  }
-
-  .heroId {
-    font-size: 1.125rem;
-  }
-}
