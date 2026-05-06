@@ -46,7 +46,7 @@ export function EventsFeed() {
 
   return (
     <div className={styles.feed}>
-{isLoading ? (
+      {isLoading ? (
         <p className={styles.empty}>Loading…</p>
       ) : events.length === 0 ? (
         <p className={styles.empty}>No events yet.</p>

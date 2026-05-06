@@ -23,8 +23,8 @@ export function OsvSyncStatus() {
   const lastSyncUnix = data ? Math.floor(new Date(data.last_sync_at).getTime() / 1000) : null;
   const intervalSecs = data?.sync_interval ?? 0;
 
-  const [elapsedSecs, setElapsedSecs] = useState(
-    () => (lastSyncUnix != null ? Math.floor(Date.now() / 1000) - lastSyncUnix : 0),
+  const [elapsedSecs, setElapsedSecs] = useState(() =>
+    lastSyncUnix != null ? Math.floor(Date.now() / 1000) - lastSyncUnix : 0,
   );
 
   useEffect(() => {

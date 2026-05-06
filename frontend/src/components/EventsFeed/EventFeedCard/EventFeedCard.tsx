@@ -27,7 +27,11 @@ export function EventFeedCard({ event }: Props) {
       <div className={styles.topRow}>
         <div className={styles.channelInfo}>
           <span className={styles.iconWrap} style={{ color: iconColor }}>
-            <ChannelIcon type={event.channelType as NotificationChannelType} width={14} height={14} />
+            <ChannelIcon
+              type={event.channelType as NotificationChannelType}
+              width={14}
+              height={14}
+            />
           </span>
           <span className={styles.channelName}>{event.channelName}</span>
         </div>

@@ -99,9 +99,7 @@ export function useAllChannelEvents(): { events: EnrichedEvent[]; isLoading: boo
   });
 
   const events = eventQueries
-    .flatMap((q, i) =>
-      (q.data?.events ?? []).map((event) => ({ ...event, channel: channels[i] })),
-    )
+    .flatMap((q, i) => (q.data?.events ?? []).map((event) => ({ ...event, channel: channels[i] })))
     .sort((a, b) => b.id.localeCompare(a.id));
 
   const isLoading = channels.length === 0 || eventQueries.some((q) => q.isLoading);
