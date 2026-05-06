@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Sidebar } from './Sidebar/Sidebar';
+import { LeftSidebar } from './LeftSidebar/LeftSidebar';
+import { RightSidebar } from './RightSidebar/RightSidebar';
 import styles from './AppShell.module.css';
 
 type AppShellProps = {
@@ -9,8 +10,9 @@ type AppShellProps = {
 export function AppShell({ children }: AppShellProps) {
   return (
     <div className={styles.shell}>
-      <Sidebar />
+      <LeftSidebar />
       <main className={styles.main}>{children}</main>
+      <RightSidebar />
     </div>
   );
 }

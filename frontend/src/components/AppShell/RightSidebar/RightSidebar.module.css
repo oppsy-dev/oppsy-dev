@@ -1,0 +1,27 @@
+.sidebar {
+  width: 200px;
+  background: var(--sidebar-bg);
+  border-left: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+
+.syncStatusWrap {
+  padding: 1rem 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    display: none;
+  }
+}
