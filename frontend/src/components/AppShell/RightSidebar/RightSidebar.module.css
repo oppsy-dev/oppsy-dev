@@ -17,5 +17,14 @@
 }
 
 .syncStatusWrap {
-  padding: 1rem 0.75rem;
+  padding: 1rem 0.75rem 0.75rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  flex-shrink: 0;
+}
+
+.feedWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }

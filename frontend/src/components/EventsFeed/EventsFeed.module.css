@@ -1,0 +1,38 @@
+.feed {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.625rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-2) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: var(--border-2);
+  border-radius: 2px;
+}
+
+.sentinel {
+  height: 1px;
+  flex-shrink: 0;
+}
+
+.empty {
+  padding: 1.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--text-3);
+  text-align: center;
+}
