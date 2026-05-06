@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use poem_openapi::{ApiResponse, Object, payload::Json};
 
 use crate::{
-    background::OsvSync,
+    db::OsvDb,
     resources::ResourceRegistry,
     service::common::{
         responses::{WithErrorResponses, try_or_return},
@@ -34,15 +34,15 @@ pub enum Response {
 pub type AllResponses = WithErrorResponses<Response>;
 
 pub async fn endpoint() -> AllResponses {
-    let osv_sync = try_or_return!(ResourceRegistry::get::<OsvSync>());
+    let osv_sync = try_or_return!(ResourceRegistry::get::<OsvDb>());
     let settings = try_or_return!(ResourceRegistry::get::<Settings>());
 
-    let state = osv_sync.last_state.read().await;
+    let sync = osv_sync.sync.read().await;
 
     Response::Ok(Json(OsvSyncStatus {
-        last_sync_at: state.last_sync_at,
+        last_sync_at: sync.last_sync_at,
         sync_interval: settings.osv_sync_interval.as_secs(),
-        last_sync_error: state.last_sync_err.as_ref().map(|e| e.to_string().into()),
+        last_sync_error: sync.last_sync_err.as_ref().map(|e| e.to_string().into()),
     }))
     .into()
 }
