@@ -1,43 +1,76 @@
 use std::{collections::HashMap, sync::Arc};
 
-use chrono::Utc;
+use chrono::{DateTime, Utc};
+use tokio::sync::RwLock;
 use tracing::{error, info};
 
 use crate::{
     db::{CoreDb, OsvDb},
     notifier::Notifier,
-    resources::ResourceRegistry,
+    resources::{Resource, ResourceRegistry},
     settings::Settings,
     types::{ManifestId, WorkspaceId},
 };
 
-/// Background task that syncs OSV data on the interval configured by
-/// [`Settings::osv_sync_interval`] and dispatches vulnerability notifications
-/// for any manifests affected by new or updated records.
-///
-/// Sleeps for one full interval before the first sync. [`Settings`] is registered
-/// synchronously before any tasks are spawned, so the get succeeds immediately.
-/// All other resources are guaranteed to be registered by then. Sync failures are
-/// logged and retried on the next cycle.
-pub async fn osv_sync_task() -> anyhow::Result<()> {
-    let settings: Arc<Settings> = ResourceRegistry::get::<Settings>()?;
-    let sync_interval = settings.osv_sync_interval;
+pub struct OsvSync {
+    pub last_state: RwLock<SyncState>,
+}
 
-    loop {
-        tokio::time::sleep(sync_interval).await;
+#[derive(Debug)]
+#[allow(dead_code)]
+pub struct SyncState {
+    pub last_sync_at: DateTime<Utc>,
+    pub last_sync_err: Option<anyhow::Error>,
+}
 
-        let Ok(osv_db) = ResourceRegistry::get::<OsvDb>() else {
-            continue;
+#[async_trait::async_trait]
+impl Resource for OsvSync {
+    async fn init() -> anyhow::Result<Self> {
+        let last_state = SyncState {
+            last_sync_at: Utc::now(),
+            last_sync_err: None,
         };
-        let Ok(core_db) = ResourceRegistry::get::<CoreDb>() else {
-            continue;
-        };
-        let Ok(notifier) = ResourceRegistry::get::<Notifier>() else {
-            continue;
-        };
+        Ok(Self { last_state: last_state.into() })
+    }
+}
 
-        if let Err(err) = run_osv_sync(&osv_db, &core_db, &notifier).await {
-            error!(error = ?err, "OSV sync cycle failed");
+impl OsvSync {
+    /// Background task that syncs OSV data on the interval configured by
+    /// [`Settings::osv_sync_interval`] and dispatches vulnerability notifications
+    /// for any manifests affected by new or updated records.
+    ///
+    /// Sleeps for one full interval before the first sync. [`Settings`] is registered
+    /// synchronously before any tasks are spawned, so the get succeeds immediately.
+    /// All other resources are guaranteed to be registered by then. Sync failures are
+    /// logged and retried on the next cycle.
+    pub async fn osv_sync_task(self: Arc<OsvSync>) -> anyhow::Result<()> {
+        let settings = ResourceRegistry::get::<Settings>()?;
+        let sync_interval = settings.osv_sync_interval;
+
+        loop {
+            tokio::time::sleep(sync_interval).await;
+
+            let Ok(osv_db) = ResourceRegistry::get::<OsvDb>() else {
+                continue;
+            };
+            let Ok(core_db) = ResourceRegistry::get::<CoreDb>() else {
+                continue;
+            };
+            let Ok(notifier) = ResourceRegistry::get::<Notifier>() else {
+                continue;
+            };
+
+            let last_sync_err = run_osv_sync(&osv_db, &core_db, &notifier)
+                .await
+                .inspect_err(|e| error!(error = ?e, "OSV sync cycle failed"))
+                .err();
+            let last_sync_at = Utc::now();
+
+            let mut last_state = self.last_state.write().await;
+            *last_state = SyncState {
+                last_sync_at,
+                last_sync_err,
+            };
         }
     }
 }
