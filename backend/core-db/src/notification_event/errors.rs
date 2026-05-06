@@ -33,3 +33,11 @@ pub enum GetChannelNotificationEventsError {
     #[error("Notification channel with id {id} not found")]
     ChannelNotFound { id: NotificationChannelId },
 }
+
+#[derive(thiserror::Error, Debug)]
+pub enum GetAllNotificationEventsError {
+    #[error(transparent)]
+    CantConvert(#[from] ConvertError),
+    #[error("Failed to query notification events: {0}")]
+    Database(sqlx::Error),
+}

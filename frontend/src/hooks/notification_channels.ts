@@ -1,10 +1,11 @@
-import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchChannels,
   createChannel,
   updateChannel,
   deleteChannel,
   fetchChannelEvents,
+  fetchAllChannelEvents,
 } from '../api/notification_channels';
 import type {
   NotificationChannel,
@@ -19,6 +20,7 @@ import { useWorkspaces, workspaceChannelsQueryKey, workspacesQueryKey } from './
 const channelsQueryKey = () => ['channels'] as const;
 const channelEventsQueryKey = (channelId: NotificationChannelId) =>
   ['channel', channelId, 'events'] as const;
+export const allChannelEventsQueryKey = () => ['channels', 'events'] as const;
 
 export function useChannels(params: PaginationParams = {}) {
   return useQuery({
@@ -78,6 +80,7 @@ export function useDeleteChannel() {
       // workspaces used it, invalidate every workspace's channel list and the workspace list itself
       // to stay consistent with any workspace-level channel counts or associations.
       queryClient.invalidateQueries({ queryKey: workspacesQueryKey() });
+      queryClient.removeQueries({ queryKey: allChannelEventsQueryKey() });
       for (const w of workspaces) {
         queryClient.invalidateQueries({ queryKey: workspaceChannelsQueryKey(w.id) });
       }
@@ -88,21 +91,22 @@ export function useDeleteChannel() {
 export type EnrichedEvent = NotificationEvent & { channel: NotificationChannel };
 
 export function useAllChannelEvents(): { events: EnrichedEvent[]; isLoading: boolean } {
-  const { data: channels = [] } = useChannels();
+  const { data: channels = [], isLoading: channelsLoading } = useChannels();
 
-  const eventQueries = useQueries({
-    queries: channels.map((channel) => ({
-      queryKey: channelEventsQueryKey(channel.id),
-      queryFn: () => fetchChannelEvents(channel.id),
-      staleTime: Infinity,
-    })),
+  const eventsQuery = useQuery({
+    queryKey: allChannelEventsQueryKey(),
+    queryFn: () => fetchAllChannelEvents(),
+    staleTime: Infinity,
   });
 
-  const events = eventQueries
-    .flatMap((q, i) => (q.data?.events ?? []).map((event) => ({ ...event, channel: channels[i] })))
-    .sort((a, b) => b.id.localeCompare(a.id));
+  const channelById = Object.fromEntries(channels.map((c) => [c.id, c]));
 
-  const isLoading = channels.length === 0 || eventQueries.some((q) => q.isLoading);
+  const events = (eventsQuery.data?.events ?? []).flatMap((event) => {
+    const channel = channelById[event.channel_id];
+    return channel ? [{ ...event, channel }] : [];
+  });
+
+  const isLoading = channelsLoading || eventsQuery.isLoading;
 
   return { events, isLoading };
 }

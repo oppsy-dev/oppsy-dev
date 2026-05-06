@@ -10,6 +10,9 @@ type V1ChannelsGetResp =
 type V1ChannelEventsGetResp =
   paths['/v1/channels/{channel_id}/events']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
+type V1AllChannelEventsGetResp =
+  paths['/v1/channels/events']['get']['responses']['200']['content']['application/json; charset=utf-8'];
+
 export type EmailChannelConf = { type: 'Email'; from: string; to: string[]; template: string };
 export type DiscordChannelConf = { type: 'Discord'; discord_webhook_url: string; template: string };
 export type WebhookChannelConf = {
@@ -86,6 +89,20 @@ export async function fetchChannelEvents(
       limit: params.limit?.toString(),
     });
     return (await res.json()) as V1ChannelEventsGetResp;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function fetchAllChannelEvents(
+  params: PaginationParams = {},
+): Promise<V1AllChannelEventsGetResp> {
+  try {
+    const res = await get('/v1/channels/events', {
+      page: params.page?.toString(),
+      limit: params.limit?.toString(),
+    });
+    return (await res.json()) as V1AllChannelEventsGetResp;
   } catch (err) {
     throw err;
   }

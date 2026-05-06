@@ -129,4 +129,17 @@ async fn notification_events_roundtrip() {
             .unwrap_err(),
         GetChannelNotificationEventsError::ChannelNotFound { .. }
     ));
+
+    // get_all_notification_events returns events from this channel
+    let all = db
+        .get_all_notification_events(Pagination::all())
+        .await
+        .unwrap();
+    let all_ids: Vec<_> = all.iter().map(|e| e.id).collect();
+    assert!(all_ids.contains(&event_id_ok));
+    assert!(all_ids.contains(&event_id_err));
+    // newest first
+    let pos_ok = all_ids.iter().position(|&id| id == event_id_ok).unwrap();
+    let pos_err = all_ids.iter().position(|&id| id == event_id_err).unwrap();
+    assert!(pos_err < pos_ok);
 }
