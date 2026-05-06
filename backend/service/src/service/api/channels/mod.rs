@@ -1,5 +1,6 @@
 mod create_channel;
 mod delete_channel;
+mod list_all_events;
 mod list_channel_events;
 mod list_channels;
 mod update_channel;
@@ -67,6 +68,20 @@ impl Api {
         notification_id: Path<NotificationChannelId>,
     ) -> delete_channel::AllResponses {
         delete_channel::endpoint(notification_id.0).await
+    }
+
+    /// List all notification events across all channels.
+    ///
+    /// Returns all notification delivery attempts across every channel, ordered from newest to oldest.
+    #[oai(path = "/v1/channels/events", method = "get")]
+    async fn list_all_notification_events(
+        &self,
+        /// Page number (1-based, default: 1).
+        page: Query<Option<Page>>,
+        /// Maximum items per page (default: 20).
+        limit: Query<Option<Limit>>,
+    ) -> list_all_events::AllResponses {
+        list_all_events::endpoint(page.0, limit.0).await
     }
 
     /// List notification events for a notification channel.

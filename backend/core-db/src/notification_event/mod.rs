@@ -6,7 +6,8 @@ use crate::{
     ConvertTo, CoreDb, Pagination,
     notification_channel::NotificationChannelId,
     notification_event::errors::{
-        AddNotificationEventError, GetChannelNotificationEventsError, NotificationEventFromRowError,
+        AddNotificationEventError, GetAllNotificationEventsError,
+        GetChannelNotificationEventsError, NotificationEventFromRowError,
     },
 };
 
@@ -125,6 +126,31 @@ impl CoreDb {
         .fetch_all(&self.pool)
         .await
         .map_err(GetChannelNotificationEventsError::Database)?;
+
+        let events = rows
+            .into_iter()
+            .map(ConvertTo::convert)
+            .collect::<Result<_, _>>()?;
+        Ok(events)
+    }
+
+    pub async fn get_all_notification_events(
+        &self,
+        pagination: impl ConvertTo<Pagination>,
+    ) -> Result<Vec<NotificationEvent>, GetAllNotificationEventsError> {
+        let pagination = pagination.convert()?;
+
+        let rows = sqlx::query(
+            "SELECT id, channel_id, error, meta \
+             FROM notification_events \
+             ORDER BY id DESC \
+             LIMIT $1 OFFSET $2",
+        )
+        .bind(i64::from(pagination.limit))
+        .bind(i64::from(pagination.offset()))
+        .fetch_all(&self.pool)
+        .await
+        .map_err(GetAllNotificationEventsError::Database)?;
 
         let events = rows
             .into_iter()
