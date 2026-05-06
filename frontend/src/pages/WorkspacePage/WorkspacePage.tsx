@@ -77,10 +77,6 @@ export function WorkspacePage() {
               <div className={styles.statValue}>{workspace?.channel_count}</div>
               <div className={styles.statLabel}>Notification channels</div>
             </div>
-            <div className={styles.statCard}>
-              <div className={styles.statValueMuted}>2h ago</div>
-              <div className={styles.statLabel}>Last scan</div>
-            </div>
           </div>
 
           <div className={styles.tabBar}>
