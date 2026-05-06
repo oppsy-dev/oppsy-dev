@@ -10,6 +10,7 @@ import {
   uploadManifest,
   removeWorkspaceManifest,
 } from '../api/workspaces';
+import { allChannelEventsQueryKey } from './notification_channels';
 import type {
   WorkspaceId,
   CreateWorkspaceRequest,
@@ -71,6 +72,7 @@ export function useUploadManifest(workspaceId: WorkspaceId) {
       // any newly generated alerts and updated channel state.
       queryClient.invalidateQueries({ queryKey: ['channels'] });
       queryClient.invalidateQueries({ queryKey: ['channel'] });
+      queryClient.invalidateQueries({ queryKey: allChannelEventsQueryKey() });
     },
   });
 }

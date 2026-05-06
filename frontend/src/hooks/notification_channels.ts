@@ -20,7 +20,7 @@ import { useWorkspaces, workspaceChannelsQueryKey, workspacesQueryKey } from './
 const channelsQueryKey = () => ['channels'] as const;
 const channelEventsQueryKey = (channelId: NotificationChannelId) =>
   ['channel', channelId, 'events'] as const;
-const allChannelEventsQueryKey = () => ['channels', 'events'] as const;
+export const allChannelEventsQueryKey = () => ['channels', 'events'] as const;
 
 export function useChannels(params: PaginationParams = {}) {
   return useQuery({
@@ -40,7 +40,6 @@ export function useCreateChannel() {
       // The global channel list has a new entry the client hasn't seen yet.
       queryClient.invalidateQueries({ queryKey: channelsQueryKey() });
       queryClient.invalidateQueries({ queryKey: workspacesQueryKey() });
-      queryClient.invalidateQueries({ queryKey: allChannelEventsQueryKey() });
     },
   });
 }
@@ -60,7 +59,6 @@ export function useUpdateChannel() {
       queryClient.invalidateQueries({ queryKey: channelsQueryKey() });
       queryClient.invalidateQueries({ queryKey: ['channel', channelId] });
       queryClient.invalidateQueries({ queryKey: workspacesQueryKey() });
-      queryClient.invalidateQueries({ queryKey: allChannelEventsQueryKey() });
       for (const w of workspaces) {
         queryClient.invalidateQueries({ queryKey: workspaceChannelsQueryKey(w.id) });
       }
