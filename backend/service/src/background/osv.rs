@@ -12,6 +12,7 @@ use crate::{
     types::{ManifestId, WorkspaceId},
 };
 
+// TODO: consider making it as part of [`OsvDb`]
 pub struct OsvSync {
     pub last_state: RwLock<SyncState>,
 }
@@ -30,7 +31,9 @@ impl Resource for OsvSync {
             last_sync_at: Utc::now(),
             last_sync_err: None,
         };
-        Ok(Self { last_state: last_state.into() })
+        Ok(Self {
+            last_state: last_state.into(),
+        })
     }
 }
 
@@ -45,10 +48,9 @@ impl OsvSync {
     /// logged and retried on the next cycle.
     pub async fn osv_sync_task(self: Arc<OsvSync>) -> anyhow::Result<()> {
         let settings = ResourceRegistry::get::<Settings>()?;
-        let sync_interval = settings.osv_sync_interval;
 
         loop {
-            tokio::time::sleep(sync_interval).await;
+            tokio::time::sleep(settings.osv_sync_interval).await;
 
             let Ok(osv_db) = ResourceRegistry::get::<OsvDb>() else {
                 continue;
