@@ -1,19 +1,21 @@
-//! Global OSV database instance.
+use std::{collections::HashMap, sync::Arc};
 
-use std::collections::HashMap;
-
+use chrono::{DateTime, Utc};
 use osv_db::{
     OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems,
     types::{OsvRecord, OsvRecordId},
 };
 use package_analyzer::MultiAnalyzer;
 use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
-use tracing::info;
+use tokio::sync::RwLock;
+use tracing::{error, info};
 
 use crate::{
+    db::CoreDb,
+    notifier::Notifier,
     resources::{Resource, ResourceRegistry},
     settings::Settings,
-    types::{ManifestId, ManifestType},
+    types::{ManifestId, ManifestType, WorkspaceId},
 };
 
 /// 10MB download chunk size
@@ -25,6 +27,13 @@ const DOWNLOAD_CHUNK_SIZE: u64 = 10 * 1024 * 1024;
 pub struct OsvDb {
     inner: OsvDbInner,
     analyzer: MultiAnalyzer,
+    pub sync: RwLock<OsvSyncState>,
+}
+
+#[derive(Debug)]
+pub struct OsvSyncState {
+    pub last_sync_at: DateTime<Utc>,
+    pub last_sync_err: Option<anyhow::Error>,
 }
 
 #[async_trait::async_trait]
@@ -92,9 +101,52 @@ impl OsvDb {
         .await??;
 
         let ecosystems = inner.ecosystems().to_string();
-        let db = Self { inner, analyzer };
+        let db = Self {
+            inner,
+            analyzer,
+            sync: OsvSyncState {
+                last_sync_at: Utc::now(),
+                last_sync_err: None,
+            }
+            .into(),
+        };
         info!(ecosystems, "OSV database successfully initialised");
         Ok(db)
+    }
+
+    /// Background task that syncs OSV data on the interval configured by
+    /// [`Settings::osv_sync_interval`] and dispatches vulnerability notifications
+    /// for any manifests affected by new or updated records.
+    ///
+    /// Sleeps for one full interval before the first sync. [`Settings`] is registered
+    /// synchronously before any tasks are spawned, so the get succeeds immediately.
+    /// All other resources are guaranteed to be registered by then. Sync failures are
+    /// logged and retried on the next cycle.
+    pub async fn sync_task(self: Arc<Self>) -> anyhow::Result<()> {
+        let settings = ResourceRegistry::get::<Settings>()?;
+
+        loop {
+            tokio::time::sleep(settings.osv_sync_interval).await;
+
+            let Ok(core_db) = ResourceRegistry::get::<CoreDb>() else {
+                continue;
+            };
+            let Ok(notifier) = ResourceRegistry::get::<Notifier>() else {
+                continue;
+            };
+
+            let last_sync_err = run_sync(&self, &core_db, &notifier)
+                .await
+                .inspect_err(|e| error!(error = ?e, "OSV sync cycle failed"))
+                .err();
+            let last_sync_at = Utc::now();
+
+            let mut sync = self.sync.write().await;
+            *sync = OsvSyncState {
+                last_sync_at,
+                last_sync_err,
+            };
+        }
     }
 
     /// Looks up a single OSV record by its ID.
@@ -193,4 +245,53 @@ impl OsvDb {
 fn read_records_parallel(db: &osv_db::OsvDb) -> anyhow::Result<Vec<OsvRecord>> {
     let records = db.records()?.par_bridge().collect::<Result<_, _>>()?;
     Ok(records)
+}
+
+async fn run_sync(
+    osv_db: &OsvDb,
+    core_db: &Arc<CoreDb>,
+    notifier: &Arc<Notifier>,
+) -> anyhow::Result<()> {
+    info!("Running scheduled OSV sync...");
+    let detected_at = Utc::now();
+    let hits = osv_db.sync().await?;
+
+    if hits.is_empty() {
+        info!("OSV sync complete: no new or updated records");
+        return Ok(());
+    }
+
+    info!(
+        affected_manifests = hits.len(),
+        "OSV sync: resolving workspaces for affected manifests..."
+    );
+
+    let manifest_to_workspace: HashMap<ManifestId, WorkspaceId> = core_db
+        .get_manifest_workspace_map()
+        .await?
+        .into_iter()
+        .map(|(m, v)| anyhow::Ok((m.try_into()?, v.try_into()?)))
+        .collect::<Result<_, _>>()?;
+
+    for (manifest_id, records) in hits {
+        let workspace_id = manifest_to_workspace
+            .get(&manifest_id)
+            .ok_or(anyhow::anyhow!(
+                "Manifest {manifest_id} is not assinged to any workspaces"
+            ))?;
+
+        core_db
+            .add_manifest_osv_vuln(
+                manifest_id,
+                records.iter().map(|v| v.id.clone()).collect(),
+                detected_at.timestamp(),
+            )
+            .await?;
+        // spawn notifications
+        notifier
+            .clone()
+            .spawn_osv_events(core_db.clone(), *workspace_id, manifest_id, records);
+    }
+
+    Ok(())
 }

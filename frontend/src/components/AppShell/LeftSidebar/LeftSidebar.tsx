@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { OppsyLogo } from '../../OppsyLogo/OppsyLogo';
 import { AppRoute } from '../../../routes/Routes';
-import styles from './Sidebar.module.css';
+import styles from './LeftSidebar.module.css';
 import { NotificationIcon } from '../../Icons';
 
 function BookIcon() {
@@ -42,7 +42,7 @@ function GridIcon() {
   );
 }
 
-export function Sidebar() {
+export function LeftSidebar() {
   return (
     <nav className={styles.sidebar}>
       <div className={styles.logoArea}>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchChannels,
   createChannel,
@@ -7,7 +7,9 @@ import {
   fetchChannelEvents,
 } from '../api/notification_channels';
 import type {
+  NotificationChannel,
   NotificationChannelId,
+  NotificationEvent,
   CreateChannelRequest,
   UpdateChannelRequest,
   PaginationParams,
@@ -81,6 +83,28 @@ export function useDeleteChannel() {
       }
     },
   });
+}
+
+export type EnrichedEvent = NotificationEvent & { channel: NotificationChannel };
+
+export function useAllChannelEvents(): { events: EnrichedEvent[]; isLoading: boolean } {
+  const { data: channels = [] } = useChannels();
+
+  const eventQueries = useQueries({
+    queries: channels.map((channel) => ({
+      queryKey: channelEventsQueryKey(channel.id),
+      queryFn: () => fetchChannelEvents(channel.id),
+      staleTime: Infinity,
+    })),
+  });
+
+  const events = eventQueries
+    .flatMap((q, i) => (q.data?.events ?? []).map((event) => ({ ...event, channel: channels[i] })))
+    .sort((a, b) => b.id.localeCompare(a.id));
+
+  const isLoading = channels.length === 0 || eventQueries.some((q) => q.isLoading);
+
+  return { events, isLoading };
 }
 
 export function useChannelEvents(channelId: NotificationChannelId, params: PaginationParams = {}) {

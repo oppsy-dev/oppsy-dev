@@ -134,11 +134,3 @@
   align-items: center;
   gap: 0.375rem;
 }
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .header {
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-}

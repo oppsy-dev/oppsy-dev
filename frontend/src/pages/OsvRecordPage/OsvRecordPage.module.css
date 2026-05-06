@@ -112,14 +112,3 @@
 .rawJson {
   margin-top: 1.125rem;
 }
-
-/* ── Responsive ── */
-@media (max-width: 640px) {
-  .page {
-    padding: 1.5rem 1.25rem 3rem;
-  }
-
-  .tabs {
-    overflow-x: auto;
-  }
-}

@@ -342,6 +342,145 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/osv/status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Returns the current OSV sync status, including the last sync timestamp and
+     *     interval.
+     */
+    get: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path?: never;
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /**
+         * @description ## OSV Sync Status
+         *
+         *     Returns the timestamp of the last OSV sync and the configured sync interval.
+         */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': components['schemas']['OsvSyncStatus'];
+          };
+        };
+        /**
+         * @description ## Bad Request
+         *
+         *     The client has not sent valid request, could be an invalid HTTP in general or
+         *     provided not correct headers, path or query arguments.
+         */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Unauthorized
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Forbidden
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Precondition Failed
+         *
+         *     The client has not sent valid data in its request, headers, parameters or body.
+         */
+        412: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## URI Too Long
+         *
+         *     The client sent a request with the URI is longer than the server is willing to
+         *     interpret
+         */
+        414: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Internal Server Error.
+         *
+         *     An internal server error occurred.
+         *
+         *     *The contents of this response should be reported to the projects issue tracker.*
+         */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Service Unavailable
+         *
+         *     The service is not available, try again later.
+         *
+         *     *This is returned when the service either has not started,
+         *     or has become unavailable.*
+         */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/osv/{record_id}': {
     parameters: {
       query?: never;
@@ -3283,6 +3422,25 @@ export interface components {
       references: components['schemas']['Reference'][];
       /** @description Credits for people or organizations involved in the report. */
       credits: components['schemas']['Credit'][];
+    };
+    /** OsvSyncStatus */
+    OsvSyncStatus: {
+      /**
+       * Format: date-time
+       * @description Timestamp of the last completed OSV sync.
+       */
+      last_sync_at: string;
+      /**
+       * Format: uint64
+       * @description How often the OSV sync runs in seconds.
+       */
+      sync_interval: number;
+      /**
+       * Error Message
+       * @description Error message from the last sync cycle, if it failed.
+       * @example An error has occurred, the details of the error are ...
+       */
+      last_sync_error?: string;
     };
     /**
      * Package

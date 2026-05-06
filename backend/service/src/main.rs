@@ -1,4 +1,3 @@
-mod background;
 mod cue;
 mod db;
 mod logger;
@@ -48,12 +47,14 @@ async fn run_server() -> anyhow::Result<()> {
 
     let mut tasks = tokio::task::JoinSet::new();
 
-    tasks.spawn(async { ResourceRegistry::register::<ManifestDb>().await });
-    tasks.spawn(async { ResourceRegistry::register::<OsvDb>().await });
-    tasks.spawn(async { ResourceRegistry::register::<CoreDb>().await });
-    tasks.spawn(async { ResourceRegistry::register::<Notifier>().await });
+    tasks.spawn(async { ResourceRegistry::register::<ManifestDb>().await.map(|_| ()) });
+    tasks.spawn(async {
+        let osv_db = ResourceRegistry::register::<OsvDb>().await?;
+        osv_db.sync_task().await
+    });
+    tasks.spawn(async { ResourceRegistry::register::<CoreDb>().await.map(|_| ()) });
+    tasks.spawn(async { ResourceRegistry::register::<Notifier>().await.map(|_| ()) });
     tasks.spawn(async { service::run().await });
-    tasks.spawn(background::osv_sync_task());
 
     while let Some(res) = tasks.join_next().await {
         res??;
