@@ -231,7 +231,7 @@ impl CoreDb {
         }
 
         let rows = sqlx::query(
-            "SELECT manifests.id, manifests.manifest_type, manifests.name, manifests.tag \
+            "SELECT manifests.id, manifests.name, manifests.tag, manifests.meta \
              FROM manifests \
              JOIN workspace_manifests ON workspace_manifests.manifest_id = manifests.id \
              WHERE workspace_manifests.workspace_id = $1 \

@@ -54,7 +54,7 @@ async fn workspace_with_manifest() {
         .unwrap();
 
     let manifest_id = uuid::Uuid::now_v7();
-    db.add_manifest(manifest_id, "type", "manifest", None)
+    db.add_manifest(manifest_id, "manifest", None, serde_json::Value::Null)
         .await
         .unwrap();
 
@@ -77,9 +77,9 @@ async fn workspace_with_manifest() {
         .unwrap();
     assert_eq!(minfests, vec![Manifest {
         id: manifest_id,
-        manifest_type: "type".to_string(),
         name: "manifest".to_string(),
-        tag: None
+        tag: None,
+        meta: serde_json::Value::Null
     },]);
 }
 

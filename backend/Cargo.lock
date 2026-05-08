@@ -2457,9 +2457,9 @@ dependencies = [
 
 [[package]]
 name = "osv-analyzer"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c17fd2bf1327b82fcb64486ff5c97d6f33b4dec5a2b70257e01d6f3c28386f56"
+checksum = "0697389ecd77fdcfca787104ecce280616b89ae11562067f0a1d1ccf69dec2e3"
 dependencies = [
  "anyhow",
  "osv-types",

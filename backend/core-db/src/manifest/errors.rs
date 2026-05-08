@@ -28,10 +28,10 @@ pub enum GetManifestError {
 pub enum ManifestFromRowError {
     #[error("Cannot decode manifest id column: {0}")]
     CannotDecodeId(sqlx::Error),
-    #[error("Cannot decode manifest type column: {0}")]
-    CannotDecodeType(sqlx::Error),
     #[error("Cannot decode manifest name column: {0}")]
     CannotDecodeName(sqlx::Error),
     #[error("Cannot decode manifest tag column: {0}")]
     CannotDecodeTag(sqlx::Error),
+    #[error("Cannot decode manifest meta column: {0}")]
+    CannotDecodeMeta(sqlx::Error),
 }

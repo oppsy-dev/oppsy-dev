@@ -65,7 +65,7 @@ test-with = "0.16.1"
 
 osv-db = "0.6.3"
 osv-types = "0.1.0"
-osv-analyzer = "0.1.0"
+osv-analyzer = "0.2.0"
 
 url = "2"
 anyhow = "1.0.102"
