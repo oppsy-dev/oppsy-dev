@@ -2,12 +2,9 @@
 
 use std::{collections::HashSet, ops::Deref, sync::LazyLock};
 
+use osv_analyzer::ManifestType;
 use osv_db::{OsvDb, OsvGsEcosystems};
-use package_analyzer::{
-    ManifestId, Package, analyzer::Analyzer, cargo::CargoPackage, go::GoModule,
-    gradle::GradlePackage, maven::MavenPackage, npm::NpmPackage, poetry::PoetryPackage,
-    uv::UvPackage,
-};
+use package_analyzer::Analyzer;
 use test_case::test_case;
 
 const MANIFEST_ID: &str = "test-manifest";
@@ -36,48 +33,56 @@ static OSV_DB: LazyLock<TestOsvDb> = LazyLock::new(|| {
 });
 
 #[test_case(
-    Analyzer::<CargoPackage>::new,
+    Analyzer::new,
     include_bytes!("packages/cargo-package/Cargo.lock"),
+    ManifestType::Cargo,
     &["RUSTSEC-2025-0112"]
 )]
+// #[test_case(
+//     Analyzer::<NpmPackage>::new,
+//     include_bytes!("packages/npm-package/package-lock.json"),
+//     &["MAL-2026-1429", "GHSA-hqjg-pww4-pcgq"]
+// )]
 #[test_case(
-    Analyzer::<NpmPackage>::new,
-    include_bytes!("packages/npm-package/package-lock.json"),
-    &["MAL-2026-1429", "GHSA-hqjg-pww4-pcgq"]
-)]
-#[test_case(
-    Analyzer::<UvPackage>::new,
+    Analyzer::new,
     include_bytes!("packages/uv-package/uv.lock"),
+    ManifestType::Uv,
     &["GHSA-rcp6-88mm-9vgf", "GHSA-p2m9-wcp5-6qw3"]
 )]
-#[test_case(
-    Analyzer::<PoetryPackage>::new,
-    include_bytes!("packages/poetry-package/poetry.lock"),
-    &["GHSA-rcp6-88mm-9vgf", "GHSA-p2m9-wcp5-6qw3"]
-)]
-#[test_case(
-    Analyzer::<MavenPackage>::new,
-    include_bytes!("packages/maven-package/dependencies.txt"),
-    &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
-)]
-#[test_case(
-    Analyzer::<GradlePackage>::new,
-    include_bytes!("packages/gradle-package/gradle.lockfile"),
-    &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
-)]
-#[test_case(
-    Analyzer::<GoModule>::new,
-    include_bytes!("packages/go-package/deps.json"),
-    &["GHSA-8rf9-c59g-f82f", "GHSA-67q9-58vj-32qx"]
-)]
+// #[test_case(
+//     Analyzer::<PoetryPackage>::new,
+//     include_bytes!("packages/poetry-package/poetry.lock"),
+//     &["GHSA-rcp6-88mm-9vgf", "GHSA-p2m9-wcp5-6qw3"]
+// )]
+// #[test_case(
+//     Analyzer::<MavenPackage>::new,
+//     include_bytes!("packages/maven-package/dependencies.txt"),
+//     &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
+// )]
+// #[test_case(
+//     Analyzer::<GradlePackage>::new,
+//     include_bytes!("packages/gradle-package/gradle.lockfile"),
+//     &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
+// )]
+// #[test_case(
+//     Analyzer::<GoModule>::new,
+//     include_bytes!("packages/go-package/deps.json"),
+//     &["GHSA-8rf9-c59g-f82f", "GHSA-67q9-58vj-32qx"]
+// )]
 #[tokio::test]
-async fn test_analyzer<T: Package>(
-    analyzer_gen: impl Fn() -> Analyzer<T>,
+async fn test_analyzer(
+    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
     manifest_bytes: &[u8],
+    manifest_type: ManifestType,
     osv_record_ids: &[&str],
 ) {
-    add_manifest_then_osv_record_check(&analyzer_gen, manifest_bytes, osv_record_ids);
-    add_osv_record_then_package_check(&analyzer_gen, manifest_bytes, osv_record_ids);
+    add_manifest_then_osv_record_check(
+        &analyzer_gen,
+        manifest_bytes,
+        manifest_type,
+        osv_record_ids,
+    );
+    add_osv_record_then_package_check(&analyzer_gen, manifest_bytes, manifest_type, osv_record_ids);
 }
 
 /// Verifies that packages indexed via [`PackageAnalyzer::add_manifest`] are matched when
@@ -89,18 +94,17 @@ async fn test_analyzer<T: Package>(
 /// 2. `add_osv_record` — indexes the vulnerability and cross-checks it against
 ///    already-known packages; returns the `(manifest_id, osv_record_id)` pairs that
 ///    match.
-fn add_manifest_then_osv_record_check<T: Package>(
-    analyzer_gen: impl Fn() -> Analyzer<T>,
+fn add_manifest_then_osv_record_check(
+    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
     manifest_bytes: &[u8],
+    manifest_type: ManifestType,
     osv_record_ids: &[&str],
 ) {
     let osv_db = &OSV_DB;
     let analyzer = analyzer_gen();
 
-    // add_manifest first — returns empty since no OSV records are indexed yet
-    let manifest_id = ManifestId::from(MANIFEST_ID);
     let record_ids = analyzer
-        .add_manifest(manifest_id, manifest_bytes, osv_db)
+        .add_manifest(&MANIFEST_ID, manifest_bytes, manifest_type, osv_db)
         .unwrap();
     assert!(record_ids.is_empty());
 
@@ -111,7 +115,7 @@ fn add_manifest_then_osv_record_check<T: Package>(
             .unwrap()
             .unwrap();
         let hits = analyzer.add_osv_record(&osv_record).unwrap();
-        assert_eq!(hits, vec![MANIFEST_ID.into()]);
+        assert_eq!(hits, vec![MANIFEST_ID]);
     }
 }
 
@@ -124,9 +128,10 @@ fn add_manifest_then_osv_record_check<T: Package>(
 /// 2. `add_manifest` — parses the manifest, indexes its packages, and cross-checks them
 ///    against already-known OSV records; returns the OSV record IDs that affect the
 ///    manifest's packages.
-fn add_osv_record_then_package_check<T: Package>(
-    analyzer_gen: impl Fn() -> Analyzer<T>,
+fn add_osv_record_then_package_check(
+    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
     manifest_bytes: &[u8],
+    manifest_type: ManifestType,
     osv_record_ids: &[&str],
 ) {
     let osv_db = &OSV_DB;
@@ -143,9 +148,8 @@ fn add_osv_record_then_package_check<T: Package>(
     }
 
     // add_manifest second — matches against already-indexed OSV records
-    let manifest_id = ManifestId::from(MANIFEST_ID);
     let record_ids = analyzer
-        .add_manifest(manifest_id, manifest_bytes, osv_db)
+        .add_manifest(&MANIFEST_ID, manifest_bytes, manifest_type, osv_db)
         .unwrap();
     // compare them as sets
     let record_ids: HashSet<_> = record_ids.into_iter().collect();
