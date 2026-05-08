@@ -2,7 +2,7 @@ use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
-use osv_db::types::OsvRecord;
+use osv_types::OsvRecord;
 use tracing::{error, info, warn};
 
 use crate::{

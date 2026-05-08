@@ -12,12 +12,12 @@ pub enum RangeType {
     Ecosystem,
 }
 
-impl From<osv_db::types::RangeType> for RangeType {
-    fn from(t: osv_db::types::RangeType) -> Self {
+impl From<osv_types::RangeType> for RangeType {
+    fn from(t: osv_types::RangeType) -> Self {
         match t {
-            osv_db::types::RangeType::GIT => Self::Git,
-            osv_db::types::RangeType::SEMVER => Self::Semver,
-            osv_db::types::RangeType::ECOSYSTEM => Self::Ecosystem,
+            osv_types::RangeType::GIT => Self::Git,
+            osv_types::RangeType::SEMVER => Self::Semver,
+            osv_types::RangeType::ECOSYSTEM => Self::Ecosystem,
         }
     }
 }
@@ -36,10 +36,10 @@ pub struct Event {
     pub limit: Option<String>,
 }
 
-impl From<osv_db::types::Event> for Event {
-    fn from(e: osv_db::types::Event) -> Self {
+impl From<osv_types::Event> for Event {
+    fn from(e: osv_types::Event) -> Self {
         match e {
-            osv_db::types::Event::Introduced { introduced } => {
+            osv_types::Event::Introduced { introduced } => {
                 Self {
                     introduced: Some(introduced),
                     fixed: None,
@@ -47,7 +47,7 @@ impl From<osv_db::types::Event> for Event {
                     limit: None,
                 }
             },
-            osv_db::types::Event::Fixed { fixed } => {
+            osv_types::Event::Fixed { fixed } => {
                 Self {
                     introduced: None,
                     fixed: Some(fixed),
@@ -55,7 +55,7 @@ impl From<osv_db::types::Event> for Event {
                     limit: None,
                 }
             },
-            osv_db::types::Event::LastAffected { last_affected } => {
+            osv_types::Event::LastAffected { last_affected } => {
                 Self {
                     introduced: None,
                     fixed: None,
@@ -63,7 +63,7 @@ impl From<osv_db::types::Event> for Event {
                     limit: None,
                 }
             },
-            osv_db::types::Event::Limit { limit } => {
+            osv_types::Event::Limit { limit } => {
                 Self {
                     introduced: None,
                     fixed: None,
@@ -88,8 +88,8 @@ pub struct Range {
     pub events: Vec<Event>,
 }
 
-impl From<osv_db::types::Range> for Range {
-    fn from(r: osv_db::types::Range) -> Self {
+impl From<osv_types::Range> for Range {
+    fn from(r: osv_types::Range) -> Self {
         Self {
             range_type: r.range_type.into(),
             repo: r.repo,

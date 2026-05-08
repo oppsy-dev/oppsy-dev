@@ -9,7 +9,7 @@ use crate::{
 
 #[derive(Debug, NewType)]
 #[oai(example = true)]
-pub struct OsvRecordId(osv_db::types::OsvRecordId);
+pub struct OsvRecordId(osv_types::OsvRecordId);
 
 impl Example for OsvRecordId {
     fn example() -> Self {

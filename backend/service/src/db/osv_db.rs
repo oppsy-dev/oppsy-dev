@@ -1,11 +1,9 @@
 use std::{collections::HashMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
-use osv_db::{
-    OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems,
-    types::{OsvRecord, OsvRecordId},
-};
-use package_analyzer::MultiAnalyzer;
+use osv_db::{OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems};
+use osv_types::{OsvRecord, OsvRecordId};
+use package_analyzer::Analyzer;
 use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
 use tokio::sync::RwLock;
 use tracing::{error, info};
@@ -26,7 +24,7 @@ const DOWNLOAD_CHUNK_SIZE: u64 = 10 * 1024 * 1024;
 #[derive(Debug)]
 pub struct OsvDb {
     inner: OsvDbInner,
-    analyzer: MultiAnalyzer,
+    analyzer: Analyzer<ManifestId>,
     pub sync: RwLock<OsvSyncState>,
 }
 
@@ -87,7 +85,7 @@ impl OsvDb {
         );
 
         let analyzer = tokio::task::spawn_blocking(move || {
-            let analyzer = MultiAnalyzer::new();
+            let analyzer = Analyzer::new();
             records.par_iter().try_for_each(|r| {
                 let hits = analyzer.add_osv_record(r)?;
                 anyhow::ensure!(
@@ -191,9 +189,7 @@ impl OsvDb {
                     HashMap::<ManifestId, Vec<OsvRecord>>::new,
                     |mut acc, record| {
                         for manifest_id in self.analyzer.add_osv_record(record)? {
-                            acc.entry(manifest_id.try_into()?)
-                                .or_default()
-                                .push(record.clone());
+                            acc.entry(manifest_id).or_default().push(record.clone());
                         }
                         anyhow::Ok(acc)
                     },
@@ -224,9 +220,12 @@ impl OsvDb {
         manifest_id: &ManifestId,
         manifest_bytes: &[u8],
     ) -> anyhow::Result<Vec<OsvRecord>> {
-        let record_ids =
-            self.analyzer
-                .add_manifest(manifest_type, manifest_id, manifest_bytes, &self.inner)?;
+        let record_ids = self.analyzer.add_manifest(
+            manifest_id,
+            manifest_bytes,
+            manifest_type.into(),
+            &self.inner,
+        )?;
         record_ids
             .iter()
             .map(|id| {

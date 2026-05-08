@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use chrono::Utc;
 use core_db::manifest::errors::GetManifestError;
-use osv_db::types::OsvRecord;
+use osv_types::OsvRecord;
 use poem_openapi::{ApiResponse, payload::Json};
 use tracing::info;
 

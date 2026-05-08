@@ -28,20 +28,20 @@ pub enum ReferenceType {
     Web,
 }
 
-impl From<osv_db::types::ReferenceType> for ReferenceType {
-    fn from(t: osv_db::types::ReferenceType) -> Self {
+impl From<osv_types::ReferenceType> for ReferenceType {
+    fn from(t: osv_types::ReferenceType) -> Self {
         match t {
-            osv_db::types::ReferenceType::ADVISORY => Self::Advisory,
-            osv_db::types::ReferenceType::ARTICLE => Self::Article,
-            osv_db::types::ReferenceType::DETECTION => Self::Detection,
-            osv_db::types::ReferenceType::DISCUSSION => Self::Discussion,
-            osv_db::types::ReferenceType::REPORT => Self::Report,
-            osv_db::types::ReferenceType::FIX => Self::Fix,
-            osv_db::types::ReferenceType::INTRODUCED => Self::Introduced,
-            osv_db::types::ReferenceType::GIT => Self::Git,
-            osv_db::types::ReferenceType::PACKAGE => Self::Package,
-            osv_db::types::ReferenceType::EVIDENCE => Self::Evidence,
-            osv_db::types::ReferenceType::WEB => Self::Web,
+            osv_types::ReferenceType::ADVISORY => Self::Advisory,
+            osv_types::ReferenceType::ARTICLE => Self::Article,
+            osv_types::ReferenceType::DETECTION => Self::Detection,
+            osv_types::ReferenceType::DISCUSSION => Self::Discussion,
+            osv_types::ReferenceType::REPORT => Self::Report,
+            osv_types::ReferenceType::FIX => Self::Fix,
+            osv_types::ReferenceType::INTRODUCED => Self::Introduced,
+            osv_types::ReferenceType::GIT => Self::Git,
+            osv_types::ReferenceType::PACKAGE => Self::Package,
+            osv_types::ReferenceType::EVIDENCE => Self::Evidence,
+            osv_types::ReferenceType::WEB => Self::Web,
         }
     }
 }
@@ -56,8 +56,8 @@ pub struct Reference {
     pub url: String,
 }
 
-impl From<osv_db::types::Reference> for Reference {
-    fn from(r: osv_db::types::Reference) -> Self {
+impl From<osv_types::Reference> for Reference {
+    fn from(r: osv_types::Reference) -> Self {
         Self {
             reference_type: r.reference_type.into(),
             url: r.url,

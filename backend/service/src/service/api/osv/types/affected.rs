@@ -15,8 +15,8 @@ pub struct Affected {
     pub versions: Vec<String>,
 }
 
-impl From<osv_db::types::Affected> for Affected {
-    fn from(a: osv_db::types::Affected) -> Self {
+impl From<osv_types::Affected> for Affected {
+    fn from(a: osv_types::Affected) -> Self {
         Self {
             package: a.package.map(Into::into),
             severity: a.severity.into_iter().map(Into::into).collect(),

@@ -11,8 +11,8 @@ pub struct Package {
     pub purl: Option<String>,
 }
 
-impl From<osv_db::types::Package> for Package {
-    fn from(p: osv_db::types::Package) -> Self {
+impl From<osv_types::Package> for Package {
+    fn from(p: osv_types::Package) -> Self {
         Self {
             ecosystem: p.ecosystem.to_string(),
             name: p.name,

@@ -38,8 +38,8 @@ pub struct OsvRecord {
     pub credits: Vec<Credit>,
 }
 
-impl From<osv_db::types::OsvRecord> for OsvRecord {
-    fn from(r: osv_db::types::OsvRecord) -> Self {
+impl From<osv_types::OsvRecord> for OsvRecord {
+    fn from(r: osv_types::OsvRecord) -> Self {
         Self {
             id: r.id,
             modified: r.modified,
