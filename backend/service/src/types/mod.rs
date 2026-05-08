@@ -9,11 +9,8 @@ mod uuid_v7;
 mod workspace;
 
 pub use manifest::{
-    id::ManifestId,
-    info::{ManifestInfo, ManifestVuln},
-    name::ManifestName,
+    id::ManifestId, info::ManifestInfo, name::ManifestName, package::ManifestPackage,
     tag::ManifestTag,
-    r#type::ManifestType,
 };
 pub use notification::{
     NotificationChannel, NotificationChannelConf, NotificationChannelConfInner,

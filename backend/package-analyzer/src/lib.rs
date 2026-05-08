@@ -1,7 +1,7 @@
 use std::{collections::HashSet, hash::Hash};
 
 use dashmap::DashMap;
-use osv_analyzer::{Manifest, ManifestPackage, ManifestType, evaluate};
+use osv_analyzer::{Package, analyze};
 use osv_db::OsvDb;
 use osv_types::{OsvRecord, OsvRecordId, PackageName};
 
@@ -10,9 +10,9 @@ use osv_types::{OsvRecord, OsvRecordId, PackageName};
 #[derive(Debug)]
 pub struct Analyzer<ManifestId> {
     /// Maps each known `Package` to the set of manifests that depend on it.
-    pkg_manifests: DashMap<ManifestPackage, HashSet<ManifestId>>,
+    pkg_manifests: DashMap<Package, HashSet<ManifestId>>,
     /// Maps a package name to all known `P` versions seen across manifests.
-    pkgs_by_name: DashMap<PackageName, HashSet<ManifestPackage>>,
+    pkgs_by_name: DashMap<PackageName, HashSet<Package>>,
     /// Maps a package name to all OSV record IDs that affect it.
     records_by_name: DashMap<PackageName, HashSet<OsvRecordId>>,
 }
@@ -47,7 +47,7 @@ impl<ManifestId: Clone + PartialEq + Eq + Hash> Analyzer<ManifestId> {
 
             if let Some(packages) = self.pkgs_by_name.get(&package.name) {
                 for p in packages.iter() {
-                    if evaluate(p, affected_p)?
+                    if analyze(p, affected_p)?
                         && let Some(manifests) = self.pkg_manifests.get(p)
                     {
                         for manifest_id in manifests.iter() {
@@ -82,21 +82,17 @@ impl<ManifestId: Clone + PartialEq + Eq + Hash> Analyzer<ManifestId> {
     pub fn add_manifest(
         &self,
         manifest_id: &ManifestId,
-        manifest_bytes: &[u8],
-        manifest_type: ManifestType,
+        packages: impl Iterator<Item = Package>,
         osv_db: &OsvDb,
     ) -> anyhow::Result<Vec<OsvRecordId>> {
         let mut records = HashSet::new();
 
-        let manifest = Manifest::extract(manifest_bytes, manifest_type)?;
-
-        for p in manifest.iter() {
-            let p = p?;
+        for p in packages {
             if let Some(record_ids) = self.records_by_name.get(&p.name) {
                 for record_id in record_ids.iter() {
                     if let Some(osv_record) = osv_db.get_record(record_id)? {
                         for affected_p in &osv_record.affected {
-                            if evaluate(&p, affected_p)? {
+                            if analyze(&p, affected_p)? {
                                 records.insert(record_id.clone());
                             }
                         }

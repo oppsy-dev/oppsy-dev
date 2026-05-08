@@ -90,7 +90,6 @@ impl Notifier {
             workspace_id,
             workspace_name: workspace_info.name.into(),
             manifest_id,
-            manifest_type: manifest_info.manifest_type.try_into()?,
             manifest_name: manifest_info.name.into(),
             manifest_tag: manifest_info.tag.map(Into::into),
             osv_records: osv_records_ids,

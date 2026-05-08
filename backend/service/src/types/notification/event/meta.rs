@@ -4,8 +4,7 @@ use poem_openapi::{
 };
 
 use crate::types::{
-    ManifestId, ManifestName, ManifestTag, ManifestType, OsvId, WorkspaceId, WorkspaceName,
-    parse_from_json,
+    ManifestId, ManifestName, ManifestTag, OsvId, WorkspaceId, WorkspaceName, parse_from_json,
 };
 
 /// Contextual data describing what triggered a notification event.
@@ -17,8 +16,6 @@ pub struct NotificationEventMeta {
     pub workspace_name: WorkspaceName,
     /// Identifier of the manifest that was scanned and produced new vulnerability hits.
     pub manifest_id: ManifestId,
-    /// The lock file ecosystem type.
-    pub manifest_type: ManifestType,
     /// Human-readable name of the manifest (e.g. the lock file path or repo label).
     pub manifest_name: ManifestName,
     /// Optional tag that was set on the manifest for versioning or environment
@@ -48,7 +45,6 @@ impl Example for NotificationEventMeta {
             workspace_id: WorkspaceId::example(),
             workspace_name: "OPPSY".to_string().into(),
             manifest_id: ManifestId::example(),
-            manifest_type: ManifestType::Cargo,
             manifest_name: "Cargo.lock".to_string().into(),
             manifest_tag: None,
             osv_records: vec![OsvId::example()],

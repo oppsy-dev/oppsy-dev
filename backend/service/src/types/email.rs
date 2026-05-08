@@ -20,12 +20,6 @@ impl Example for EmailAddress {
     }
 }
 
-impl From<EmailAddress> for core_db::user::EmailAddress {
-    fn from(value: EmailAddress) -> Self {
-        value.0.to_string()
-    }
-}
-
 impl From<EmailAddress> for lettre::Address {
     fn from(value: EmailAddress) -> Self {
         value.0
