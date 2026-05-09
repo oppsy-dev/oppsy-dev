@@ -122,7 +122,6 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
           {pagesNaviation}
         </>
       )}
-
     </div>
   );
 }
