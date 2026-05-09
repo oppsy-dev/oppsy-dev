@@ -81,14 +81,7 @@ export function ManifestRow({ manifest, isLast, onRemove }: ManifestRowProps) {
           <span className={styles.filename}>{manifest.name}</span>
         </div>
 
-        <span
-          className={[
-            styles.ecosystemBadge,
-            ECO_CLASS[manifest.manifest_type] ?? styles.ecoNpm,
-          ].join(' ')}
-        >
-          {manifest.manifest_type}
-        </span>
+        <span className={styles.ecosystemBadge}>{'Mock type'}</span>
 
         <code className={styles.tag}>{manifest.tag ?? '—'}</code>
 
