@@ -4,6 +4,7 @@
 
 mod affected;
 mod credit;
+mod ecosystem;
 mod package;
 mod range;
 mod record;
@@ -12,6 +13,7 @@ mod severity;
 
 pub use affected::Affected;
 pub use credit::Credit;
+pub use ecosystem::Ecosystem;
 pub use package::Package;
 pub use range::Range;
 pub use record::OsvRecord;
