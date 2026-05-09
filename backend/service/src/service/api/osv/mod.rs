@@ -2,7 +2,6 @@
 
 mod get_record;
 mod sync_status;
-pub mod types;
 
 use poem_openapi::{OpenApi, param::Path};
 

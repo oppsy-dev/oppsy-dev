@@ -62,10 +62,7 @@ async fn test_analyzer(
     packages: Vec<Package>,
     osv_record_ids: &[&str],
 ) {
-    add_manifest_then_osv_record_check(
-        packages.clone(),
-        osv_record_ids,
-    );
+    add_manifest_then_osv_record_check(packages.clone(), osv_record_ids);
     add_osv_record_then_package_check(packages, osv_record_ids);
 }
 

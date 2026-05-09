@@ -3,6 +3,7 @@
 mod email;
 mod manifest;
 mod notification;
+mod osv;
 mod osv_id;
 mod user_id;
 mod uuid_v7;
@@ -17,6 +18,7 @@ pub use notification::{
     NotificationChannelId,
     event::{NotificationEvent, NotificationEventId, NotificationEventMeta},
 };
+pub use osv::OsvRecord;
 pub use osv_id::OsvId;
 pub use workspace::{id::WorkspaceId, info::WorkspaceInfo, name::WorkspaceName};
 
