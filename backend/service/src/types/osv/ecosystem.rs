@@ -79,7 +79,7 @@ impl ParseFromParameter for Ecosystem {
     fn parse_from_parameter(value: &str) -> poem_openapi::types::ParseResult<Self> {
         value
             .parse()
-            .map_err(|e| poem_openapi::types::ParseError::custom(e))
+            .map_err(poem_openapi::types::ParseError::custom)
             .map(Self)
     }
 }
