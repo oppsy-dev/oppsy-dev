@@ -2,7 +2,7 @@
 
 use std::{collections::HashSet, ops::Deref, sync::LazyLock};
 
-use osv_analyzer::ManifestType;
+use osv_analyzer::Package;
 use osv_db::{OsvDb, OsvGsEcosystems};
 use package_analyzer::Analyzer;
 use test_case::test_case;
@@ -32,61 +32,45 @@ static OSV_DB: LazyLock<TestOsvDb> = LazyLock::new(|| {
         .unwrap()
 });
 
+fn pkg(
+    name: &str,
+    version: &str,
+    ecosystem: &str,
+) -> Package {
+    Package {
+        name: name.to_owned(),
+        version: version.to_owned(),
+        ecosystem: ecosystem.parse().unwrap(),
+    }
+}
+
 #[test_case(
-    Analyzer::new,
-    include_bytes!("packages/cargo-package/Cargo.lock"),
-    ManifestType::Cargo,
+    vec![
+        pkg("wasmtime", "38.0.0", "crates.io")
+    ],
     &["RUSTSEC-2025-0112"]
 )]
-// #[test_case(
-//     Analyzer::<NpmPackage>::new,
-//     include_bytes!("packages/npm-package/package-lock.json"),
-//     &["MAL-2026-1429", "GHSA-hqjg-pww4-pcgq"]
-// )]
 #[test_case(
-    Analyzer::new,
-    include_bytes!("packages/uv-package/uv.lock"),
-    ManifestType::Uv,
-    &["GHSA-rcp6-88mm-9vgf", "GHSA-p2m9-wcp5-6qw3"]
+    vec![
+        pkg("org.apache.commons:commons-text", "1.9", "Maven"),
+        pkg("org.apache.logging.log4j:log4j-core", "2.14.1", "Maven")
+    ],
+    &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
 )]
-// #[test_case(
-//     Analyzer::<PoetryPackage>::new,
-//     include_bytes!("packages/poetry-package/poetry.lock"),
-//     &["GHSA-rcp6-88mm-9vgf", "GHSA-p2m9-wcp5-6qw3"]
-// )]
-// #[test_case(
-//     Analyzer::<MavenPackage>::new,
-//     include_bytes!("packages/maven-package/dependencies.txt"),
-//     &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
-// )]
-// #[test_case(
-//     Analyzer::<GradlePackage>::new,
-//     include_bytes!("packages/gradle-package/gradle.lockfile"),
-//     &["GHSA-599f-7c49-w659", "GHSA-jfh8-c2jp-5v3q"]
-// )]
-// #[test_case(
-//     Analyzer::<GoModule>::new,
-//     include_bytes!("packages/go-package/deps.json"),
-//     &["GHSA-8rf9-c59g-f82f", "GHSA-67q9-58vj-32qx"]
-// )]
 #[tokio::test]
 async fn test_analyzer(
-    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
-    manifest_bytes: &[u8],
-    manifest_type: ManifestType,
+    packages: Vec<Package>,
     osv_record_ids: &[&str],
 ) {
     add_manifest_then_osv_record_check(
-        &analyzer_gen,
-        manifest_bytes,
-        manifest_type,
+        packages.clone(),
         osv_record_ids,
     );
-    add_osv_record_then_package_check(&analyzer_gen, manifest_bytes, manifest_type, osv_record_ids);
+    add_osv_record_then_package_check(packages, osv_record_ids);
 }
 
-/// Verifies that packages indexed via [`PackageAnalyzer::add_manifest`] are matched when
-/// a relevant OSV record is subsequently added via [`PackageAnalyzer::add_osv_record`].
+/// Verifies that packages indexed via [`Analyzer::add_manifest`] are matched when
+/// a relevant OSV record is subsequently added via [`Analyzer::add_osv_record`].
 ///
 /// Order of operations:
 /// 1. `add_manifest` — parses the manifest and indexes its packages; returns no hits
@@ -95,16 +79,14 @@ async fn test_analyzer(
 ///    already-known packages; returns the `(manifest_id, osv_record_id)` pairs that
 ///    match.
 fn add_manifest_then_osv_record_check(
-    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
-    manifest_bytes: &[u8],
-    manifest_type: ManifestType,
+    packages: Vec<Package>,
     osv_record_ids: &[&str],
 ) {
     let osv_db = &OSV_DB;
-    let analyzer = analyzer_gen();
+    let analyzer = Analyzer::new();
 
     let record_ids = analyzer
-        .add_manifest(&MANIFEST_ID, manifest_bytes, manifest_type, osv_db)
+        .add_manifest(&MANIFEST_ID, packages.into_iter(), osv_db)
         .unwrap();
     assert!(record_ids.is_empty());
 
@@ -119,8 +101,8 @@ fn add_manifest_then_osv_record_check(
     }
 }
 
-/// Verifies that an OSV record indexed via [`PackageAnalyzer::add_osv_record`] is matched
-/// when a relevant manifest is subsequently added via [`PackageAnalyzer::add_manifest`].
+/// Verifies that an OSV record indexed via [`Analyzer::add_osv_record`] is matched
+/// when a relevant manifest is subsequently added via [`Analyzer::add_manifest`].
 ///
 /// Order of operations:
 /// 1. `add_osv_record` — indexes the vulnerability; returns no hits because no packages
@@ -129,13 +111,11 @@ fn add_manifest_then_osv_record_check(
 ///    against already-known OSV records; returns the OSV record IDs that affect the
 ///    manifest's packages.
 fn add_osv_record_then_package_check(
-    analyzer_gen: impl Fn() -> Analyzer<&'static str>,
-    manifest_bytes: &[u8],
-    manifest_type: ManifestType,
+    packages: Vec<Package>,
     osv_record_ids: &[&str],
 ) {
     let osv_db = &OSV_DB;
-    let analyzer = analyzer_gen();
+    let analyzer = Analyzer::new();
 
     // add_osv_record first — returns empty since no packages are indexed yet
     for osv_record_id in osv_record_ids {
@@ -149,7 +129,7 @@ fn add_osv_record_then_package_check(
 
     // add_manifest second — matches against already-indexed OSV records
     let record_ids = analyzer
-        .add_manifest(&MANIFEST_ID, manifest_bytes, manifest_type, osv_db)
+        .add_manifest(&MANIFEST_ID, packages.into_iter(), osv_db)
         .unwrap();
     // compare them as sets
     let record_ids: HashSet<_> = record_ids.into_iter().collect();
