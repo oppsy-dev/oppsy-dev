@@ -45,7 +45,7 @@ clap.workspace = true
 strum.workspace = true
 
 lettre.workspace = true
-cue-rs = "0.1"
+cue-rs = { version="0.2", features=["shared"] }
 
 [dev-dependencies]
 test-case.workspace = true

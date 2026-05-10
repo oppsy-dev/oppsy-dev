@@ -801,9 +801,9 @@ dependencies = [
 
 [[package]]
 name = "cue-rs"
-version = "0.1.5"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8b579667a79cc863d8efe88b7053fba2246ca6bc6977ad1f11ee432a06b7604"
+checksum = "83a55bd0899880b679f04c5c1e321e2ba6ac7924b509ce12573a893e82cacec3"
 dependencies = [
  "bytes",
  "thiserror 2.0.18",
@@ -2457,9 +2457,9 @@ dependencies = [
 
 [[package]]
 name = "osv-analyzer"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0697389ecd77fdcfca787104ecce280616b89ae11562067f0a1d1ccf69dec2e3"
+checksum = "fff3ba2fec691aa92c0270e62532b59b21a637f91185718c92ba91f5c5ca5695"
 dependencies = [
  "anyhow",
  "osv-types",
