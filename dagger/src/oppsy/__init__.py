@@ -22,8 +22,8 @@ class Oppsy:
     @function
     def backend_build(
         self, src: Annotated[dagger.Directory, DefaultPath(".")]
-    ) -> list[dagger.File]:
-        backend_build = (
+    ) -> dagger.Directory:
+        return (
             dag.container()
             .from_("rust:1.91-slim")
             .with_exec(["apt-get", "update"])
@@ -44,13 +44,10 @@ class Oppsy:
             .with_directory("/build", src.directory("backend"))
             .with_workdir("/build")
             .with_exec(["cargo", "build", "--locked", "--release", "-p", "service"])
+            .with_file("/build/target/release/service")
+            .with_file("/build/target/release/libcue.so")
+            .with_file("/build/target/release/libosv-scalibr.so")
         )
-
-        return [
-            backend_build.file("/build/target/release/service"),
-            backend_build.file("/build/target/release/service/libcue.so"),
-            backend_build.file("/build/target/release/service/libosv-scalibr.so"),
-        ]
 
     @function
     def core_db(
@@ -92,7 +89,7 @@ class Oppsy:
         backend = self.backend_build(src)
         core_db = self.core_db(src)
 
-        oppsy_build = (
+        return (
             dag.container()
             .from_("debian:trixie-slim")
             .with_exec(["apt-get", "update"])
@@ -108,13 +105,8 @@ class Oppsy:
             .with_exec(["apt-get", "clean"])
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
             .with_file("/usr/local/bin/atlas", core_db.file("/usr/local/bin/atlas"))
-        )
-
-        for v in backend:
-            oppsy_build.with_file("/usr/local/bin/service", v)
-
-        return (
-            oppsy_build.with_directory("/data/core-db", core_db.directory("/core-db"))
+            .with_directory("/usr/local/bin", backend)
+            .with_directory("/data/core-db", core_db.directory("/core-db"))
             .with_directory("/frontend", frontend)
             .with_file(
                 "/entrypoint.sh",
