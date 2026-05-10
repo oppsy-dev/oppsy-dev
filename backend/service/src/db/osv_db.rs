@@ -1,11 +1,9 @@
 use std::{collections::HashMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
-use osv_db::{
-    OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems,
-    types::{OsvRecord, OsvRecordId},
-};
-use package_analyzer::MultiAnalyzer;
+use osv_db::{OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems};
+use osv_types::{OsvRecord, OsvRecordId};
+use package_analyzer::Analyzer;
 use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
 use tokio::sync::RwLock;
 use tracing::{error, info};
@@ -15,7 +13,7 @@ use crate::{
     notifier::Notifier,
     resources::{Resource, ResourceRegistry},
     settings::Settings,
-    types::{ManifestId, ManifestType, WorkspaceId},
+    types::{ManifestId, ManifestPackage, WorkspaceId},
 };
 
 /// 10MB download chunk size
@@ -26,7 +24,7 @@ const DOWNLOAD_CHUNK_SIZE: u64 = 10 * 1024 * 1024;
 #[derive(Debug)]
 pub struct OsvDb {
     inner: OsvDbInner,
-    analyzer: MultiAnalyzer,
+    analyzer: Analyzer<ManifestId>,
     pub sync: RwLock<OsvSyncState>,
 }
 
@@ -62,9 +60,9 @@ impl OsvDb {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
         let ecosystems = OsvGsEcosystems::all()
-            .add(OsvGsEcosystem::Go)
-            .add(OsvGsEcosystem::PyPI)
-            .add(OsvGsEcosystem::Npm)
+            // .add(OsvGsEcosystem::Go)
+            // .add(OsvGsEcosystem::PyPI)
+            // .add(OsvGsEcosystem::Npm)
             .add(OsvGsEcosystem::CratesIo);
 
         // TODO: properly check if the data is existed already
@@ -87,7 +85,7 @@ impl OsvDb {
         );
 
         let analyzer = tokio::task::spawn_blocking(move || {
-            let analyzer = MultiAnalyzer::new();
+            let analyzer = Analyzer::new();
             records.par_iter().try_for_each(|r| {
                 let hits = analyzer.add_osv_record(r)?;
                 anyhow::ensure!(
@@ -191,9 +189,7 @@ impl OsvDb {
                     HashMap::<ManifestId, Vec<OsvRecord>>::new,
                     |mut acc, record| {
                         for manifest_id in self.analyzer.add_osv_record(record)? {
-                            acc.entry(manifest_id.try_into()?)
-                                .or_default()
-                                .push(record.clone());
+                            acc.entry(manifest_id).or_default().push(record.clone());
                         }
                         anyhow::Ok(acc)
                     },
@@ -220,13 +216,14 @@ impl OsvDb {
     /// - If an [`Analyzer`] lock is poisoned.
     pub fn add_manifest(
         &self,
-        manifest_type: ManifestType,
         manifest_id: &ManifestId,
-        manifest_bytes: &[u8],
+        packages: Vec<ManifestPackage>,
     ) -> anyhow::Result<Vec<OsvRecord>> {
-        let record_ids =
-            self.analyzer
-                .add_manifest(manifest_type, manifest_id, manifest_bytes, &self.inner)?;
+        let record_ids = self.analyzer.add_manifest(
+            manifest_id,
+            packages.into_iter().map(Into::into),
+            &self.inner,
+        )?;
         record_ids
             .iter()
             .map(|id| {
@@ -253,7 +250,6 @@ async fn run_sync(
     notifier: &Arc<Notifier>,
 ) -> anyhow::Result<()> {
     info!("Running scheduled OSV sync...");
-    let detected_at = Utc::now();
     let hits = osv_db.sync().await?;
 
     if hits.is_empty() {
@@ -280,13 +276,6 @@ async fn run_sync(
                 "Manifest {manifest_id} is not assinged to any workspaces"
             ))?;
 
-        core_db
-            .add_manifest_osv_vuln(
-                manifest_id,
-                records.iter().map(|v| v.id.clone()).collect(),
-                detected_at.timestamp(),
-            )
-            .await?;
         // spawn notifications
         notifier
             .clone()

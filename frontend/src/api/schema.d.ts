@@ -1224,10 +1224,9 @@ export interface paths {
     };
     put?: never;
     /**
-     * Reserve a manifest slot for a workspace.
-     * @description Validates workspace access, generates a server-assigned manifest ID, and
-     *     records the declared ecosystem type. The caller must then upload the raw
-     *     lock file via `PUT /v1/workspaces/{workspace_id}/manifests/{manifest_id}`.
+     * Add a new manifest to a workspace.
+     * @description Generates a server-assigned manifest ID, and
+     *     runs an OSV scan, and persists detected vulnerabilities.
      */
     post: {
       parameters: {
@@ -1372,321 +1371,6 @@ export interface paths {
       };
     };
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/workspaces/{workspace_id}/manifests/{manifest_id}': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /**
-     * Upload a lock file manifest to be scanned for vulnerabilities.
-     * @description Accepts raw binary lock file bytes for a manifest ID previously reserved
-     *     via `POST /v1/workspaces/{workspace_id}/manifests`. Stores the file, runs
-     *     an OSV scan, and persists detected vulnerabilities.
-     */
-    put: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description Workspace the manifest belongs to. */
-          workspace_id: string;
-          /** @description Manifest ID returned by the reservation step. */
-          manifest_id: string;
-        };
-        cookie?: never;
-      };
-      /** @description Raw binary content of the lock file. */
-      requestBody: {
-        content: {
-          'application/octet-stream': string;
-        };
-      };
-      responses: {
-        /**
-         * @description ## No Content
-         *
-         *     The manifest bytes were stored and an OSV scan was scheduled.
-         */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Bad Request
-         *
-         *     The client has not sent valid request, could be an invalid HTTP in general or
-         *     provided not correct headers, path or query arguments.
-         */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unauthorized
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Forbidden
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Precondition Failed
-         *
-         *     The client has not sent valid data in its request, headers, parameters or body.
-         */
-        412: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Content Too Large
-         *
-         *     The manifest exceeds the maximum allowed size (1 MB).
-         */
-        413: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## URI Too Long
-         *
-         *     The client sent a request with the URI is longer than the server is willing to
-         *     interpret
-         */
-        414: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unprocessable Content
-         *
-         *     The manifest ID does not exist or does not belong to the given workspace.
-         */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Internal Server Error.
-         *
-         *     An internal server error occurred.
-         *
-         *     *The contents of this response should be reported to the projects issue tracker.*
-         */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Service Unavailable
-         *
-         *     The service is not available, try again later.
-         *
-         *     *This is returned when the service either has not started,
-         *     or has become unavailable.*
-         */
-        503: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-      };
-    };
-    post?: never;
-    /**
-     * Delete a manifest from a workspace.
-     * @description Permanently removes the manifest and its associated data from the workspace.
-     *
-     *     **Warning:** this endpoint does not remove the raw lock file from blob
-     *     storage. The underlying file will remain until it is cleaned up separately.
-     */
-    delete: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description Workspace the manifest belongs to. */
-          workspace_id: string;
-          /** @description Manifest to delete. */
-          manifest_id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /**
-         * @description ## No Content
-         *
-         *     The manifest was deleted successfully.
-         */
-        204: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Bad Request
-         *
-         *     The client has not sent valid request, could be an invalid HTTP in general or
-         *     provided not correct headers, path or query arguments.
-         */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unauthorized
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Forbidden
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Precondition Failed
-         *
-         *     The client has not sent valid data in its request, headers, parameters or body.
-         */
-        412: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## URI Too Long
-         *
-         *     The client sent a request with the URI is longer than the server is willing to
-         *     interpret
-         */
-        414: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unprocessable Content
-         *
-         *     The workspace or manifest ID does not exist.
-         */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Internal Server Error.
-         *
-         *     An internal server error occurred.
-         *
-         *     *The contents of this response should be reported to the projects issue tracker.*
-         */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Service Unavailable
-         *
-         *     The service is not available, try again later.
-         *
-         *     *This is returned when the service either has not started,
-         *     or has become unavailable.*
-         */
-        503: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-      };
-    };
     options?: never;
     head?: never;
     patch?: never;
@@ -1856,6 +1540,164 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/v1/workspaces/{workspace_id}/manifests/{manifest_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete a manifest from a workspace.
+     * @description Permanently removes the manifest and its associated data from the workspace.
+     *
+     *     **Warning:** this endpoint does not remove the raw lock file from blob
+     *     storage. The underlying file will remain until it is cleaned up separately.
+     */
+    delete: {
+      parameters: {
+        query?: never;
+        header?: never;
+        path: {
+          /** @description Workspace the manifest belongs to. */
+          workspace_id: string;
+          /** @description Manifest to delete. */
+          manifest_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /**
+         * @description ## No Content
+         *
+         *     The manifest was deleted successfully.
+         */
+        204: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Bad Request
+         *
+         *     The client has not sent valid request, could be an invalid HTTP in general or
+         *     provided not correct headers, path or query arguments.
+         */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Unauthorized
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Forbidden
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Precondition Failed
+         *
+         *     The client has not sent valid data in its request, headers, parameters or body.
+         */
+        412: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## URI Too Long
+         *
+         *     The client sent a request with the URI is longer than the server is willing to
+         *     interpret
+         */
+        414: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Unprocessable Content
+         *
+         *     The workspace or manifest ID does not exist.
+         */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Internal Server Error.
+         *
+         *     An internal server error occurred.
+         *
+         *     *The contents of this response should be reported to the projects issue tracker.*
+         */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Service Unavailable
+         *
+         *     The service is not available, try again later.
+         *
+         *     *This is returned when the service either has not started,
+         *     or has become unavailable.*
+         */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+      };
+    };
     options?: never;
     head?: never;
     patch?: never;
@@ -2894,7 +2736,8 @@ export interface paths {
     };
     /**
      * List all notification events across all channels.
-     * @description Returns all notification delivery attempts across every channel, ordered from newest to oldest.
+     * @description Returns all notification delivery attempts across every channel, ordered from
+     *     newest to oldest.
      */
     get: {
       parameters: {
@@ -3234,8 +3077,6 @@ export interface components {
      * @description Request body for manifest creation.
      */
     CreateManifestRequest: {
-      /** @description The lock file ecosystem that determines which parser is used. */
-      manifest_type: components['schemas']['ManifestType'] & unknown;
       /**
        * Human-readable name for a manifest (e.g. the filename or repo path).
        * @description Human-readable name for this manifest (e.g. the filename or repo path).
@@ -3246,6 +3087,8 @@ export interface components {
        * @description Optional label for versioning or environment disambiguation.
        */
       tag?: string;
+      /** @description List of manifest's dependencies packages */
+      packages: components['schemas']['ManifestPackage'][];
     };
     /**
      * CreateNotificationChannelRequest
@@ -3322,8 +3165,6 @@ export interface components {
        * @example 019d4dd6-511f-70cf-810b-89ddf58ead9c
        */
       id: string;
-      /** @description The lock file ecosystem type. */
-      manifest_type: components['schemas']['ManifestType'] & unknown;
       /**
        * Human-readable name for a manifest (e.g. the filename or repo path).
        * @description Human-readable name for this manifest.
@@ -3360,13 +3201,17 @@ export interface components {
       limit: number;
     };
     /**
-     * @description The package ecosystem whose lock file format the manifest conforms to.
-     *
-     *     Tells the backend which parser to use when ingesting the uploaded binary.
-     *     Each variant maps 1-to-1 to a supported lock file format.
-     * @enum {string}
+     * ManifestPackage
+     * @description Manifest's package definition.
      */
-    ManifestType: 'Go' | 'Cargo' | 'Npm' | 'Uv' | 'Poetry';
+    ManifestPackage: {
+      /** @description Manifest's package name. */
+      name: string;
+      /** @description Manifest's Package version (e.g. `0.1.0`). */
+      version: string;
+      /** @description The OSV ecosystem this package belongs to (e.g. `"crates.io"`, `"PyPI"`, `"npm"`). */
+      ecosystem: string;
+    };
     /**
      * ManifestVuln
      * @description A detected OSV vulnerability associated with a manifest.
@@ -3528,8 +3373,6 @@ export interface components {
        * @example 019d4dd6-511f-70cf-810b-89ddf58ead9c
        */
       manifest_id: string;
-      /** @description The lock file ecosystem type. */
-      manifest_type: components['schemas']['ManifestType'] & unknown;
       /**
        * Human-readable name for a manifest (e.g. the filename or repo path).
        * @description Human-readable name of the manifest (e.g. the lock file path or repo label).

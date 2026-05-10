@@ -25,14 +25,14 @@ impl From<ManifestType> for core_db::workspace::ManifestType {
     }
 }
 
-impl From<ManifestType> for package_analyzer::ManifestType {
+impl From<ManifestType> for osv_analyzer::ManifestType {
     fn from(value: ManifestType) -> Self {
         match value {
-            ManifestType::Go => Self::Go,
+            ManifestType::Go => unimplemented!(),
             ManifestType::Cargo => Self::Cargo,
-            ManifestType::Npm => Self::Npm,
+            ManifestType::Npm => unimplemented!(),
             ManifestType::Uv => Self::Uv,
-            ManifestType::Poetry => Self::Poetry,
+            ManifestType::Poetry => unimplemented!(),
         }
     }
 }

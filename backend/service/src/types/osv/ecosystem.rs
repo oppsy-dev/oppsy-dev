@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use poem::http::HeaderValue;
 use poem_openapi::{
     registry::{MetaSchema, MetaSchemaRef},
@@ -7,26 +5,30 @@ use poem_openapi::{
         Example, ParseFromJSON, ParseFromMultipartField, ParseFromParameter, ToHeader, ToJSON, Type,
     },
 };
-use serde::Deserialize;
 
-/// A validated email address used to identify a user account.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct EmailAddress(lettre::Address);
+#[derive(Debug, Clone)]
+pub struct Ecosystem(osv_types::EcosystemWithSuffix);
 
-impl Example for EmailAddress {
-    #[allow(clippy::unwrap_used)]
-    fn example() -> Self {
-        Self("john_doe@mail.com".parse().unwrap())
+impl From<osv_types::EcosystemWithSuffix> for Ecosystem {
+    fn from(value: osv_types::EcosystemWithSuffix) -> Self {
+        Self(value)
     }
 }
 
-impl From<EmailAddress> for lettre::Address {
-    fn from(value: EmailAddress) -> Self {
+impl From<Ecosystem> for osv_types::EcosystemWithSuffix {
+    fn from(value: Ecosystem) -> Self {
         value.0
     }
 }
 
-impl Type for EmailAddress {
+impl Example for Ecosystem {
+    #[allow(clippy::unwrap_used)]
+    fn example() -> Self {
+        Self("npm".parse().unwrap())
+    }
+}
+
+impl Type for Ecosystem {
     type RawElementValueType = Self;
     type RawValueType = Self;
 
@@ -37,7 +39,7 @@ impl Type for EmailAddress {
     }
 
     fn schema_ref() -> MetaSchemaRef {
-        MetaSchemaRef::Inline(Box::new(MetaSchema::new_with_format("string", "email")))
+        MetaSchemaRef::Inline(Box::new(MetaSchema::new("string")))
     }
 
     fn as_raw_value(&self) -> Option<&Self::RawValueType> {
@@ -61,44 +63,48 @@ impl Type for EmailAddress {
     }
 }
 
-impl ParseFromJSON for EmailAddress {
+impl ParseFromJSON for Ecosystem {
     fn parse_from_json(value: Option<serde_json::Value>) -> poem_openapi::types::ParseResult<Self> {
-        match value {
-            Some(value) => {
-                let res = lettre::Address::deserialize(value)?;
-                Ok(Self(res))
-            },
-            None => Err(poem_openapi::types::ParseError::expected_input()),
+        if let Some(value) = value
+            && let Some(value) = value.as_str()
+        {
+            Self::parse_from_parameter(value)
+        } else {
+            Err(poem_openapi::types::ParseError::expected_input())
         }
     }
 }
 
-impl ParseFromParameter for EmailAddress {
+impl ParseFromParameter for Ecosystem {
     fn parse_from_parameter(value: &str) -> poem_openapi::types::ParseResult<Self> {
-        let res = lettre::Address::from_str(value)?;
-        Ok(Self(res))
+        value
+            .parse()
+            .map_err(poem_openapi::types::ParseError::custom)
+            .map(Self)
     }
 }
 
-impl ParseFromMultipartField for EmailAddress {
+impl ParseFromMultipartField for Ecosystem {
     async fn parse_from_multipart(
         field: Option<poem::web::Field>
     ) -> poem_openapi::types::ParseResult<Self> {
-        match field {
-            Some(field) => Ok(Self(field.text().await?.parse()?)),
-            None => Err(poem_openapi::types::ParseError::expected_input()),
+        if let Some(field) = field {
+            let text = field.text().await?;
+            Self::parse_from_parameter(&text)
+        } else {
+            Err(poem_openapi::types::ParseError::expected_input())
         }
     }
 }
 
-impl ToJSON for EmailAddress {
+impl ToJSON for Ecosystem {
     fn to_json(&self) -> Option<serde_json::Value> {
         serde_json::to_value(&self.0).ok()
     }
 }
 
-impl ToHeader for EmailAddress {
+impl ToHeader for Ecosystem {
     fn to_header(&self) -> Option<poem::http::HeaderValue> {
-        HeaderValue::from_str(self.0.as_ref()).ok()
+        HeaderValue::from_str(&self.0.to_string()).ok()
     }
 }

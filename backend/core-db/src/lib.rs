@@ -3,10 +3,8 @@
 //! The database schema is managed by Atlas — apply migrations with
 
 pub mod manifest;
-pub mod manifest_osv_vuln;
 pub mod notification_channel;
 pub mod notification_event;
-pub mod user;
 mod version_check;
 pub mod workspace;
 

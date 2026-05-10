@@ -1,5 +1,7 @@
 //! User identifier domain type.
 
+#![allow(dead_code)]
+
 use poem_openapi::{NewType, types::Example};
 use serde::{Deserialize, Serialize};
 
@@ -29,12 +31,6 @@ impl std::fmt::Display for UserId {
         f: &mut std::fmt::Formatter<'_>,
     ) -> std::fmt::Result {
         write!(f, "{}", self.0)
-    }
-}
-
-impl From<UserId> for core_db::user::UserId {
-    fn from(value: UserId) -> Self {
-        value.0.into()
     }
 }
 

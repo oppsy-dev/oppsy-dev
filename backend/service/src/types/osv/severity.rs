@@ -16,13 +16,13 @@ pub enum SeverityType {
     Ubuntu,
 }
 
-impl From<osv_db::types::SeverityType> for SeverityType {
-    fn from(t: osv_db::types::SeverityType) -> Self {
+impl From<osv_types::SeverityType> for SeverityType {
+    fn from(t: osv_types::SeverityType) -> Self {
         match t {
-            osv_db::types::SeverityType::CvssV2 => Self::CvssV2,
-            osv_db::types::SeverityType::CvssV3 => Self::CvssV3,
-            osv_db::types::SeverityType::CvssV4 => Self::CvssV4,
-            osv_db::types::SeverityType::Ubuntu => Self::Ubuntu,
+            osv_types::SeverityType::CvssV2 => Self::CvssV2,
+            osv_types::SeverityType::CvssV3 => Self::CvssV3,
+            osv_types::SeverityType::CvssV4 => Self::CvssV4,
+            osv_types::SeverityType::Ubuntu => Self::Ubuntu,
         }
     }
 }
@@ -37,8 +37,8 @@ pub struct Severity {
     pub score: String,
 }
 
-impl From<osv_db::types::Severity> for Severity {
-    fn from(s: osv_db::types::Severity) -> Self {
+impl From<osv_types::Severity> for Severity {
+    fn from(s: osv_types::Severity) -> Self {
         Self {
             severity_type: s.severity_type.into(),
             score: s.score,

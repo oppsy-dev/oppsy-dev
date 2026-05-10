@@ -26,19 +26,19 @@ pub enum CreditType {
     Other,
 }
 
-impl From<osv_db::types::CreditType> for CreditType {
-    fn from(t: osv_db::types::CreditType) -> Self {
+impl From<osv_types::CreditType> for CreditType {
+    fn from(t: osv_types::CreditType) -> Self {
         match t {
-            osv_db::types::CreditType::FINDER => Self::Finder,
-            osv_db::types::CreditType::REPORTER => Self::Reporter,
-            osv_db::types::CreditType::ANALYST => Self::Analyst,
-            osv_db::types::CreditType::COORDINATOR => Self::Coordinator,
-            osv_db::types::CreditType::RemediationDeveloper => Self::RemediationDeveloper,
-            osv_db::types::CreditType::RemediationReviewer => Self::RemediationReviewer,
-            osv_db::types::CreditType::RemediationVerifier => Self::RemediationVerifier,
-            osv_db::types::CreditType::TOOL => Self::Tool,
-            osv_db::types::CreditType::SPONSOR => Self::Sponsor,
-            osv_db::types::CreditType::OTHER => Self::Other,
+            osv_types::CreditType::FINDER => Self::Finder,
+            osv_types::CreditType::REPORTER => Self::Reporter,
+            osv_types::CreditType::ANALYST => Self::Analyst,
+            osv_types::CreditType::COORDINATOR => Self::Coordinator,
+            osv_types::CreditType::RemediationDeveloper => Self::RemediationDeveloper,
+            osv_types::CreditType::RemediationReviewer => Self::RemediationReviewer,
+            osv_types::CreditType::RemediationVerifier => Self::RemediationVerifier,
+            osv_types::CreditType::TOOL => Self::Tool,
+            osv_types::CreditType::SPONSOR => Self::Sponsor,
+            osv_types::CreditType::OTHER => Self::Other,
         }
     }
 }
@@ -56,8 +56,8 @@ pub struct Credit {
     pub credit_type: Option<CreditType>,
 }
 
-impl From<osv_db::types::Credit> for Credit {
-    fn from(c: osv_db::types::Credit) -> Self {
+impl From<osv_types::Credit> for Credit {
+    fn from(c: osv_types::Credit) -> Self {
         Self {
             name: c.name,
             contact: c.contact,

@@ -2,7 +2,7 @@ use std::{any::type_name, fmt::Debug, sync::Arc};
 
 use futures::FutureExt;
 use notifier::{discord::DiscordNotifier, email::EmailNotifier, webhook::WebhookNotifier};
-use osv_db::types::OsvRecord;
+use osv_types::OsvRecord;
 use tracing::{error, info, warn};
 
 use crate::{
@@ -90,7 +90,6 @@ impl Notifier {
             workspace_id,
             workspace_name: workspace_info.name.into(),
             manifest_id,
-            manifest_type: manifest_info.manifest_type.try_into()?,
             manifest_name: manifest_info.name.into(),
             manifest_tag: manifest_info.tag.map(Into::into),
             osv_records: osv_records_ids,

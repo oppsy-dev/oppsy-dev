@@ -3,7 +3,6 @@ import { useManifests, useRemoveWorkspaceManifest } from '../../../hooks/workspa
 import type { WorkspaceId } from '../../../api/workspaces';
 import { BackIcon } from '../../../components/Icons';
 import { ManifestRow } from './ManifestRow/ManifestRow';
-import { UploadManifestModal } from './UploadManifestModal/UploadManifestModal';
 import styles from './ManifestsSection.module.css';
 
 const PAGE_SIZE = 10;
@@ -31,7 +30,7 @@ type ManifestsSectionProps = {
   workspaceId: WorkspaceId;
 };
 
-function EmptyState({ onUpload }: { onUpload: () => void }) {
+function EmptyState() {
   return (
     <div className={styles.emptyState}>
       <div className={styles.emptyIconWrap}>
@@ -41,15 +40,11 @@ function EmptyState({ onUpload }: { onUpload: () => void }) {
       <p className={styles.emptyDesc}>
         Upload a lock file to start scanning your dependencies for vulnerabilities.
       </p>
-      <button type="button" className={styles.emptyAction} onClick={onUpload}>
-        Upload your first file
-      </button>
     </div>
   );
 }
 
 export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
-  const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [page, setPage] = useState(0);
   const { data: manifests = [], isLoading, isError } = useManifests(workspaceId);
   const removeMutation = useRemoveWorkspaceManifest(workspaceId);
@@ -94,16 +89,12 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
             {`${manifests.length} manifest${manifests.length === 1 ? '' : 's'}`}
           </p>
         </div>
-        <button type="button" className={styles.uploadBtn} onClick={() => setUploadModalOpen(true)}>
-          <UploadIcon />
-          Upload file
-        </button>
       </div>
 
       {isError && <p className={styles.errorMsg}>Failed to load manifests.</p>}
 
       {!isError && !isLoading && manifests.length === 0 ? (
-        <EmptyState onUpload={() => setUploadModalOpen(true)} />
+        <EmptyState />
       ) : (
         <>
           {pagesNaviation}
@@ -130,10 +121,6 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
           </div>
           {pagesNaviation}
         </>
-      )}
-
-      {uploadModalOpen && (
-        <UploadManifestModal workspaceId={workspaceId} onClose={() => setUploadModalOpen(false)} />
       )}
     </div>
   );

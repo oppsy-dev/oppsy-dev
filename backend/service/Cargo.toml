@@ -12,6 +12,9 @@ core-db = { path = "../core-db", version = "0.1.0" }
 notifier = { path = "../notifier", version = "0.1.0" }
 
 osv-db.workspace = true
+osv-types.workspace = true
+osv-analyzer.workspace = true
+
 chrono.workspace = true
 
 tokio.workspace = true
@@ -42,7 +45,7 @@ clap.workspace = true
 strum.workspace = true
 
 lettre.workspace = true
-cue-rs = "0.1"
+cue-rs = { version="0.2", features=["shared"] }
 
 [dev-dependencies]
 test-case.workspace = true

@@ -63,6 +63,10 @@ core-db = { path = "./core-db" }
 test-case = "3.3.1"
 test-with = "0.16.1"
 
+osv-db = "0.6.3"
+osv-types = "0.1.0"
+osv-analyzer = { version = "0.3", features=["shared"] }
+
 url = "2"
 anyhow = "1.0.102"
 chrono = "0.4"
@@ -70,7 +74,6 @@ toml = "0.8"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 semver = { version = "1", features = ["serde"] }
-osv-db = "0.6.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 futures = "0.3"
 async-trait = "0.1.89"

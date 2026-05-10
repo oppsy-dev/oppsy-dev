@@ -1,15 +1,15 @@
 use poem_openapi::{ApiResponse, NewType, payload::Json, types::Example};
 
-use super::types::OsvRecord;
 use crate::{
     db::OsvDb,
     resources::ResourceRegistry,
     service::common::responses::{WithErrorResponses, try_or_return},
+    types::OsvRecord,
 };
 
 #[derive(Debug, NewType)]
 #[oai(example = true)]
-pub struct OsvRecordId(osv_db::types::OsvRecordId);
+pub struct OsvRecordId(osv_types::OsvRecordId);
 
 impl Example for OsvRecordId {
     fn example() -> Self {

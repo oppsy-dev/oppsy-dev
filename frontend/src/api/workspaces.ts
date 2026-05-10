@@ -22,7 +22,6 @@ export type WorkspaceId = WorkspaceInfo['id'];
 export type CreateWorkspaceRequest = V1WorkspacesPostReq;
 export type Manifest = V1ManifestsGetResp['manifests'][number];
 export type ManifestId = Manifest['id'];
-export type ManifestType = components['schemas']['ManifestType'];
 export type CreateManifestRequest = components['schemas']['CreateManifestRequest'];
 export type { PaginationParams } from './client';
 export type { NotificationChannel, NotificationChannelId } from './notification_channels';

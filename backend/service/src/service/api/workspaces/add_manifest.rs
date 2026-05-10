@@ -1,24 +1,27 @@
-use poem_openapi::{ApiResponse, Object, payload::Json};
+use osv_types::OsvRecord;
+use poem_openapi::{ApiResponse, Object, payload::Json, types::ToJSON};
+use tracing::info;
 
 use crate::{
-    db::CoreDb,
+    db::{CoreDb, ManifestDb, OsvDb},
+    notifier::Notifier,
     resources::ResourceRegistry,
     service::common::{
         responses::{WithErrorResponses, try_or_return},
         types::error_msg::ErrorMessage,
     },
-    types::{ManifestId, ManifestName, ManifestTag, ManifestType, WorkspaceId},
+    types::{ManifestId, ManifestName, ManifestPackage, ManifestTag, WorkspaceId},
 };
 
 /// Request body for manifest creation.
 #[derive(Object)]
 pub struct CreateManifestRequest {
-    /// The lock file ecosystem that determines which parser is used.
-    pub manifest_type: ManifestType,
     /// Human-readable name for this manifest (e.g. the filename or repo path).
     pub name: ManifestName,
     /// Optional label for versioning or environment disambiguation.
     pub tag: Option<ManifestTag>,
+    /// List of manifest's dependencies packages
+    pub packages: Vec<ManifestPackage>,
 }
 
 /// Endpoint responses.
@@ -42,21 +45,49 @@ pub enum Responses {
 pub type AllResponses = WithErrorResponses<Responses>;
 
 pub async fn endpoint(
-    _workspace_id: WorkspaceId,
+    workspace_id: WorkspaceId,
     req: CreateManifestRequest,
 ) -> AllResponses {
+    let manifest_db = try_or_return!(ResourceRegistry::get::<ManifestDb>());
+    let osv_db = try_or_return!(ResourceRegistry::get::<OsvDb>());
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
+    let notifier = try_or_return!(ResourceRegistry::get::<Notifier>());
 
     let manifest_id = ManifestId::generate();
+
+    try_or_return!(manifest_db.put(&manifest_id, req.to_json_string().as_bytes()));
     try_or_return!(
         core_db
             .add_manifest(
                 manifest_id,
-                req.manifest_type,
                 String::from(req.name),
                 req.tag.map(String::from),
+                serde_json::Value::Null
             )
             .await
     );
+    try_or_return!(
+        core_db
+            .add_manifest_for_workspace(workspace_id, manifest_id)
+            .await
+    );
+
+    let records = try_or_return!(scan_manifest(&osv_db, &manifest_id, req.packages));
+    notifier.spawn_osv_events(core_db, workspace_id, manifest_id, records);
+
     Responses::Created(Json(manifest_id)).into()
+}
+
+fn scan_manifest(
+    osv_db: &OsvDb,
+    manifest_id: &ManifestId,
+    packages: Vec<ManifestPackage>,
+) -> anyhow::Result<Vec<OsvRecord>> {
+    let records = osv_db.add_manifest(manifest_id, packages)?;
+    info!(
+        manifest_id = %manifest_id,
+        found = records.len(),
+        "Manifest scanned"
+    );
+    Ok(records)
 }

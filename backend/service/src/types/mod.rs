@@ -3,23 +3,22 @@
 mod email;
 mod manifest;
 mod notification;
+mod osv;
 mod osv_id;
 mod user_id;
 mod uuid_v7;
 mod workspace;
 
 pub use manifest::{
-    id::ManifestId,
-    info::{ManifestInfo, ManifestVuln},
-    name::ManifestName,
+    id::ManifestId, info::ManifestInfo, name::ManifestName, package::ManifestPackage,
     tag::ManifestTag,
-    r#type::ManifestType,
 };
 pub use notification::{
     NotificationChannel, NotificationChannelConf, NotificationChannelConfInner,
     NotificationChannelId,
     event::{NotificationEvent, NotificationEventId, NotificationEventMeta},
 };
+pub use osv::OsvRecord;
 pub use osv_id::OsvId;
 pub use workspace::{id::WorkspaceId, info::WorkspaceInfo, name::WorkspaceName};
 

@@ -801,9 +801,9 @@ dependencies = [
 
 [[package]]
 name = "cue-rs"
-version = "0.1.5"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8b579667a79cc863d8efe88b7053fba2246ca6bc6977ad1f11ee432a06b7604"
+checksum = "83a55bd0899880b679f04c5c1e321e2ba6ac7924b509ce12573a893e82cacec3"
 dependencies = [
  "bytes",
  "thiserror 2.0.18",
@@ -2456,16 +2456,29 @@ dependencies = [
 ]
 
 [[package]]
-name = "osv-db"
-version = "0.6.1"
+name = "osv-analyzer"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "122351317f9cf428757b24f7b7d6d730baa655ca256d49d12dfb15e534336c61"
+checksum = "fff3ba2fec691aa92c0270e62532b59b21a637f91185718c92ba91f5c5ca5695"
+dependencies = [
+ "anyhow",
+ "osv-types",
+ "strum 0.26.3",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "osv-db"
+version = "0.6.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8278c8460186532eb69f27057dde4603cf740afa75263233d2f8dce9300315e"
 dependencies = [
  "bytes",
  "chrono",
  "csv",
  "futures",
  "itertools",
+ "osv-types",
  "reqwest 0.13.3",
  "serde",
  "serde_json",
@@ -2474,6 +2487,18 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "zip",
+]
+
+[[package]]
+name = "osv-types"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85944aa188474bb3e95fda876e6fced4528b7b91518a2dfebb69e1ed130d3a7b"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "strum 0.26.3",
 ]
 
 [[package]]
@@ -2490,7 +2515,9 @@ dependencies = [
  "chrono",
  "common",
  "dashmap",
+ "osv-analyzer",
  "osv-db",
+ "osv-types",
  "rand 0.10.1",
  "semver",
  "serde",
@@ -2618,7 +2645,7 @@ checksum = "044b1fa4f259f4df9ad5078e587b208f5d288a25407575fcddb9face30c7c692"
 dependencies = [
  "rand 0.9.4",
  "socket2",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -3685,7 +3712,9 @@ dependencies = [
  "moka",
  "notifier",
  "oauth2",
+ "osv-analyzer",
  "osv-db",
+ "osv-types",
  "package-analyzer",
  "poem",
  "poem-openapi",

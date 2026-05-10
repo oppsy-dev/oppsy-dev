@@ -26,7 +26,7 @@ export function EventCardDetails({ event }: Props) {
         <span className={styles.label}>Manifest</span>
         <div className={styles.manifestRow}>
           <span className={styles.manifestName}>{meta.manifest_name}</span>
-          <span className={styles.typeBadge}>{meta.manifest_type}</span>
+          <span className={styles.typeBadge}>{'Mock type'}</span>
           {meta.manifest_tag && <span className={styles.tagBadge}>{meta.manifest_tag}</span>}
         </div>
       </div>

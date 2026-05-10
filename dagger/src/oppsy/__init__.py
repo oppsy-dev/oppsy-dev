@@ -22,17 +22,34 @@ class Oppsy:
     @function
     def backend_build(
         self, src: Annotated[dagger.Directory, DefaultPath(".")]
-    ) -> dagger.File:
+    ) -> dagger.Directory:
         return (
             dag.container()
             .from_("rust:1.91-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "--no-install-recommends",
-                        "cmake", "build-essential", "libsqlite3-dev", "pkg-config", "ca-certificates", "golang"])
+            .with_exec(
+                [
+                    "apt-get",
+                    "install",
+                    "-y",
+                    "--no-install-recommends",
+                    "cmake",
+                    "build-essential",
+                    "libsqlite3-dev",
+                    "pkg-config",
+                    "ca-certificates",
+                    "golang",
+                ]
+            )
             .with_directory("/build", src.directory("backend"))
             .with_workdir("/build")
-            .with_exec(["cargo", "build", "--release", "-p", "service"])
-            .file("/build/target/release/service")
+            .with_exec(["cargo", "build", "--locked", "--release", "-p", "service"])
+            # leave only `service`, `libosv-scalibr.so`, `libcue.so`
+            .without_directory("/build/target/release/build")
+            .without_directory("/build/target/release/deps")
+            .without_directory("/build/target/release/examples")
+            .without_directory("/build/target/release/incremental")
+            .directory("/build")
         )
 
     @function
@@ -44,15 +61,26 @@ class Oppsy:
             dag.container()
             .from_("debian:trixie-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "--no-install-recommends",
-                        "ca-certificates", "curl"])
+            .with_exec(
+                [
+                    "apt-get",
+                    "install",
+                    "-y",
+                    "--no-install-recommends",
+                    "ca-certificates",
+                    "curl",
+                ]
+            )
             .with_exec(["apt-get", "clean"])
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
             .with_exec(["sh", "-c", "curl -sSf https://atlasgo.sh | sh"])
-            .with_directory("/core-db",
+            .with_directory(
+                "/core-db",
                 dag.directory()
                 .with_file("atlas.hcl", core_db_src.file("atlas.hcl"))
-                .with_directory("sqlite-migrations", core_db_src.directory("sqlite-migrations"))
+                .with_directory(
+                    "sqlite-migrations", core_db_src.directory("sqlite-migrations")
+                ),
             )
         )
 
@@ -61,23 +89,37 @@ class Oppsy:
         self, src: Annotated[dagger.Directory, DefaultPath(".")]
     ) -> dagger.Container:
         frontend = self.frontend_build(src)
-        binary = self.backend_build(src)
+        backend = self.backend_build(src)
         core_db = self.core_db(src)
 
         return (
             dag.container()
             .from_("debian:trixie-slim")
             .with_exec(["apt-get", "update"])
-            .with_exec(["apt-get", "install", "-y", "--no-install-recommends", "ca-certificates"])
+            .with_exec(
+                [
+                    "apt-get",
+                    "install",
+                    "-y",
+                    "--no-install-recommends",
+                    "ca-certificates",
+                ]
+            )
             .with_exec(["apt-get", "clean"])
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
             .with_file("/usr/local/bin/atlas", core_db.file("/usr/local/bin/atlas"))
-            .with_file("/usr/local/bin/service", binary)
+            .with_directory("/usr/local/bin", backend)
             .with_directory("/data/core-db", core_db.directory("/core-db"))
             .with_directory("/frontend", frontend)
-            .with_file("/entrypoint.sh", src.file("dagger/scripts/entrypoint.sh"), permissions=0o755)
+            .with_file(
+                "/entrypoint.sh",
+                src.file("dagger/scripts/entrypoint.sh"),
+                permissions=0o755,
+            )
             .with_env_variable("OSV_SERVICE_FRONTEND_PATH", "/frontend")
-            .with_env_variable("OSV_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db")
+            .with_env_variable(
+                "OSV_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db"
+            )
             .with_env_variable("OSV_SERVICE_MANIFEST_DB_PATH", "/data/manifest-db")
             .with_env_variable("OSV_SERVICE_OSV_DB_PATH", "/data/osv-db")
             .with_env_variable("OSV_SERVICE_BIND_ADDRESS", "0.0.0.0:3030")
@@ -94,8 +136,6 @@ class Oppsy:
         secret: dagger.Secret,
     ) -> str:
         container = await self.oppsy_build(src)
-        return await (
-            container
-            .with_registry_auth("ghcr.io", username, secret)
-            .publish(address)
+        return await container.with_registry_auth("ghcr.io", username, secret).publish(
+            address
         )

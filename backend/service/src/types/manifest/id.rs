@@ -1,5 +1,4 @@
 use poem_openapi::{NewType, types::Example};
-use uuid::Uuid;
 
 use crate::types::uuid_v7::UuidV7;
 
@@ -26,20 +25,6 @@ impl TryFrom<&ManifestId> for manifest_storage::ManifestId {
 
     fn try_from(value: &ManifestId) -> Result<Self, Self::Error> {
         Self::new(&value.0.to_string())
-    }
-}
-
-impl From<&ManifestId> for package_analyzer::ManifestId {
-    fn from(value: &ManifestId) -> Self {
-        Self::from(value.0.to_string().as_str())
-    }
-}
-
-impl TryFrom<package_analyzer::ManifestId> for ManifestId {
-    type Error = anyhow::Error;
-
-    fn try_from(value: package_analyzer::ManifestId) -> Result<Self, Self::Error> {
-        Ok(Self(Uuid::try_parse(value.as_str())?.try_into()?))
     }
 }
 

@@ -1,5 +1,5 @@
 pub mod id;
 pub mod info;
 pub mod name;
+pub mod package;
 pub mod tag;
-pub mod r#type;

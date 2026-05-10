@@ -1,114 +1,116 @@
-pub mod analyzer;
-pub mod cargo;
-pub mod go;
-pub mod gradle;
-mod manifest_id;
-pub mod maven;
-pub mod npm;
-mod package;
-pub mod poetry;
-mod semver_eval;
-pub mod uv;
+use std::{collections::HashSet, hash::Hash};
 
-use common::ConvertTo;
-use osv_db::{
-    OsvDb,
-    types::{OsvRecord, OsvRecordId},
-};
+use dashmap::DashMap;
+use osv_analyzer::{Package, analyze};
+use osv_db::OsvDb;
+use osv_types::{OsvRecord, OsvRecordId, PackageName};
 
-pub use self::{manifest_id::ManifestId, package::Package};
-use crate::{
-    cargo::CargoPackage, go::GoModule, npm::NpmPackage, poetry::PoetryPackage, uv::UvPackage,
-};
-
-/// Generates [`ManifestType`], [`MultiAnalyzer`], and its `impl` block from a list of
-/// `$(#[$attr])* $field: $pkg => $variant` entries — one per supported ecosystem.
-///
-/// Adding a new ecosystem requires a single line in the invocation below.
-macro_rules! define_multi_analyzer {
-    ($($(#[$attr:meta])* $field:ident: $pkg:ty => $variant:ident),+ $(,)?) => {
-        /// Identifies the package ecosystem of a manifest file so [`MultiAnalyzer`] can
-        /// dispatch to the correct parser.
-        pub enum ManifestType {
-            $($(#[$attr])* $variant),+
-        }
-
-        /// Composite analyzer that cross-references manifest files from all supported package
-        /// ecosystems (Cargo, npm, uv, Poetry, Go) against OSV vulnerability records.
-        ///
-        /// Each ecosystem is handled by a dedicated [`analyzer::Analyzer`] internally. The
-        /// `MultiAnalyzer` is the single entry point callers need: they add manifests with a
-        /// [`ManifestType`] discriminant and OSV records without caring which ecosystem is
-        /// involved.
-        #[derive(Debug)]
-        pub struct MultiAnalyzer {
-            $($field: analyzer::Analyzer<$pkg>),+
-        }
-
-        impl MultiAnalyzer {
-            /// Creates a new, empty [`MultiAnalyzer`].
-            #[must_use]
-            #[allow(clippy::new_without_default)]
-            pub fn new() -> Self {
-                Self {
-                    $($field: analyzer::Analyzer::new()),+
-                }
-            }
-
-            /// Registers an OSV vulnerability record and returns every [`ManifestId`] whose
-            /// packages are affected by it, based on manifest files added so far.
-            ///
-            /// If no manifest files have been added yet, the record is still indexed so that
-            /// future [`Self::add_manifest`] calls can match against it.
-            pub fn add_osv_record(
-                &self,
-                osv_record: &OsvRecord,
-            ) -> anyhow::Result<Vec<ManifestId>> {
-                let mut hits = Vec::new();
-                $(hits.extend(self.$field.add_osv_record(osv_record)?);)+
-                Ok(hits)
-            }
-
-            /// Parses a manifest file bytes (`Cargo.lock`, `npm.lock`, `yarn.lock` etc.) and
-            /// registers all of its packages under `manifest_id`.
-            ///
-            /// Returns the IDs of every OSV record (from previously added records) that affects
-            /// at least one package in the manifest. If no vulnerabilities are known yet, the
-            /// packages are still indexed so that future [`Self::add_osv_record`] calls can match
-            /// against them.
-            ///
-            /// # Errors
-            ///
-            /// - If `manifest_bytes` is not valid UTF-8 or cannot be parsed as the expected
-            ///   manifest format.
-            /// - If the [`OsvDb::get_record`] lookup fails.
-            pub fn add_manifest(
-                &self,
-                manifest_type: impl ConvertTo<ManifestType>,
-                manifest_id: impl ConvertTo<ManifestId>,
-                manifest_bytes: &[u8],
-                osv_db: &OsvDb,
-            ) -> anyhow::Result<Vec<OsvRecordId>> {
-                let manifest_type = manifest_type.convert()?;
-                match manifest_type {
-                    $(ManifestType::$variant => {
-                        self.$field.add_manifest(manifest_id, manifest_bytes, osv_db)
-                    })+
-                }
-            }
-        }
-    };
+/// Abstraction over a package-ecosystem analyzer that cross-references manifest files
+/// (`Cargo.lock`, `npm.lock`, `yarn.lock` etc.) against OSV vulnerability records.
+#[derive(Debug)]
+pub struct Analyzer<ManifestId> {
+    /// Maps each known `Package` to the set of manifests that depend on it.
+    pkg_manifests: DashMap<Package, HashSet<ManifestId>>,
+    /// Maps a package name to all known `P` versions seen across manifests.
+    pkgs_by_name: DashMap<PackageName, HashSet<Package>>,
+    /// Maps a package name to all OSV record IDs that affect it.
+    records_by_name: DashMap<PackageName, HashSet<OsvRecordId>>,
 }
 
-define_multi_analyzer! {
-    /// Rust/Cargo lock file (`Cargo.lock`).
-    cargo: CargoPackage => Cargo,
-    /// Node.js npm lock file (`package-lock.json`).
-    npm: NpmPackage => Npm,
-    /// Python uv lock file (`uv.lock`).
-    uv: UvPackage => Uv,
-    /// Python Poetry lock file (`poetry.lock`).
-    poetry: PoetryPackage => Poetry,
-    /// Go module manifest generated by running `go list -m -json all | jq -s '.'`.
-    go_module: GoModule => Go,
+impl<ManifestId: Clone + PartialEq + Eq + Hash> Analyzer<ManifestId> {
+    /// Creates a new, empty [`Analyzer`].
+    #[must_use]
+    #[allow(clippy::new_without_default)]
+    pub fn new() -> Self {
+        Self {
+            pkg_manifests: DashMap::new(),
+            pkgs_by_name: DashMap::new(),
+            records_by_name: DashMap::new(),
+        }
+    }
+
+    /// Registers an OSV vulnerability record and returns every [`ManifestId`] whose
+    /// packages are affected by it, based on manifest files added so far.
+    ///
+    /// If no manifest files have been added yet, the record is still indexed so that
+    /// future [`Self::add_manifest`] calls can match against it.
+    pub fn add_osv_record(
+        &self,
+        osv_record: &OsvRecord,
+    ) -> anyhow::Result<Vec<ManifestId>> {
+        let mut hits = Vec::new();
+
+        for affected_p in &osv_record.affected {
+            let Some(ref package) = affected_p.package else {
+                continue;
+            };
+
+            if let Some(packages) = self.pkgs_by_name.get(&package.name) {
+                for p in packages.iter() {
+                    if analyze(p, affected_p)?
+                        && let Some(manifests) = self.pkg_manifests.get(p)
+                    {
+                        for manifest_id in manifests.iter() {
+                            hits.push(manifest_id.clone());
+                        }
+                    }
+                }
+            }
+
+            self.records_by_name
+                .entry(package.name.clone())
+                .or_default()
+                .insert(osv_record.id.clone());
+        }
+
+        Ok(hits)
+    }
+
+    /// Parses a manifest file bytes (`Cargo.lock`, `npm.lock`, `yarn.lock` etc.) and
+    /// registers all of its packages under `manifest_id`.
+    ///
+    /// Returns the IDs of every OSV record (from previously added records) that affects
+    /// at least one package in the manifest. If no vulnerabilities are known yet, the
+    /// packages are still indexed so that future [`Self::add_osv_record`] calls can match
+    /// against them.
+    ///
+    /// # Errors
+    ///
+    /// - If `manifest_bytes` is not valid UTF-8 or cannot be parsed as the expected
+    ///   manifest format.
+    /// - If the [`OsvDb::get_record`] lookup fails.
+    pub fn add_manifest(
+        &self,
+        manifest_id: &ManifestId,
+        packages: impl Iterator<Item = Package>,
+        osv_db: &OsvDb,
+    ) -> anyhow::Result<Vec<OsvRecordId>> {
+        let mut records = HashSet::new();
+
+        for p in packages {
+            if let Some(record_ids) = self.records_by_name.get(&p.name) {
+                for record_id in record_ids.iter() {
+                    if let Some(osv_record) = osv_db.get_record(record_id)? {
+                        for affected_p in &osv_record.affected {
+                            if analyze(&p, affected_p)? {
+                                records.insert(record_id.clone());
+                            }
+                        }
+                    }
+                }
+            }
+
+            self.pkg_manifests
+                .entry(p.clone())
+                .or_default()
+                .insert(manifest_id.clone());
+
+            self.pkgs_by_name
+                .entry(p.name.clone())
+                .or_default()
+                .insert(p);
+        }
+
+        Ok(records.into_iter().collect())
+    }
 }
