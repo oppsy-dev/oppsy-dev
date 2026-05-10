@@ -43,7 +43,7 @@ class Oppsy:
             )
             .with_directory("/build", src.directory("backend"))
             .with_workdir("/build")
-            .with_exec(["cargo", "build", "--release", "-p", "service"])
+            .with_exec(["cargo", "build", "--locked", "--release", "-p", "service"])
         )
 
         return [
