@@ -49,6 +49,7 @@ class Oppsy:
             .without_directory("/build/target/release/deps")
             .without_directory("/build/target/release/examples")
             .without_directory("/build/target/release/incremental")
+            .directory("/build")
         )
 
     @function
