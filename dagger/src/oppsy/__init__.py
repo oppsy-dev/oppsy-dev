@@ -44,9 +44,11 @@ class Oppsy:
             .with_directory("/build", src.directory("backend"))
             .with_workdir("/build")
             .with_exec(["cargo", "build", "--locked", "--release", "-p", "service"])
-            .with_file("/build/target/release/service")
-            .with_file("/build/target/release/libcue.so")
-            .with_file("/build/target/release/libosv-scalibr.so")
+            # leave only `service`, `libosv-scalibr.so`, `libcue.so`
+            .without_directory("/build/target/release/build")
+            .without_directory("/build/target/release/deps")
+            .without_directory("/build/target/release/examples")
+            .without_directory("/build/target/release/incremental")
         )
 
     @function
