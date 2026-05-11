@@ -83,6 +83,7 @@ jobs:
 
       - name: Build CLI binary
         run: |
+          mkdir -p ./dist
           dagger call cli-build \
             --src=. \
             --version=${{ github.event.release.tag_name }} \
@@ -93,7 +94,7 @@ jobs:
       - name: Upload artifact to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./dist/* --clobber
+        run: find ./dist -type f | xargs gh release upload ${{ github.event.release.tag_name }} --clobber
 
       - name: Upload installer script
         if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
