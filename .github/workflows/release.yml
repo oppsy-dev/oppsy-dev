@@ -51,9 +51,53 @@ jobs:
             --username=${{ github.actor }} \
             --secret=env:GITHUB_TOKEN
 
+  release-cli:
+    name: Release CLI (${{ matrix.goos }}/${{ matrix.goarch }})
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: linux
+            goarch: "386"
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: "386"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger CLI
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.6 BIN_DIR=/usr/local/bin sh
+
+      - name: Build CLI binary
+        run: |
+          dagger call cli-build \
+            --src=. \
+            --version=${{ github.event.release.tag_name }} \
+            --goos=${{ matrix.goos }} \
+            --goarch=${{ matrix.goarch }} \
+            export --path=./dist/
+
+      - name: Upload artifact to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} ./dist/* --clobber
+
   announce:
     name: Discord announcement
-    needs: [publish]
+    needs: [publish, release-cli]
     if: ${{ always() && needs.publish.result == 'success' }}
     runs-on: ubuntu-22.04
 
