@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/urfave/cli/v3"
@@ -27,7 +28,7 @@ func Run(args []string, stdout, stderr io.Writer, commands []CommandBuilder) int
 
 	err := app.Run(context.Background(), args)
 	if err != nil {
-		println(err.Error())
+		fmt.Fprintln(stderr, err)
 		return 1
 	}
 	return 0
