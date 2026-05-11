@@ -19,10 +19,9 @@ const SEV_CLASS: Record<Severity, string> = {
 
 type OsvRecordRowProps = {
   osvId: string;
-  detectedAt: string;
 };
 
-export function OsvRecordRow({ osvId, detectedAt }: OsvRecordRowProps) {
+export function OsvRecordRow({ osvId }: OsvRecordRowProps) {
   const { records, fetchRecord } = useOsvRecordsStore();
 
   useEffect(() => {

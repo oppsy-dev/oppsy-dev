@@ -3176,7 +3176,7 @@ export interface components {
        */
       tag?: string;
       /** @description Vulnerabilities detected when this manifest was last scanned. */
-      vulnerabilities: components['schemas']['ManifestVuln'][];
+      vulnerabilities: string[];
     };
     /**
      * ManifestList
@@ -3211,22 +3211,6 @@ export interface components {
       version: string;
       /** @description The OSV ecosystem this package belongs to (e.g. `"crates.io"`, `"PyPI"`, `"npm"`). */
       ecosystem: string;
-    };
-    /**
-     * ManifestVuln
-     * @description A detected OSV vulnerability associated with a manifest.
-     */
-    ManifestVuln: {
-      /**
-       * OSV vulnerability identifier (e.g. "GHSA-xxxx-xxxx-xxxx" or "CVE-xxxx-xxxx").
-       * @description The OSV vulnerability identifier (e.g. "GHSA-xxxx-xxxx-xxxx").
-       */
-      osv_id: string;
-      /**
-       * Format: date-time
-       * @description Timestamp when the vulnerability was first detected.
-       */
-      detected_at: string;
     };
     /**
      * NotificationChannel
