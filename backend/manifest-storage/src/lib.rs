@@ -9,7 +9,10 @@ use std::{
 
 use bytes::Bytes;
 use common::ConvertTo;
-pub use errors::{ManifestGetError, ManifestPutError, ManifestStorageInitError};
+pub use errors::{
+    ManifestEntryError, ManifestGetError, ManifestIterError, ManifestPutError,
+    ManifestStorageInitError,
+};
 pub use manifest_id::{ManifestId, ManifestIdError};
 
 /// A simple disk-backed storage for manifest files.
@@ -60,6 +63,33 @@ impl ManifestStorage {
         f.write_all(manifest)
             .map_err(|source| ManifestPutError::CannotWrite { path, source })?;
         Ok(())
+    }
+
+    /// Returns an iterator over every `(ManifestId, Bytes)` pair stored on disk.
+    ///
+    /// Each item is a `Result` — directory or file read failures are yielded as
+    /// errors rather than aborting the iteration.
+    ///
+    /// # Errors
+    /// - [`ManifestIterError::ReadDir`] if the storage directory cannot be opened.
+    #[allow(clippy::iter_not_returning_iterator)]
+    pub fn iter(
+        &self
+    ) -> Result<
+        impl Iterator<Item = Result<(ManifestId, Bytes), ManifestEntryError>> + '_,
+        ManifestIterError,
+    > {
+        let entries = std::fs::read_dir(&self.location).map_err(ManifestIterError::ReadDir)?;
+        Ok(entries.map(|entry| {
+            let entry = entry.map_err(ManifestEntryError::DirEntry)?;
+            let name = entry.file_name();
+            let id = ManifestId::new(name.to_string_lossy().as_ref())
+                .map_err(ManifestEntryError::InvalidId)?;
+            let path = entry.path();
+            let data = std::fs::read(&path)
+                .map_err(|source| ManifestEntryError::ReadFailed { path, source })?;
+            Ok((id, Bytes::from(data)))
+        }))
     }
 
     /// Reads the manifest stored under `manifest_id`.
