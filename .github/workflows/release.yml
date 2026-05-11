@@ -83,13 +83,16 @@ jobs:
 
       - name: Build CLI binary
         run: |
+          TAG=${{ github.event.release.tag_name }}
+          EXT=$([ "${{ matrix.goos }}" = "windows" ] && echo ".zip" || echo ".tar.gz")
+          ARCHIVE="oppsy-cli_${TAG}_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}"
           mkdir -p ./dist
           dagger call cli-build \
             --src=. \
-            --version=${{ github.event.release.tag_name }} \
+            --version=${TAG} \
             --goos=${{ matrix.goos }} \
             --goarch=${{ matrix.goarch }} \
-            export --path=./dist/
+            export --path=./dist/${ARCHIVE}
 
       - name: Upload artifact to release
         env:
