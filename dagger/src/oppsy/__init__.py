@@ -128,6 +128,42 @@ class Oppsy:
         )
 
     @function
+    def cli_build(
+        self,
+        src: Annotated[dagger.Directory, DefaultPath(".")],
+        version: str,
+        goos: str,
+        goarch: str,
+    ) -> dagger.File:
+        """Compiles oppsy-cli for the given GOOS/GOARCH and returns the archive
+        (.tar.gz for Linux/macOS, .zip for Windows) as a single File."""
+        ext = ".exe" if goos == "windows" else ""
+        binary = f"oppsy-cli{ext}"
+        archive_base = f"oppsy-cli_{version}_{goos}_{goarch}"
+
+        built = (
+            dag.container()
+            .from_("golang:1.24-alpine")
+            .with_exec(["apk", "add", "--no-cache", "tar", "zip"])
+            .with_directory("/src", src.directory("oppsy-cli"))
+            .with_workdir("/src")
+            .with_exec(["mkdir", "-p", "/out", "/archives"])
+            .with_env_variable("GOOS", goos)
+            .with_env_variable("GOARCH", goarch)
+            .with_env_variable("CGO_ENABLED", "0")
+            .with_exec(["go", "build", "-o", f"/out/{binary}", "."])
+        )
+
+        if goos == "windows":
+            return built.with_exec([
+                "zip", "-j", f"/archives/{archive_base}.zip", f"/out/{binary}",
+            ]).file(f"/archives/{archive_base}.zip")
+        else:
+            return built.with_exec([
+                "tar", "czf", f"/archives/{archive_base}.tar.gz", "-C", "/out", binary,
+            ]).file(f"/archives/{archive_base}.tar.gz")
+
+    @function
     async def oppsy_publish(
         self,
         src: Annotated[dagger.Directory, DefaultPath(".")],

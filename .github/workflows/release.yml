@@ -51,9 +51,63 @@ jobs:
             --username=${{ github.actor }} \
             --secret=env:GITHUB_TOKEN
 
+  release-cli:
+    name: Release CLI (${{ matrix.goos }}/${{ matrix.goarch }})
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: linux
+            goarch: "386"
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: "386"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Dagger CLI
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.6 BIN_DIR=/usr/local/bin sh
+
+      - name: Build CLI binary
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          EXT=$([ "${{ matrix.goos }}" = "windows" ] && echo ".zip" || echo ".tar.gz")
+          ARCHIVE="oppsy-cli_${TAG}_${{ matrix.goos }}_${{ matrix.goarch }}${EXT}"
+          mkdir -p ./dist
+          dagger call cli-build \
+            --src=. \
+            --version=${TAG} \
+            --goos=${{ matrix.goos }} \
+            --goarch=${{ matrix.goarch }} \
+            export --path=./dist/${ARCHIVE}
+
+      - name: Upload artifact to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: find ./dist -type f | xargs gh release upload ${{ github.event.release.tag_name }} --clobber
+
+      - name: Upload installer script
+        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} dagger/scripts/install-cli.sh --clobber
+
   announce:
     name: Discord announcement
-    needs: [publish]
+    needs: [publish, release-cli]
     if: ${{ always() && needs.publish.result == 'success' }}
     runs-on: ubuntu-22.04
 
