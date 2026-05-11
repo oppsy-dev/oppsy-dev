@@ -8,7 +8,7 @@ use osv_types::{OsvRecord, OsvRecordId, PackageName};
 /// Abstraction over a package-ecosystem analyzer that cross-references manifest files
 /// (`Cargo.lock`, `npm.lock`, `yarn.lock` etc.) against OSV vulnerability records.
 #[derive(Debug)]
-pub struct Analyzer<ManifestId> {
+pub struct Analyzer<ManifestId: PartialEq + Eq + Hash> {
     /// Maps each known `Package` to the set of manifests that depend on it.
     pkg_manifests: DashMap<Package, HashSet<ManifestId>>,
     /// Maps a package name to all known `P` versions seen across manifests.
@@ -38,7 +38,10 @@ impl<ManifestId: Clone + PartialEq + Eq + Hash> Analyzer<ManifestId> {
     /// against this manifest via [`Self::add_manifest`] or [`Self::add_osv_record`].
     /// Returns an empty [`Vec`] if the manifest ID is unknown.
     #[must_use]
-    pub fn osv_records_for_manifest(&self, manifest_id: &ManifestId) -> Vec<OsvRecordId> {
+    pub fn osv_records_for_manifest(
+        &self,
+        manifest_id: &ManifestId,
+    ) -> Vec<OsvRecordId> {
         self.records_by_manifest
             .get(manifest_id)
             .map(|records| records.iter().cloned().collect())

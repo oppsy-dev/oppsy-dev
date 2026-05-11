@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 use poem_openapi::Object;
 
 use super::{name::ManifestName, tag::ManifestTag};
@@ -14,14 +13,5 @@ pub struct ManifestInfo {
     /// Optional label for versioning or environment disambiguation.
     pub tag: Option<ManifestTag>,
     /// Vulnerabilities detected when this manifest was last scanned.
-    pub vulnerabilities: Vec<ManifestVuln>,
-}
-
-/// A detected OSV vulnerability associated with a manifest.
-#[derive(Object, Debug, Clone)]
-pub struct ManifestVuln {
-    /// The OSV vulnerability identifier (e.g. "GHSA-xxxx-xxxx-xxxx").
-    pub osv_id: OsvId,
-    /// Timestamp when the vulnerability was first detected.
-    pub detected_at: DateTime<Utc>,
+    pub vulnerabilities: Vec<OsvId>,
 }

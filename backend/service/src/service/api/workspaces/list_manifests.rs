@@ -2,13 +2,13 @@ use poem_openapi::{ApiResponse, Object, payload::Json};
 use tracing::warn;
 
 use crate::{
-    db::{CoreDb, ManifestDb},
+    db::{CoreDb, ManifestDb, OsvDb},
     resources::ResourceRegistry,
     service::common::{
         responses::{WithErrorResponses, try_or_return},
         types::{error_msg::ErrorMessage, limit::Limit, page::Page, page_info::PageInfo},
     },
-    types::{ManifestId, ManifestInfo, ManifestName, ManifestTag, WorkspaceId},
+    types::{ManifestId, ManifestInfo, ManifestName, ManifestTag, OsvId, WorkspaceId},
 };
 
 /// Response body for listing manifests.
@@ -47,6 +47,7 @@ pub async fn endpoint(
 ) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
     let manifest_db = try_or_return!(ResourceRegistry::get::<ManifestDb>());
+    let osv_db = try_or_return!(ResourceRegistry::get::<OsvDb>());
     let page_info = PageInfo {
         page: page.unwrap_or_default(),
         limit: limit.unwrap_or_default(),
@@ -70,11 +71,17 @@ pub async fn endpoint(
             continue;
         }
 
+        let vulnerabilities = osv_db
+            .osv_records_for_manifest(&manifest_id)
+            .into_iter()
+            .map(OsvId::from)
+            .collect();
+
         manifests.push(ManifestInfo {
             id: manifest_id,
             name: ManifestName::from(db_manifest.name),
             tag: db_manifest.tag.map(ManifestTag::from),
-            vulnerabilities: Vec::new(),
+            vulnerabilities,
         });
     }
 

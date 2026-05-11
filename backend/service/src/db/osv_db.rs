@@ -147,6 +147,17 @@ impl OsvDb {
         }
     }
 
+    /// Returns all OSV records that have been matched against the given manifest,
+    /// either via [`Self::add_manifest`] or during a subsequent [`Self::sync`].
+    ///
+    /// Returns an empty [`Vec`] if the manifest ID is unknown or has no matched records.
+    pub fn osv_records_for_manifest(
+        &self,
+        manifest_id: &ManifestId,
+    ) -> Vec<OsvRecordId> {
+        self.analyzer.osv_records_for_manifest(manifest_id)
+    }
+
     /// Looks up a single OSV record by its ID.
     ///
     /// Returns `Ok(None)` if no record matching `id` exists in the local database.
