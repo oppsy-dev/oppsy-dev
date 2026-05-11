@@ -1,8 +1,11 @@
-module github.com/SupremaLex/oppsy/cli
+module github.com/oppsy-dev/oppsy/oppsy-cli
 
 go 1.24.6
 
-require github.com/google/osv-scalibr v0.4.5
+require (
+	github.com/google/osv-scalibr v0.4.5
+	github.com/urfave/cli/v3 v3.8.0
+)
 
 require (
 	cloud.google.com/go/compute/metadata v0.8.0 // indirect
