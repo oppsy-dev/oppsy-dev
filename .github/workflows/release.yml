@@ -102,27 +102,27 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} dagger/scripts/install-cli.sh --clobber
 
-  announce:
-    name: Discord announcement
-    needs: [publish, release-cli]
-    if: ${{ always() && needs.publish.result == 'success' }}
-    runs-on: ubuntu-22.04
+  # announce:
+  #   name: Discord announcement
+  #   needs: [publish, release-cli]
+  #   if: ${{ always() && needs.publish.result == 'success' }}
+  #   runs-on: ubuntu-22.04
 
-    steps:
-      - name: Prepare announcement message
-        id: message
-        env:
-          RELEASE_BODY: ${{ github.event.release.body }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-        run: |
-          echo "content<<EOF" >> "$GITHUB_OUTPUT"
-          echo "**${RELEASE_NAME}** is out!" >> "$GITHUB_OUTPUT"
-          echo "" >> "$GITHUB_OUTPUT"
-          echo "${RELEASE_BODY}" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+  #   steps:
+  #     - name: Prepare announcement message
+  #       id: message
+  #       env:
+  #         RELEASE_BODY: ${{ github.event.release.body }}
+  #         RELEASE_NAME: ${{ github.event.release.name }}
+  #       run: |
+  #         echo "content<<EOF" >> "$GITHUB_OUTPUT"
+  #         echo "**${RELEASE_NAME}** is out!" >> "$GITHUB_OUTPUT"
+  #         echo "" >> "$GITHUB_OUTPUT"
+  #         echo "${RELEASE_BODY}" >> "$GITHUB_OUTPUT"
+  #         echo "EOF" >> "$GITHUB_OUTPUT"
 
-      - name: Send Discord announcement
-        uses: tsickert/discord-webhook@v7.0.0
-        with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK_ANNOUNCEMENTS }}
-          content: ${{ steps.message.outputs.content }}
+  #     - name: Send Discord announcement
+  #       uses: tsickert/discord-webhook@v7.0.0
+  #       with:
+  #         webhook-url: ${{ secrets.DISCORD_WEBHOOK_ANNOUNCEMENTS }}
+  #         content: ${{ steps.message.outputs.content }}
