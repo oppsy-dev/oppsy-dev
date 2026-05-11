@@ -36,9 +36,16 @@ function EmptyState() {
       <div className={styles.emptyIconWrap}>
         <UploadIcon size={22} />
       </div>
-      <p className={styles.emptyTitle}>No lock files yet</p>
+      <p className={styles.emptyTitle}>No manifests yet</p>
       <p className={styles.emptyDesc}>
-        Upload a lock file to start scanning your dependencies for vulnerabilities.
+        Upload a manifest to start scanning your dependencies for vulnerabilities.{' '}
+        <a
+          href="https://oppsy-dev.github.io/oppsy-dev/manifest-upload.html"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Learn how ↗
+        </a>
       </p>
     </div>
   );
