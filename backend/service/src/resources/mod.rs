@@ -14,9 +14,7 @@ static REGISTRY: LazyLock<ResourceRegistry> = LazyLock::new(|| ResourceRegistry(
 
 #[async_trait::async_trait]
 pub trait Resource: Any + Send + Sync {
-    type InitArgs;
-
-    async fn init(args: Self::InitArgs) -> anyhow::Result<Self>
+    async fn init() -> anyhow::Result<Self>
     where Self: Sized;
 }
 
@@ -35,8 +33,8 @@ impl ResourceRegistry {
     ///
     /// Must only be called during service startup, before any call to
     /// [`Self::get`] for the same type.
-    pub async fn register<T: Resource>(args: T::InitArgs) -> anyhow::Result<Arc<T>> {
-        let value = Arc::new(T::init(args).await?);
+    pub async fn register<T: Resource>() -> anyhow::Result<Arc<T>> {
+        let value = Arc::new(T::init().await?);
         Self::register_with(value.clone());
         Ok(value)
     }

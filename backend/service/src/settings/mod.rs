@@ -121,8 +121,6 @@ pub struct Settings {
 
 #[async_trait::async_trait]
 impl Resource for Settings {
-    type InitArgs = ();
-
     /// Initializes the [`Settings`] instance from environment variables to the
     /// [`ResourceRegistry`].
     ///
@@ -130,7 +128,7 @@ impl Resource for Settings {
     ///
     /// # Errors
     /// - Returns an error if any required environment variable is absent or malformed.
-    async fn init(_: Self::InitArgs) -> anyhow::Result<Self>
+    async fn init() -> anyhow::Result<Self>
     where Self: Sized {
         Self::load()
     }
