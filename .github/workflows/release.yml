@@ -16,7 +16,7 @@ jobs:
   #     - uses: actions/checkout@v4
 
   #     - name: Install Dagger CLI
-  #       run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.8 BIN_DIR=/usr/local/bin sh
+  #       run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.6 BIN_DIR=/usr/local/bin sh
 
   #     - name: Publish version tag
   #       env:
@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Dagger CLI
-        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.8 BIN_DIR=/usr/local/bin sh
+        run: curl -fsSL https://dl.dagger.io/dagger/install.sh | DAGGER_VERSION=0.20.6 BIN_DIR=/usr/local/bin sh
 
       - name: Build CLI binary
         run: |
