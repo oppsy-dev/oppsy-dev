@@ -27,9 +27,14 @@ func scan(lockfilePath string) ([]Package, error) {
 		return nil, fmt.Errorf("load extractors: %w", err)
 	}
 
+	scanRoot, err := filepath.Abs(filepath.Dir(lockfilePath))
+	if err != nil {
+		return nil, fmt.Errorf("resolve scan root: %w", err)
+	}
+
 	cfg := &scalibr.ScanConfig{
 		Plugins:        plugins,
-		ScanRoots:      []*scalibrfs.ScanRoot{scalibrfs.RealFSScanRoot(filepath.Dir(lockfilePath))},
+		ScanRoots:      []*scalibrfs.ScanRoot{scalibrfs.RealFSScanRoot(scanRoot)},
 		PathsToExtract: []string{lockfilePath},
 		IgnoreSubDirs:  true,
 	}
@@ -46,9 +51,7 @@ func scan(lockfilePath string) ([]Package, error) {
 			continue
 		}
 		for _, loc := range p.Locations {
-			if abs, err := filepath.Abs(loc); err == nil {
-				scannedPaths[abs] = struct{}{}
-			}
+			scannedPaths[filepath.Join(scanRoot, loc)] = struct{}{}
 		}
 		packages = append(packages, Package{
 			Name:      p.Name,
