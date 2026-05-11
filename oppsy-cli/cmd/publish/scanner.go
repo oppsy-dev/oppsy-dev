@@ -4,10 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 
 	scalibr "github.com/google/osv-scalibr"
 	scalibrfs "github.com/google/osv-scalibr/fs"
+	scalibrlog "github.com/google/osv-scalibr/log"
 	pl "github.com/google/osv-scalibr/plugin/list"
 )
 
@@ -18,6 +20,8 @@ type Package struct {
 }
 
 func scan(lockfilePath string) ([]Package, error) {
+	scalibrlog.SetLogger(&noOpLogger{})
+
 	plugins, err := pl.FromNames([]string{"sourcecode"}, nil)
 	if err != nil {
 		return nil, fmt.Errorf("load extractors: %w", err)
@@ -35,10 +39,16 @@ func scan(lockfilePath string) ([]Package, error) {
 		return nil, errors.New("osv-scalibr scan returned nil result")
 	}
 
+	scannedPaths := make(map[string]struct{})
 	packages := make([]Package, 0, len(result.Inventory.Packages))
 	for _, p := range result.Inventory.Packages {
 		if p == nil || p.Name == "" {
 			continue
+		}
+		for _, loc := range p.Locations {
+			if abs, err := filepath.Abs(loc); err == nil {
+				scannedPaths[abs] = struct{}{}
+			}
 		}
 		packages = append(packages, Package{
 			Name:      p.Name,
@@ -47,5 +57,21 @@ func scan(lockfilePath string) ([]Package, error) {
 		})
 	}
 
+	for path := range scannedPaths {
+		slog.Info("scanned lockfile", "path", path)
+	}
+	slog.Info("scan complete", "packages", len(packages))
+
 	return packages, nil
 }
+
+type noOpLogger struct{}
+
+func (noOpLogger) Errorf(string, ...any) {}
+func (noOpLogger) Warnf(string, ...any)  {}
+func (noOpLogger) Infof(string, ...any)  {}
+func (noOpLogger) Debugf(string, ...any) {}
+func (noOpLogger) Error(...any)          {}
+func (noOpLogger) Warn(...any)           {}
+func (noOpLogger) Info(...any)           {}
+func (noOpLogger) Debug(...any)          {}

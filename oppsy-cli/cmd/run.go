@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/urfave/cli/v3"
 )
@@ -28,7 +28,7 @@ func Run(args []string, stdout, stderr io.Writer, commands []CommandBuilder) int
 
 	err := app.Run(context.Background(), args)
 	if err != nil {
-		fmt.Fprintln(stderr, err)
+		slog.Error(err.Error())
 		return 1
 	}
 	return 0

@@ -2,13 +2,13 @@ package publish
 
 import (
 	"context"
-	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/urfave/cli/v3"
 )
 
-func Command(stdout, _ io.Writer) *cli.Command {
+func Command(_, _ io.Writer) *cli.Command {
 	return &cli.Command{
 		Name:        "publish",
 		Usage:       "Parse a manifest file and publish its packages to an Oppsy workspace",
@@ -46,12 +46,12 @@ func Command(stdout, _ io.Writer) *cli.Command {
 			},
 		},
 		Action: func(_ context.Context, cmd *cli.Command) error {
-			return runPublish(stdout, cmd)
+			return runPublish(cmd)
 		},
 	}
 }
 
-func runPublish(out io.Writer, cmd *cli.Command) error {
+func runPublish(cmd *cli.Command) error {
 	packages, err := scan(cmd.String("lockfile"))
 	if err != nil {
 		return err
@@ -62,6 +62,6 @@ func runPublish(out io.Writer, cmd *cli.Command) error {
 		return err
 	}
 
-	fmt.Fprintf(out, "published manifest: %s\n", manifestID)
+	slog.Info("published manifest", "id", manifestID)
 	return nil
 }
