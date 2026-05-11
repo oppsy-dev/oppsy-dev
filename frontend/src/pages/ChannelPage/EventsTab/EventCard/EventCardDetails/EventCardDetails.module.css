@@ -40,20 +40,6 @@
   color: var(--text-2);
 }
 
-.typeBadge {
-  display: inline-flex;
-  padding: 0.125rem 0.4375rem;
-  background: rgba(217, 119, 6, 0.08);
-  border: 1px solid rgba(217, 119, 6, 0.25);
-  border-radius: 4px;
-  font-size: 0.625rem;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
 .tagBadge {
   display: inline-flex;
   padding: 0.125rem 0.4375rem;

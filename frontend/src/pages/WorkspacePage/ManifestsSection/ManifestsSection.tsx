@@ -110,7 +110,6 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
               <div className={styles.tableHead}>
                 <span />
                 <span>Name</span>
-                <span>Ecosystem</span>
                 <span>Tag</span>
                 <span className={styles.tableHeadCenter}>Vulns</span>
                 <span>Uploaded</span>
