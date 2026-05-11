@@ -49,7 +49,7 @@ class Oppsy:
             .without_directory("/build/target/release/deps")
             .without_directory("/build/target/release/examples")
             .without_directory("/build/target/release/incremental")
-            .directory("/build")
+            .directory("/build/target/release")
         )
 
     @function
@@ -109,6 +109,11 @@ class Oppsy:
             .with_exec(["rm", "-rf", "/var/lib/apt/lists/*"])
             .with_file("/usr/local/bin/atlas", core_db.file("/usr/local/bin/atlas"))
             .with_directory("/usr/local/bin", backend)
+            # libcue.so and libosv-scalibr.so land in /usr/local/bin alongside the
+            # service binary, but the dynamic linker never searches /usr/local/bin.
+            # TODO: proper fix is to register the path via ldconfig:
+            #   echo '/usr/local/bin' > /etc/ld.so.conf.d/service.conf && ldconfig
+            .with_env_variable("LD_LIBRARY_PATH", "/usr/local/bin")
             .with_directory("/data/core-db", core_db.directory("/core-db"))
             .with_directory("/frontend", frontend)
             .with_file(
