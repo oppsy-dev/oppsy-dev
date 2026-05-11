@@ -13,7 +13,7 @@ export const DISCORD_DEFAULT_TEMPLATE = `content: """
 :shield: **OPPSY** detected new open-source vulnerabilities
 
 **Workspace:** \\(_workspace_name)
-**Manifest:** ${BT}\\(_manifest_name)${BT} (\\(_manifest_type))
+**Manifest:** ${BT}\\(_manifest_name)${BT}
 *To stop receiving these notifications, disable or delete this channel in OPPSY.*
 """`;
 

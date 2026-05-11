@@ -14,7 +14,7 @@ export const EMAIL_DEFAULT_TEMPLATE = `subject: """
 body: """
 OPPSY detected
 Workspace:      \\(_workspace_name)
-Manifest:       \\(_manifest_name) (\\(_manifest_type))
+Manifest:       \\(_manifest_name)
 Review each finding at https://osv.dev and assess whether your project is affected.
 --
 To stop receiving these emails, disable or delete this notification channel in OPPSY.
