@@ -39,22 +39,22 @@ func publish(baseURL, workspaceID, name, tag string, packages []Package) (string
 	return manifestID, nil
 }
 
-type manifestPackageJSON struct {
+type ManifestPackageJSON struct {
 	Name      string `json:"name"`
 	Version   string `json:"version"`
 	Ecosystem string `json:"ecosystem"`
 }
 
-type createManifestRequestJSON struct {
+type CreateManifestRequestJSON struct {
 	Name     string                `json:"name"`
 	Tag      string                `json:"tag,omitempty"`
-	Packages []manifestPackageJSON `json:"packages"`
+	Packages []ManifestPackageJSON `json:"packages"`
 }
 
-func createManifestRequest(name, tag string, packages []Package) createManifestRequestJSON {
-	pkgs := make([]manifestPackageJSON, len(packages))
+func createManifestRequest(name, tag string, packages []Package) CreateManifestRequestJSON {
+	pkgs := make([]ManifestPackageJSON, len(packages))
 	for i, p := range packages {
-		pkgs[i] = manifestPackageJSON{Name: p.Name, Version: p.Version, Ecosystem: p.Ecosystem}
+		pkgs[i] = ManifestPackageJSON(p)
 	}
-	return createManifestRequestJSON{Name: name, Tag: tag, Packages: pkgs}
+	return CreateManifestRequestJSON{Name: name, Tag: tag, Packages: pkgs}
 }
