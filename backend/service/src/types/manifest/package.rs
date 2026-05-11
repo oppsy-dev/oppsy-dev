@@ -3,7 +3,7 @@ use poem_openapi::Object;
 use crate::types::osv::Ecosystem;
 
 /// Manifest's package definition.
-#[derive(Object, Debug, Clone)]
+#[derive(Object, Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct ManifestPackage {
     /// Manifest's package name.
     pub name: String,

@@ -1,7 +1,8 @@
 use poem_openapi::NewType;
 
 /// Human-readable name for a manifest (e.g. the filename or repo path).
-#[derive(NewType, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(NewType, Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
 pub struct ManifestName(String);
 
 impl From<String> for ManifestName {

@@ -3,7 +3,6 @@
 use std::ops::Deref;
 
 use manifest_storage::ManifestStorage;
-use poem_openapi::types::{ParseFromJSON, ToJSON};
 
 use crate::{
     resources::{Resource, ResourceRegistry},
@@ -25,13 +24,6 @@ impl Deref for ManifestDb {
 
 #[async_trait::async_trait]
 impl Resource for ManifestDb {
-    /// Initializes the [`Settings`] instance from environment variables to the
-    /// [`ResourceRegistry`].
-    ///
-    /// Must be called exactly once at service startup before any call to [`Self::get`].
-    ///
-    /// # Errors
-    /// - Returns an error if any required environment variable is absent or malformed.
     async fn init() -> anyhow::Result<Self>
     where Self: Sized {
         let settings = ResourceRegistry::get::<Settings>()?;
@@ -45,11 +37,7 @@ impl ManifestDb {
         manifest_id: &ManifestId,
         manifest: &Manifest,
     ) -> anyhow::Result<()> {
-        let manifest_json = manifest
-            .to_json()
-            .ok_or(anyhow::anyhow!("Manifest must be JSON encodable"))?;
-        self.0
-            .put(manifest_id, &serde_json::to_vec(&manifest_json)?)?;
+        self.0.put(manifest_id, &serde_json::to_vec(manifest)?)?;
         Ok(())
     }
 
@@ -57,15 +45,11 @@ impl ManifestDb {
     pub fn iter(
         &self
     ) -> anyhow::Result<impl Iterator<Item = anyhow::Result<(ManifestId, Manifest)>>> {
-        Ok(self.0.iter().map(|iter| {
-            iter.map(|e| {
-                let (id, bytes) = e?;
-                let id: ManifestId = id.try_into()?;
-                let json = serde_json::from_slice::<serde_json::Value>(&bytes)?;
-                let manifest: Manifest = Manifest::parse_from_json(Some(json))
-                    .map_err(|e| anyhow::anyhow!("{}", e.message()))?;
-                anyhow::Ok((id, manifest))
-            })
-        })?)
+        Ok(self.0.iter()?.map(|e| {
+            let (id, bytes) = e?;
+            let id: ManifestId = id.try_into()?;
+            let manifest: Manifest = serde_json::from_slice(&bytes)?;
+            anyhow::Ok((id, manifest))
+        }))
     }
 }

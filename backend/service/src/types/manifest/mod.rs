@@ -9,7 +9,7 @@ pub mod name;
 pub mod package;
 pub mod tag;
 
-#[derive(Object)]
+#[derive(Object, serde::Serialize, serde::Deserialize)]
 pub struct Manifest {
     /// Human-readable name for this manifest (e.g. the filename or repo path).
     pub name: ManifestName,
