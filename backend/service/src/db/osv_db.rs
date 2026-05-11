@@ -9,7 +9,7 @@ use tokio::sync::RwLock;
 use tracing::{error, info};
 
 use crate::{
-    db::CoreDb,
+    db::{CoreDb, ManifestDb},
     notifier::Notifier,
     resources::{Resource, ResourceRegistry},
     settings::Settings,
@@ -81,11 +81,29 @@ impl OsvDb {
         .await??;
         info!(
             total = records.len(),
-            "Read OSV records, building indexes..."
+            "Read OSV records, stored manifests, building indexes..."
         );
 
+        let manifest_db = ResourceRegistry::get::<ManifestDb>()?;
+        let analyzer = tokio::task::spawn_blocking({
+            let inner = inner.clone();
+            move || {
+                let analyzer = Analyzer::new();
+                manifest_db.iter()?.try_for_each(|m| {
+                    let (manifest_id, manifest) = m?;
+                    analyzer.add_manifest(
+                        &manifest_id,
+                        manifest.packages.into_iter().map(Into::into),
+                        &inner,
+                    )?;
+                    anyhow::Ok(())
+                })?;
+                anyhow::Ok(analyzer)
+            }
+        })
+        .await??;
+
         let analyzer = tokio::task::spawn_blocking(move || {
-            let analyzer = Analyzer::new();
             records.par_iter().try_for_each(|r| {
                 let hits = analyzer.add_osv_record(r)?;
                 anyhow::ensure!(

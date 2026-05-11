@@ -1,4 +1,7 @@
-use poem_openapi::{NewType, types::Example};
+use poem_openapi::{
+    NewType,
+    types::{Example, ParseFromParameter},
+};
 
 use crate::types::uuid_v7::UuidV7;
 
@@ -25,6 +28,19 @@ impl TryFrom<&ManifestId> for manifest_storage::ManifestId {
 
     fn try_from(value: &ManifestId) -> Result<Self, Self::Error> {
         Self::new(&value.0.to_string())
+    }
+}
+
+impl TryFrom<manifest_storage::ManifestId> for ManifestId {
+    type Error = anyhow::Error;
+
+    fn try_from(value: manifest_storage::ManifestId) -> Result<Self, Self::Error> {
+        let str = value.as_path().to_str().ok_or(anyhow::anyhow!(
+            "Cannot covert to 'manifest_storage::ManifestId' string"
+        ))?;
+        UuidV7::parse_from_parameter(str)
+            .map_err(|e| anyhow::anyhow!("{}", e.message()))
+            .map(Self)
     }
 }
 
