@@ -99,12 +99,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: find ./dist -type f | xargs gh release upload ${{ github.event.release.tag_name }} --clobber
 
-      - name: Upload installer script
-        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} dagger/scripts/install-cli.sh --clobber
-
   announce:
     name: Discord announcement
     needs: [publish, release-cli]
