@@ -58,16 +58,16 @@ Six crates, each with a single responsibility:
 
 **Resource registry pattern:** `Settings`, `CoreDb`, `OsvDb`, and `Notifier` are singletons initialized once at startup via their `Resource::init()` implementations and accessed via `Resource::get()`.
 
-**Configuration** — all via env vars prefixed `OSV_SERVICE_`:
+**Configuration** — all via env vars prefixed `OPPSY_SERVICE_`:
 
 | Variable | Default |
 |---|---|
-| `OSV_SERVICE_BIND_ADDRESS` | `0.0.0.0:3030` |
-| `OSV_SERVICE_CORE_DB_URL` | `sqlite://oppsy.db` |
-| `OSV_SERVICE_MANIFEST_DB_PATH` | `./manifest_db` |
-| `OSV_SERVICE_OSV_DB_PATH` | `./osv_db` |
-| `OSV_SERVICE_OSV_SYNC_INTERVAL` | `15` (minutes) |
-| `OSV_SERVICE_FRONTEND_PATH` | `./frontend` |
+| `OPPSY_SERVICE_BIND_ADDRESS` | `0.0.0.0:3030` |
+| `OPPSY_SERVICE_CORE_DB_URL` | `sqlite://oppsy.db` |
+| `OPPSY_SERVICE_MANIFEST_DB_PATH` | `./manifest_db` |
+| `OPPSY_SERVICE_OSV_DB_PATH` | `./osv_db` |
+| `OPPSY_SERVICE_OSV_SYNC_INTERVAL` | `15` (minutes) |
+| `OPPSY_SERVICE_FRONTEND_PATH` | `./frontend` |
 
 **Rust toolchain:** nightly (for clippy + rustfmt). Linting enforces `-D warnings`; no `unwrap`/`expect`/`panic` in library code.
 
@@ -78,7 +78,7 @@ Six crates, each with a single responsibility:
 - **API client** (`src/api/schema.d.ts`) is auto-generated from the backend's OpenAPI schema — always regenerate after backend API changes with `just frontend-gen-api-client`
 - Pages live under `src/pages/`, shared components under `src/components/`, Zustand stores under `src/stores/`
 - Package manager: **yarn**
-- The frontend is a SPA. In production, run `yarn build` and point `OSV_SERVICE_FRONTEND_PATH` at the resulting `build/` directory. The backend serves all static assets and falls back to `index.html` for client-side routes. No separate frontend process is needed.
+- The frontend is a SPA. In production, run `yarn build` and point `OPPSY_SERVICE_FRONTEND_PATH` at the resulting `build/` directory. The backend serves all static assets and falls back to `index.html` for client-side routes. No separate frontend process is needed.
 
 ### Building the service binary (Dagger)
 

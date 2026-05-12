@@ -9,13 +9,12 @@ use std::{
 
 use config::Config;
 pub use osv::OsvSettings;
-use osv::{default_osv_db_path, default_osv_sync_interval};
 use serde::Deserialize;
 use url::Url;
 
 use crate::resources::Resource;
 
-const ENV_VAR_PREFIX: &str = "OSV_SERVICE";
+const ENV_VAR_PREFIX: &str = "OPPSY_SERVICE";
 
 const fn default_bind_address() -> SocketAddr {
     SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), 3030)
@@ -55,7 +54,7 @@ pub struct Settings {
     /// files.
     ///
     /// Defaults to `./manifest_db` relative to the working directory.
-    /// Set `OSV_SERVICE_MANIFEST_DB_PATH` to override.
+    /// Set `OPPSY_SERVICE_MANIFEST_DB_PATH` to override.
     ///
     /// [`ManifestDb`]: crate::db::manifest_db::ManifestDb
     #[serde(default = "default_manifest_db_path")]
@@ -63,7 +62,7 @@ pub struct Settings {
     /// `SQLite` connection URL used by [`CoreDb`].
     ///
     /// Defaults to `sqlite://oppsy.db` relative to the working directory.
-    /// Set `OSV_SERVICE_CORE_DB_URL` to override.
+    /// Set `OPPSY_SERVICE_CORE_DB_URL` to override.
     #[serde(default = "default_core_db_url")]
     pub core_db_url: String,
     /// OSV-specific settings (`osv_db_path`, `osv_sync_interval`).
@@ -77,14 +76,14 @@ pub struct Settings {
     /// under `api_url_prefix` and `/docs` always take priority.
     ///
     /// Defaults to `./frontend` relative to the working directory.
-    /// Set `OSV_SERVICE_FRONTEND_PATH` to override.
+    /// Set `OPPSY_SERVICE_FRONTEND_PATH` to override.
     #[serde(default = "default_frontend_path")]
     pub frontend_path: PathBuf,
     /// SMTP server URL used for email notifications.
     ///
     /// Format: `smtp://username:password@host:port`
     /// If not set, email notifications are disabled.
-    /// Set `OSV_SERVICE_SMTP_URL` to enable.
+    /// Set `OPPSY_SERVICE_SMTP_URL` to enable.
     #[serde(default)]
     pub smtp_url: Option<Url>,
 }

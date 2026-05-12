@@ -26,7 +26,7 @@ pub struct OsvSettings {
     /// Filesystem path to the directory used by [`OsvDb`] for storing OSV data.
     ///
     /// Defaults to `./osv_db` relative to the working directory.
-    /// Set `OSV_SERVICE_OSV_DB_PATH` to override.
+    /// Set `OPPSY_SERVICE_OSV_DB_PATH` to override.
     ///
     /// [`OsvDb`]: crate::db::osv_db::OsvDb
     #[serde(default = "default_osv_db_path")]
@@ -34,7 +34,7 @@ pub struct OsvSettings {
     /// How often the OSV background sync task runs in minutes.
     ///
     /// Defaults to 15 minutes.
-    /// Set `OSV_SERVICE_OSV_SYNC_INTERVAL` to override.
+    /// Set `OPPSY_SERVICE_OSV_SYNC_INTERVAL` to override.
     ///
     /// <https://google.github.io/osv.dev/faq/>
     /// "Data Freshness: Data sources no more than 15 minutes stale, 99.5% of the time."

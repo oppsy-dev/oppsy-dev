@@ -121,13 +121,13 @@ class Oppsy:
                 src.file("dagger/scripts/entrypoint.sh"),
                 permissions=0o755,
             )
-            .with_env_variable("OSV_SERVICE_FRONTEND_PATH", "/frontend")
+            .with_env_variable("OPPSY_SERVICE_FRONTEND_PATH", "/frontend")
             .with_env_variable(
-                "OSV_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db"
+                "OPPSY_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db"
             )
-            .with_env_variable("OSV_SERVICE_MANIFEST_DB_PATH", "/data/manifest-db")
-            .with_env_variable("OSV_SERVICE_OSV_DB_PATH", "/data/osv-db")
-            .with_env_variable("OSV_SERVICE_BIND_ADDRESS", "0.0.0.0:3030")
+            .with_env_variable("OPPSY_SERVICE_MANIFEST_DB_PATH", "/data/manifest-db")
+            .with_env_variable("OPPSY_SERVICE_OSV_DB_PATH", "/data/osv-db")
+            .with_env_variable("OPPSY_SERVICE_BIND_ADDRESS", "0.0.0.0:3030")
             .with_exposed_port(3030)
             .with_entrypoint(["/entrypoint.sh"])
         )
