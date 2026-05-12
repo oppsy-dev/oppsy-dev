@@ -4,7 +4,6 @@ mod create_workspace;
 mod delete_manifest;
 mod delete_workspace;
 mod delete_workspace_channel;
-mod get_manifest_raw;
 mod list_manifests;
 mod list_workspace_channels;
 mod list_workspaces;
@@ -18,7 +17,7 @@ use poem_openapi::{
 
 use crate::{
     service::common::types::{limit::Limit, page::Page},
-    types::{ManifestId, NotificationChannelId, WorkspaceId},
+    types::{Manifest, ManifestId, NotificationChannelId, WorkspaceId},
 };
 
 /// Workspace API — endpoints for managing workspaces and lock file manifests.
@@ -72,44 +71,10 @@ impl Api {
         &self,
         /// Workspace to associate this manifest with.
         workspace_id: Path<WorkspaceId>,
-        body: Json<add_manifest::CreateManifestRequest>,
+        body: Json<Manifest>,
     ) -> add_manifest::AllResponses {
         add_manifest::endpoint(workspace_id.0, body.0).await
     }
-
-    // /// Upload a lock file manifest to be scanned for vulnerabilities.
-    // ///
-    // /// Accepts raw binary lock file bytes for a manifest ID previously reserved
-    // /// via `POST /v1/workspaces/{workspace_id}/manifests`. Stores the file, runs
-    // /// an OSV scan, and persists detected vulnerabilities.
-    // #[oai(
-    //     path = "/v1/workspaces/:workspace_id/manifests/:manifest_id",
-    //     method = "put"
-    // )]
-    // async fn upload_manifest(
-    //     &self,
-    //     /// Workspace the manifest belongs to.
-    //     workspace_id: Path<WorkspaceId>,
-    //     /// Manifest ID returned by the reservation step.
-    //     manifest_id: Path<ManifestId>,
-    //     /// Raw binary content of the lock file.
-    //     manifest: Binary<Body>,
-    // ) -> upload_manifest::AllResponses {
-    //     match manifest.0.into_bytes_limit(MAXIMUM_MANIFEST_SIZE).await {
-    //         Ok(manifest_bytes) => {
-    //             upload_manifest::endpoint(workspace_id.0, manifest_id.0,
-    // manifest_bytes).await         },
-    //         Err(ReadBodyError::PayloadTooLarge) => {
-    //             upload_manifest::Responses::PayloadTooLarge.into()
-    //         },
-    //         Err(_) => {
-    //             upload_manifest::Responses::UnprocessableContent(Json(
-    //                 "Failed to read manifest from the request".into(),
-    //             ))
-    //             .into()
-    //         },
-    //     }
-    // }
 
     /// List manifests belonging to a workspace.
     ///
@@ -126,24 +91,6 @@ impl Api {
         limit: Query<Option<Limit>>,
     ) -> list_manifests::AllResponses {
         list_manifests::endpoint(workspace_id.0, page.0, limit.0).await
-    }
-
-    /// Download the raw bytes of a previously uploaded lock file manifest.
-    ///
-    /// Returns the raw binary content of the manifest. The manifest must belong
-    /// to the given workspace.
-    #[oai(
-        path = "/v1/workspaces/:workspace_id/manifests/:manifest_id/raw",
-        method = "get"
-    )]
-    async fn get_manifest_raw(
-        &self,
-        /// Workspace the manifest belongs to.
-        workspace_id: Path<WorkspaceId>,
-        /// Manifest ID to download.
-        manifest_id: Path<ManifestId>,
-    ) -> get_manifest_raw::AllResponses {
-        get_manifest_raw::endpoint(workspace_id.0, manifest_id.0).await
     }
 
     /// Delete a manifest from a workspace.

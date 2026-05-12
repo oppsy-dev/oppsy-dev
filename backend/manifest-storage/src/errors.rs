@@ -33,3 +33,22 @@ pub enum ManifestGetError {
     #[error(transparent)]
     CantConvert(#[from] common::ConvertError),
 }
+
+#[derive(Debug, Error)]
+pub enum ManifestIterError {
+    #[error("failed to read storage directory: {0}")]
+    ReadDir(std::io::Error),
+}
+
+#[derive(Debug, Error)]
+pub enum ManifestEntryError {
+    #[error("failed to read directory entry: {0}")]
+    DirEntry(std::io::Error),
+    #[error("directory entry has an invalid manifest id: {0}")]
+    InvalidId(crate::ManifestIdError),
+    #[error("failed to read manifest from disk at '{path}': {source}")]
+    ReadFailed {
+        path: PathBuf,
+        source: std::io::Error,
+    },
+}

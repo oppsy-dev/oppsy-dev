@@ -10,7 +10,7 @@ mod uuid_v7;
 mod workspace;
 
 pub use manifest::{
-    id::ManifestId, info::ManifestInfo, name::ManifestName, package::ManifestPackage,
+    Manifest, id::ManifestId, info::ManifestInfo, name::ManifestName, package::ManifestPackage,
     tag::ManifestTag,
 };
 pub use notification::{

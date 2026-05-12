@@ -1,5 +1,5 @@
 use osv_types::OsvRecord;
-use poem_openapi::{ApiResponse, Object, payload::Json, types::ToJSON};
+use poem_openapi::{ApiResponse, payload::Json};
 use tracing::info;
 
 use crate::{
@@ -10,19 +10,8 @@ use crate::{
         responses::{WithErrorResponses, try_or_return},
         types::error_msg::ErrorMessage,
     },
-    types::{ManifestId, ManifestName, ManifestPackage, ManifestTag, WorkspaceId},
+    types::{Manifest, ManifestId, ManifestPackage, WorkspaceId},
 };
-
-/// Request body for manifest creation.
-#[derive(Object)]
-pub struct CreateManifestRequest {
-    /// Human-readable name for this manifest (e.g. the filename or repo path).
-    pub name: ManifestName,
-    /// Optional label for versioning or environment disambiguation.
-    pub tag: Option<ManifestTag>,
-    /// List of manifest's dependencies packages
-    pub packages: Vec<ManifestPackage>,
-}
 
 /// Endpoint responses.
 #[derive(ApiResponse)]
@@ -46,7 +35,7 @@ pub type AllResponses = WithErrorResponses<Responses>;
 
 pub async fn endpoint(
     workspace_id: WorkspaceId,
-    req: CreateManifestRequest,
+    req: Manifest,
 ) -> AllResponses {
     let manifest_db = try_or_return!(ResourceRegistry::get::<ManifestDb>());
     let osv_db = try_or_return!(ResourceRegistry::get::<OsvDb>());
@@ -55,12 +44,12 @@ pub async fn endpoint(
 
     let manifest_id = ManifestId::generate();
 
-    try_or_return!(manifest_db.put(&manifest_id, req.to_json_string().as_bytes()));
+    try_or_return!(manifest_db.put(&manifest_id, &req));
     try_or_return!(
         core_db
             .add_manifest(
                 manifest_id,
-                String::from(req.name),
+                req.name,
                 req.tag.map(String::from),
                 serde_json::Value::Null
             )

@@ -6,7 +6,8 @@ use poem_openapi::{
     },
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
 pub struct Ecosystem(osv_types::EcosystemWithSuffix);
 
 impl From<osv_types::EcosystemWithSuffix> for Ecosystem {

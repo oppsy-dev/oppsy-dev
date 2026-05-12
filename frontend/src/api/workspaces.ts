@@ -1,4 +1,4 @@
-import { del, get, post, putBinary } from './client';
+import { del, get, post } from './client';
 import type { PaginationParams } from './client';
 import { components, paths } from './schema';
 import { NotificationChannelId } from './notification_channels';
@@ -14,6 +14,9 @@ type V1WorkspacesPostReq =
 type V1ManifestsGetResp =
   paths['/v1/workspaces/{workspace_id}/manifests']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
+type V1ManifestsPostReq =
+  paths['/v1/workspaces/{workspace_id}/manifests']['post']['requestBody']['content']['application/json; charset=utf-8'];
+
 type V1WorkspaceChannelsGetResp =
   paths['/v1/workspaces/{workspace_id}/channels']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
@@ -22,7 +25,7 @@ export type WorkspaceId = WorkspaceInfo['id'];
 export type CreateWorkspaceRequest = V1WorkspacesPostReq;
 export type Manifest = V1ManifestsGetResp['manifests'][number];
 export type ManifestId = Manifest['id'];
-export type CreateManifestRequest = components['schemas']['CreateManifestRequest'];
+export type CreateManifestRequest = V1ManifestsPostReq;
 export type { PaginationParams } from './client';
 export type { NotificationChannel, NotificationChannelId } from './notification_channels';
 
@@ -74,18 +77,15 @@ export async function fetchManifests(
   }
 }
 
-export type UploadManifestInput = CreateManifestRequest & { file: File };
+export type UploadManifestInput = CreateManifestRequest;
 
 export async function uploadManifest(
   workspaceId: WorkspaceId,
-  { file, ...req }: UploadManifestInput,
+  req: UploadManifestInput,
 ): Promise<string> {
   try {
-    const createRes = await post(`/v1/workspaces/${workspaceId}/manifests`, req);
-    const manifestId = (await createRes.json()) as string;
-    const bytes = await file.arrayBuffer();
-    await putBinary(`/v1/workspaces/${workspaceId}/manifests/${manifestId}`, bytes);
-    return manifestId;
+    const res = await post(`/v1/workspaces/${workspaceId}/manifests`, req);
+    return (await res.json()) as string;
   } catch (err) {
     throw err;
   }

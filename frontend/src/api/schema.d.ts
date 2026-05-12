@@ -1240,7 +1240,7 @@ export interface paths {
       };
       requestBody: {
         content: {
-          'application/json; charset=utf-8': components['schemas']['CreateManifestRequest'];
+          'application/json; charset=utf-8': components['schemas']['Manifest'];
         };
       };
       responses: {
@@ -1370,175 +1370,6 @@ export interface paths {
         };
       };
     };
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  '/v1/workspaces/{workspace_id}/manifests/{manifest_id}/raw': {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Download the raw bytes of a previously uploaded lock file manifest.
-     * @description Returns the raw binary content of the manifest. The manifest must belong
-     *     to the given workspace.
-     */
-    get: {
-      parameters: {
-        query?: never;
-        header?: never;
-        path: {
-          /** @description Workspace the manifest belongs to. */
-          workspace_id: string;
-          /** @description Manifest ID to download. */
-          manifest_id: string;
-        };
-        cookie?: never;
-      };
-      requestBody?: never;
-      responses: {
-        /**
-         * @description ## OK
-         *
-         *     The raw lock file bytes.
-         */
-        200: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/octet-stream': string;
-          };
-        };
-        /**
-         * @description ## Bad Request
-         *
-         *     The client has not sent valid request, could be an invalid HTTP in general or
-         *     provided not correct headers, path or query arguments.
-         */
-        400: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unauthorized
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        401: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Forbidden
-         *
-         *     The client has not sent valid authentication credentials for the requested
-         *     resource.
-         */
-        403: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Not Found
-         *
-         *     The manifest ID does not exist or does not belong to the given workspace.
-         */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Precondition Failed
-         *
-         *     The client has not sent valid data in its request, headers, parameters or body.
-         */
-        412: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## URI Too Long
-         *
-         *     The client sent a request with the URI is longer than the server is willing to
-         *     interpret
-         */
-        414: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
-         * @description ## Unprocessable Content
-         *
-         *     The workspace ID does not exist or is not assigned to the authenticated user.
-         */
-        422: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Internal Server Error.
-         *
-         *     An internal server error occurred.
-         *
-         *     *The contents of this response should be reported to the projects issue tracker.*
-         */
-        500: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-        /**
-         * @description ## Service Unavailable
-         *
-         *     The service is not available, try again later.
-         *
-         *     *This is returned when the service either has not started,
-         *     or has become unavailable.*
-         */
-        503: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content: {
-            'application/json; charset=utf-8': string;
-          };
-        };
-      };
-    };
-    put?: never;
-    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -3073,24 +2904,6 @@ export interface components {
       limit: number;
     };
     /**
-     * CreateManifestRequest
-     * @description Request body for manifest creation.
-     */
-    CreateManifestRequest: {
-      /**
-       * Human-readable name for a manifest (e.g. the filename or repo path).
-       * @description Human-readable name for this manifest (e.g. the filename or repo path).
-       */
-      name: string;
-      /**
-       * Optional label for versioning or environment disambiguation.
-       * @description Optional label for versioning or environment disambiguation.
-       */
-      tag?: string;
-      /** @description List of manifest's dependencies packages */
-      packages: components['schemas']['ManifestPackage'][];
-    };
-    /**
      * CreateNotificationChannelRequest
      * @description Request body for creating a notification channel.
      */
@@ -3152,6 +2965,18 @@ export interface components {
       last_affected?: string;
       /** @description Exclusive upper bound regardless of other events. */
       limit?: string;
+    };
+    /** Manifest */
+    Manifest: {
+      /** @description Human-readable name for this manifest (e.g. the filename or repo path). */
+      name: string;
+      /**
+       * Optional label for versioning or environment disambiguation.
+       * @description Optional label for versioning or environment disambiguation.
+       */
+      tag?: string;
+      /** @description List of manifest's dependencies packages */
+      packages: components['schemas']['ManifestPackage'][];
     };
     /**
      * ManifestInfo

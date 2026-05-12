@@ -1,7 +1,8 @@
 use poem_openapi::NewType;
 
 /// Optional label for versioning or environment disambiguation.
-#[derive(NewType, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(NewType, Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
 pub struct ManifestTag(String);
 
 impl From<String> for ManifestTag {
