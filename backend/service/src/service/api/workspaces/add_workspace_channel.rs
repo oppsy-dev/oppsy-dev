@@ -1,4 +1,4 @@
-use core_db::workspace::errors::AddNotificationChannelForWorkspaceError;
+use core_db::workspace::errors::{AddNotificationChannelForWorkspaceError, GetWorkspaceError};
 use poem_openapi::{ApiResponse, Object, payload::Json};
 
 use crate::{
@@ -41,6 +41,17 @@ pub async fn endpoint(
 ) -> AllResponses {
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
     let channel_id = req.channel_id;
+
+    match core_db.get_workspace(workspace_id).await {
+        Ok(_) => {},
+        Err(GetWorkspaceError::NotFound { .. }) => {
+            return Responses::UnprocessableContent(Json(
+                format!("Workspace `{workspace_id}` not found").into(),
+            ))
+            .into();
+        },
+        Err(err) => try_or_return!(Err(err)),
+    }
 
     match core_db
         .add_notification_channel_for_workspace(workspace_id, channel_id)
