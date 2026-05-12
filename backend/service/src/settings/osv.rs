@@ -1,5 +1,6 @@
-use std::{path::PathBuf, time::Duration};
+use std::{path::PathBuf, str::FromStr, time::Duration};
 
+use osv_db::OsvGsEcosystem;
 use serde::Deserialize;
 
 pub(super) fn default_osv_db_path() -> PathBuf {
@@ -8,17 +9,6 @@ pub(super) fn default_osv_db_path() -> PathBuf {
 
 pub(super) const fn default_osv_sync_interval() -> Duration {
     Duration::from_mins(15)
-}
-
-pub(super) mod duration_mins {
-    use std::time::Duration;
-
-    use serde::{Deserialize, Deserializer};
-
-    pub fn deserialize<'de, D>(d: D) -> Result<Duration, D::Error>
-    where D: Deserializer<'de> {
-        u64::deserialize(d).map(Duration::from_mins)
-    }
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
@@ -40,4 +30,36 @@ pub struct OsvSettings {
     /// "Data Freshness: Data sources no more than 15 minutes stale, 99.5% of the time."
     #[serde(with = "duration_mins", default = "default_osv_sync_interval")]
     pub osv_sync_interval: Duration,
+    /// Additional OSV ecosystems to track beyond the defaults.
+    ///
+    /// Accepts ecosystem names as defined by OSV (e.g. `"crates.io"`, `"npm"`).
+    /// Defaults to an empty list (no extra ecosystems).
+    /// Set `OPPSY_SERVICE_OSV_ECOSYSTEMS` to override.
+    #[serde(with = "gs_ecosystems", default)]
+    pub osv_ecosystems: Vec<OsvGsEcosystem>,
+}
+
+mod gs_ecosystems {
+    use serde::{Deserialize, Deserializer};
+
+    use super::*;
+
+    pub fn deserialize<'de, D>(d: D) -> Result<Vec<OsvGsEcosystem>, D::Error>
+    where D: Deserializer<'de> {
+        Vec::<String>::deserialize(d)?
+            .into_iter()
+            .map(|s| OsvGsEcosystem::from_str(&s).map_err(serde::de::Error::custom))
+            .collect()
+    }
+}
+
+mod duration_mins {
+    use serde::{Deserialize, Deserializer};
+
+    use super::*;
+
+    pub fn deserialize<'de, D>(d: D) -> Result<Duration, D::Error>
+    where D: Deserializer<'de> {
+        u64::deserialize(d).map(Duration::from_mins)
+    }
 }
