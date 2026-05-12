@@ -54,6 +54,18 @@ export function LeftSidebar() {
       </div>
 
       <div className={styles.navSection}>
+        <button
+          type="button"
+          className={styles.refreshBtn}
+          onClick={() => queryClient.invalidateQueries()}
+          aria-label="Refresh all data"
+        >
+          <span className={isFetching ? styles.refreshIconSpin : undefined}>
+            <RefreshIcon width={15} height={15} />
+          </span>
+          <span>Refresh</span>
+        </button>
+        <div className={styles.divider} />
         <NavLink
           end
           to={AppRoute.WorkspacesDashboard}
@@ -77,17 +89,6 @@ export function LeftSidebar() {
       </div>
 
       <div className={styles.bottomSection}>
-        <button
-          type="button"
-          className={styles.refreshBtn}
-          onClick={() => queryClient.invalidateQueries()}
-          aria-label="Refresh all data"
-        >
-          <span className={isFetching ? styles.refreshIconSpin : undefined}>
-            <RefreshIcon width={15} height={15} />
-          </span>
-          <span>Refresh</span>
-        </button>
         <a
           href="https://oppsy-dev.github.io/oppsy-dev/"
           target="_blank"
