@@ -1,12 +1,8 @@
 use tracing::Level;
 
-use crate::{
-    resources::ResourceRegistry,
-    settings::{LogFormat, LogLevel, Settings},
-};
+use crate::settings::{LogFormat, LogLevel, Settings};
 
-pub fn init() -> anyhow::Result<()> {
-    let settings = ResourceRegistry::get::<Settings>()?;
+pub fn init(settings: &Settings) -> anyhow::Result<()> {
     let level = to_tracing_level(&settings.log_level);
     match settings.log_format {
         LogFormat::HumanReadable => {

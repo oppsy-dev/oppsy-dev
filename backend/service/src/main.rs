@@ -40,10 +40,10 @@ async fn main() -> anyhow::Result<()> {
 }
 
 async fn run_server() -> anyhow::Result<()> {
-    ResourceRegistry::register::<settings::Settings>().await?;
-    logger::init()?;
+    let settings = ResourceRegistry::register::<settings::Settings>().await?;
+    logger::init(&settings)?;
 
-    info!("OSV service - starting");
+    info!(settings = ?settings, "OSV service - starting");
 
     let mut tasks = tokio::task::JoinSet::new();
 
