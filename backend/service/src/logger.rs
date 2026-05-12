@@ -2,7 +2,7 @@ use tracing::Level;
 
 use crate::settings::{LogFormat, LogLevel, Settings};
 
-pub fn init(settings: &Settings) -> anyhow::Result<()> {
+pub fn init(settings: &Settings) {
     let level = to_tracing_level(&settings.log_level);
     match settings.log_format {
         LogFormat::HumanReadable => {
@@ -15,7 +15,6 @@ pub fn init(settings: &Settings) -> anyhow::Result<()> {
                 .init();
         },
     }
-    Ok(())
 }
 
 fn to_tracing_level(level: &LogLevel) -> Level {

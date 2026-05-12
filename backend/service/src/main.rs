@@ -41,7 +41,7 @@ async fn main() -> anyhow::Result<()> {
 
 async fn run_server() -> anyhow::Result<()> {
     let settings = ResourceRegistry::register::<settings::Settings>().await?;
-    logger::init(&settings)?;
+    logger::init(&settings);
 
     info!(settings = ?settings, "OSV service - starting");
 
