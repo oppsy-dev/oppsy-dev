@@ -1,3 +1,4 @@
+use core_db::workspace::errors::GetWorkspaceError;
 use osv_types::OsvRecord;
 use poem_openapi::{ApiResponse, payload::Json};
 use tracing::info;
@@ -42,8 +43,24 @@ pub async fn endpoint(
     let core_db = try_or_return!(ResourceRegistry::get::<CoreDb>());
     let notifier = try_or_return!(ResourceRegistry::get::<Notifier>());
 
+    match core_db.get_workspace(workspace_id).await {
+        Ok(_) => {},
+        Err(GetWorkspaceError::NotFound { .. }) => {
+            return Responses::UnprocessableContent(Json(
+                format!("Workspace `{workspace_id}` not found").into(),
+            ))
+            .into();
+        },
+        Err(err) => try_or_return!(Err(err)),
+    }
+
     let manifest_id = ManifestId::generate();
 
+    try_or_return!(
+        core_db
+            .add_manifest_for_workspace(workspace_id, manifest_id)
+            .await
+    );
     try_or_return!(manifest_db.put(&manifest_id, &req));
     try_or_return!(
         core_db
@@ -53,11 +70,6 @@ pub async fn endpoint(
                 req.tag.map(String::from),
                 serde_json::Value::Null
             )
-            .await
-    );
-    try_or_return!(
-        core_db
-            .add_manifest_for_workspace(workspace_id, manifest_id)
             .await
     );
 
