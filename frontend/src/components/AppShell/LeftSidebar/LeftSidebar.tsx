@@ -1,4 +1,4 @@
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { NavLink } from 'react-router-dom';
 import { OppsyLogo } from '../../OppsyLogo/OppsyLogo';
 import { AppRoute } from '../../../routes/Routes';
@@ -45,7 +45,6 @@ function GridIcon() {
 
 export function LeftSidebar() {
   const queryClient = useQueryClient();
-  const isFetching = useIsFetching();
 
   return (
     <nav className={styles.sidebar}>
@@ -60,9 +59,7 @@ export function LeftSidebar() {
           onClick={() => queryClient.invalidateQueries()}
           aria-label="Refresh all data"
         >
-          <span className={isFetching ? styles.refreshIconSpin : undefined}>
-            <RefreshIcon width={15} height={15} />
-          </span>
+          <RefreshIcon width={15} height={15} />
           <span>Refresh</span>
         </button>
         <div className={styles.divider} />
