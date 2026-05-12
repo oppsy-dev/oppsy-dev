@@ -16,7 +16,7 @@ go install github.com/oppsy-dev/oppsy-dev/oppsy-cli@latest
 
 ```sh
 oppsy-cli publish \
-  --host-url     https://localhost:3030/api \
+  --host-url     http://localhost:3030/api \
   --workspace-id <workspace-id> \
   --lockfile     ./Cargo.lock \
   --name         my-service \
