@@ -90,6 +90,59 @@
   flex-shrink: 0;
 }
 
+.refreshBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px dashed rgba(99, 102, 241, 0.45);
+  border-radius: 0.5rem;
+  background: rgba(99, 102, 241, 0.07);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6366f1;
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s,
+    box-shadow 0.12s,
+    transform 0.1s;
+}
+
+.refreshBtn:hover {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  border-color: rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.refreshBtn:active {
+  transform: scale(0.96);
+}
+
+.divider {
+  height: 1px;
+  background: var(--sidebar-border);
+  margin: 0.375rem 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.refreshIconSpin {
+  display: inline-flex;
+  animation: spin 0.7s linear infinite;
+}
+
 .docsLink {
   display: flex;
   align-items: center;

@@ -710,17 +710,6 @@ export interface paths {
           };
         };
         /**
-         * @description ## Not Found
-         *
-         *     The team ID does not exist, is not assigned to the authenticated user.
-         */
-        404: {
-          headers: {
-            [name: string]: unknown;
-          };
-          content?: never;
-        };
-        /**
          * @description ## Precondition Failed
          *
          *     The client has not sent valid data in its request, headers, parameters or body.
@@ -1150,6 +1139,17 @@ export interface paths {
           content: {
             'application/json; charset=utf-8': string;
           };
+        };
+        /**
+         * @description ## Not Found
+         *
+         *     Manifest id does not exists.
+         */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
         /**
          * @description ## Precondition Failed
@@ -1615,6 +1615,17 @@ export interface paths {
           content: {
             'application/json; charset=utf-8': string;
           };
+        };
+        /**
+         * @description ## Not Found
+         *
+         *     Manifest id does not exists.
+         */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
         };
         /**
          * @description ## Precondition Failed
