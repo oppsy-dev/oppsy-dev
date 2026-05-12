@@ -45,7 +45,11 @@ impl Resource for OsvDb {
 impl OsvDb {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
-        let ecosystems = OsvGsEcosystems::all().add(OsvGsEcosystem::CratesIo);
+        let ecosystems = OsvGsEcosystems::all()
+            .add(OsvGsEcosystem::CratesIo)
+            .add(OsvGsEcosystem::Go)
+            .add(OsvGsEcosystem::PyPI)
+            .add(OsvGsEcosystem::Npm);
         let inner = OsvDbInner::new(ecosystems, &settings.osv_db_path)?;
 
         download_latest(&inner).await?;
