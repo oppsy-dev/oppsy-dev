@@ -29,12 +29,16 @@ pub enum Responses {
     /// Returns all notification channels linked to the workspace.
     #[oai(status = 200)]
     Ok(Json<WorkspaceChannelList>),
-
     /// ## Unprocessable Content
     ///
     /// The workspace ID does not exist or is not assigned to the authenticated user.
     #[oai(status = 422)]
     UnprocessableContent(Json<ErrorMessage>),
+    /// ## Not Found
+    ///
+    /// Manifest id does not exists.
+    #[oai(status = 404)]
+    NotFound,
 }
 
 /// All responses.
@@ -57,10 +61,7 @@ pub async fn endpoint(
     {
         Ok(v) => v,
         Err(GetWorkspaceNotificationChannelsError::NotFound { .. }) => {
-            return Responses::UnprocessableContent(Json(
-                format!("Workspace `{workspace_id}` not found").into(),
-            ))
-            .into();
+            return Responses::NotFound.into();
         },
         Err(err) => return try_or_return!(Err(err)),
     };
