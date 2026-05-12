@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::Mutex};
+use std::{path::PathBuf, sync::Mutex, time::Duration};
 
 use test_case::test_case;
 
@@ -19,9 +19,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -37,9 +36,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -55,9 +53,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -73,9 +70,8 @@ struct EnvVar {
             log_level: LogLevel::Debug,
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -91,9 +87,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: "/v1".to_string(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -109,9 +104,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: PathBuf::from("/var/data/manifests"),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -127,9 +121,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: PathBuf::from("/var/data/osv"),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: PathBuf::from("/var/data/osv"), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -148,9 +141,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: "sqlite:///var/data/core.db".to_string(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -169,9 +161,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: Duration::from_mins(10),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: Duration::from_mins(10) },
             frontend_path: default_frontend_path(),
             smtp_url: None,
         };
@@ -190,9 +181,8 @@ struct EnvVar {
             log_level: LogLevel::default(),
             api_url_prefix: default_api_url_prefix(),
             manifest_db_path: default_manifest_db_path(),
-            osv_db_path: default_osv_db_path(),
             core_db_url: default_core_db_url(),
-            osv_sync_interval: default_osv_sync_interval(),
+            osv: OsvSettings { osv_db_path: default_osv_db_path(), osv_sync_interval: default_osv_sync_interval() },
             frontend_path: PathBuf::from("/var/www/frontend"),
             smtp_url: None,
         };

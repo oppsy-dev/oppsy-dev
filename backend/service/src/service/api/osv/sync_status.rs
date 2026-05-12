@@ -41,7 +41,7 @@ pub async fn endpoint() -> AllResponses {
 
     Response::Ok(Json(OsvSyncStatus {
         last_sync_at: sync.last_sync_at,
-        sync_interval: settings.osv_sync_interval.as_secs(),
+        sync_interval: settings.osv.osv_sync_interval.as_secs(),
         last_sync_error: sync.last_sync_err.as_ref().map(|e| e.to_string().into()),
     }))
     .into()
