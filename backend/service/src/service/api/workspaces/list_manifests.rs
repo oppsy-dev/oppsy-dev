@@ -1,3 +1,4 @@
+use core_db::workspace::errors::GetWorkspaceManifestsError;
 use poem_openapi::{ApiResponse, Object, payload::Json};
 use tracing::warn;
 
@@ -35,6 +36,11 @@ pub enum Responses {
     /// The workspace ID does not exist or is not assigned to the authenticated user.
     #[oai(status = 422)]
     UnprocessableContent(Json<ErrorMessage>),
+    /// ## Not Found
+    ///
+    /// Manifest id does not exists.
+    #[oai(status = 404)]
+    NotFound,
 }
 
 /// All responses.
@@ -53,11 +59,16 @@ pub async fn endpoint(
         limit: limit.unwrap_or_default(),
     };
 
-    let db_manifests = try_or_return!(
-        core_db
-            .get_workspace_manifests(workspace_id, page_info)
-            .await
-    );
+    let db_manifests = match core_db
+        .get_workspace_manifests(workspace_id, page_info)
+        .await
+    {
+        Ok(v) => v,
+        Err(GetWorkspaceManifestsError::NotFound { .. }) => {
+            return Responses::NotFound.into();
+        },
+        Err(err) => try_or_return!(Err(err)),
+    };
 
     let mut manifests = Vec::with_capacity(db_manifests.len());
     for db_manifest in db_manifests {

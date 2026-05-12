@@ -25,7 +25,6 @@ pub enum Response {
     /// Returns an OSV record defined by this schema <https://ossf.github.io/osv-schema/>.
     #[oai(status = 200)]
     Ok(Json<Box<OsvRecord>>),
-
     /// ## Not Found
     ///
     /// OSV record not found.

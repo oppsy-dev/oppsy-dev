@@ -30,12 +30,6 @@ pub enum Responses {
     /// Returns the list of workspaces.
     #[oai(status = 200)]
     Ok(Json<Workspaces>),
-
-    /// ## Not Found
-    ///
-    /// The team ID does not exist, is not assigned to the authenticated user.
-    #[oai(status = 404)]
-    NotFound,
 }
 
 /// All responses.
