@@ -55,12 +55,6 @@ pub async fn endpoint(
     }
 
     let manifest_id = ManifestId::generate();
-
-    try_or_return!(
-        core_db
-            .add_manifest_for_workspace(workspace_id, manifest_id)
-            .await
-    );
     try_or_return!(manifest_db.put(&manifest_id, &req));
     try_or_return!(
         core_db
@@ -70,6 +64,11 @@ pub async fn endpoint(
                 req.tag.map(String::from),
                 serde_json::Value::Null
             )
+            .await
+    );
+    try_or_return!(
+        core_db
+            .add_manifest_for_workspace(workspace_id, manifest_id)
             .await
     );
 
