@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
-use osv_db::{OsvDb as OsvDbInner, OsvGsEcosystem, OsvGsEcosystems};
+use osv_db::{OsvDb as OsvDbInner, OsvGsEcosystems};
 use osv_types::{OsvRecord, OsvRecordId};
 use package_analyzer::Analyzer;
 use rayon::iter::{IntoParallelRefIterator, ParallelBridge, ParallelIterator};
@@ -45,12 +45,13 @@ impl Resource for OsvDb {
 impl OsvDb {
     async fn init() -> anyhow::Result<Self> {
         let settings = ResourceRegistry::get::<Settings>()?;
-        let ecosystems = OsvGsEcosystems::all()
-            .add(OsvGsEcosystem::CratesIo)
-            .add(OsvGsEcosystem::Go)
-            .add(OsvGsEcosystem::PyPI)
-            .add(OsvGsEcosystem::Npm);
-        let inner = OsvDbInner::new(ecosystems, &settings.osv_db_path)?;
+
+        let ecosystems = settings
+            .osv
+            .osv_ecosystems
+            .iter()
+            .fold(OsvGsEcosystems::all(), |r, e| r.add(*e));
+        let inner = OsvDbInner::new(ecosystems, &settings.osv.osv_db_path)?;
 
         download_latest(&inner).await?;
         let records = read_all_records(&inner)?;
@@ -79,7 +80,7 @@ impl OsvDb {
         let settings = ResourceRegistry::get::<Settings>()?;
 
         loop {
-            tokio::time::sleep(settings.osv_sync_interval).await;
+            tokio::time::sleep(settings.osv.osv_sync_interval).await;
 
             let Ok(core_db) = ResourceRegistry::get::<CoreDb>() else {
                 continue;
