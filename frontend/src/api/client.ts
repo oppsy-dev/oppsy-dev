@@ -7,6 +7,10 @@ export type PaginationParams = {
 
 const API_BASE_PATH = process.env.REACT_APP_API_URL ?? '/api';
 
+export function apiBaseUrl(): URL {
+  return new URL(API_BASE_PATH, window.location.origin);
+}
+
 function apiUrl(path: string, params?: Record<string, string | undefined>): URL {
   const url = new URL(API_BASE_PATH + path, window.location.origin);
   for (const [k, v] of Object.entries(params ?? {})) {

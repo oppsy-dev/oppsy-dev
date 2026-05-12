@@ -3,6 +3,7 @@ import { useManifests, useRemoveWorkspaceManifest } from '../../../hooks/workspa
 import type { WorkspaceId } from '../../../api/workspaces';
 import { BackIcon } from '../../../components/Icons';
 import { ManifestRow } from './ManifestRow/ManifestRow';
+import { apiBaseUrl } from '../../../api/client';
 import styles from './ManifestsSection.module.css';
 
 const PAGE_SIZE = 10;
@@ -30,7 +31,21 @@ type ManifestsSectionProps = {
   workspaceId: WorkspaceId;
 };
 
-function EmptyState() {
+type EmptyStateProps = {
+  workspaceId: WorkspaceId;
+};
+
+function EmptyState({ workspaceId }: EmptyStateProps) {
+  const serviceHost = apiBaseUrl();
+
+  const snippet =
+    `oppsy-cli publish \\\n` +
+    `  -W ${workspaceId} \\\n` +
+    `  -H ${serviceHost} \\\n` +
+    `  -L <path-to-manifest> \\\n` +
+    `  -N <name> \\\n` +
+    `  -T <tag>`;
+
   return (
     <div className={styles.emptyState}>
       <div className={styles.emptyIconWrap}>
@@ -38,15 +53,19 @@ function EmptyState() {
       </div>
       <p className={styles.emptyTitle}>No manifests yet</p>
       <p className={styles.emptyDesc}>
-        Upload a manifest to start scanning your dependencies for vulnerabilities.{' '}
-        <a
-          href="https://oppsy-dev.github.io/oppsy-dev/manifest-upload.html"
-          target="_blank"
-          rel="noreferrer"
-        >
-          Learn how ↗
-        </a>
+        Upload a manifest using <code>oppsy-cli</code> to start scanning your dependencies.
       </p>
+      <div className={styles.emptySnippet}>
+        <pre className={styles.emptySnippetPre}>{snippet}</pre>
+      </div>
+      <a
+        className={styles.emptyLearnMore}
+        href="https://oppsy-dev.github.io/oppsy-dev/manifest-upload.html"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Learn more ↗
+      </a>
     </div>
   );
 }
@@ -101,7 +120,7 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
       {isError && <p className={styles.errorMsg}>Failed to load manifests.</p>}
 
       {!isError && !isLoading && manifests.length === 0 ? (
-        <EmptyState />
+        <EmptyState workspaceId={workspaceId} />
       ) : (
         <>
           {pagesNaviation}
