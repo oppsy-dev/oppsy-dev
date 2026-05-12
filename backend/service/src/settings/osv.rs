@@ -12,6 +12,7 @@ pub(super) const fn default_osv_sync_interval() -> Duration {
 }
 
 #[derive(Debug, Clone, Deserialize, PartialEq)]
+#[allow(clippy::struct_field_names)]
 pub struct OsvSettings {
     /// Filesystem path to the directory used by [`OsvDb`] for storing OSV data.
     ///
@@ -42,7 +43,7 @@ pub struct OsvSettings {
 mod gs_ecosystems {
     use serde::{Deserialize, Deserializer};
 
-    use super::*;
+    use super::{FromStr, OsvGsEcosystem};
 
     pub fn deserialize<'de, D>(d: D) -> Result<Vec<OsvGsEcosystem>, D::Error>
     where D: Deserializer<'de> {
@@ -56,7 +57,7 @@ mod gs_ecosystems {
 mod duration_mins {
     use serde::{Deserialize, Deserializer};
 
-    use super::*;
+    use super::Duration;
 
     pub fn deserialize<'de, D>(d: D) -> Result<Duration, D::Error>
     where D: Deserializer<'de> {

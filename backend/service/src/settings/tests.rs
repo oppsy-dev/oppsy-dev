@@ -1,5 +1,6 @@
 use std::{path::PathBuf, sync::Mutex, time::Duration};
 
+use osv_db::OsvGsEcosystem;
 use test_case::test_case;
 
 use super::*;
@@ -187,6 +188,34 @@ struct EnvVar {
             smtp_url: None,
         };
         "set frontend path"
+    )]
+#[test_case(
+        &[
+            EnvVar {
+                key: "OPPSY_SERVICE_OSV_ECOSYSTEMS".to_string(),
+                value: "Ubuntu,crates.io,npm".to_string(),
+            },
+        ]
+        => Settings {
+            bind_address: default_bind_address(),
+            log_format: LogFormat::default(),
+            log_level: LogLevel::default(),
+            api_url_prefix: default_api_url_prefix(),
+            manifest_db_path: default_manifest_db_path(),
+            core_db_url: default_core_db_url(),
+            osv: OsvSettings {
+                osv_db_path: osv::default_osv_db_path(),
+                osv_sync_interval: osv::default_osv_sync_interval(),
+                osv_ecosystems: vec![
+                        OsvGsEcosystem::Ubuntu,
+                        OsvGsEcosystem::CratesIo,
+                        OsvGsEcosystem::Npm
+                    ]
+                },
+            frontend_path: default_frontend_path(),
+            smtp_url: None,
+        };
+        "set osv ecosystems"
     )]
 fn settings_init_test(env_vars: &[EnvVar]) -> Settings {
     let guard = ENV_LOCK.lock().unwrap();

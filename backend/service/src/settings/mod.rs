@@ -111,7 +111,12 @@ impl Settings {
     /// - Returns an error if any required environment variable is absent or malformed.
     fn load() -> anyhow::Result<Self> {
         let res: Settings = Config::builder()
-            .add_source(config::Environment::with_prefix(ENV_VAR_PREFIX).try_parsing(true))
+            .add_source(
+                config::Environment::with_prefix(ENV_VAR_PREFIX)
+                    .try_parsing(true)
+                    .list_separator(",")
+                    .with_list_parse_key("osv_ecosystems"),
+            )
             .build()?
             .try_deserialize()?;
         Ok(res)
