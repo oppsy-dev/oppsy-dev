@@ -6,6 +6,10 @@
 
 OPPSY is an open-source vulnerability management platform. It watches your project's dependency lock files, continuously checks them against the [OSV database](https://osv.dev), and notifies you whenever a vulnerability is found or updated — without any manual effort.
 
+## Demo
+
+<video src="demo.mov" controls width="100%"></video>
+
 ## Documentation
 
 [https://oppsy-dev.github.io/oppsy-dev/](https://oppsy-dev.github.io/oppsy-dev/)
