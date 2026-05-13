@@ -1,4 +1,4 @@
-extend-exclude = ["sdk"]
+extend-exclude = ["dagger/sdk"]
 line-length = 100
 
 [lint]

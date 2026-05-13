@@ -1,6 +1,5 @@
 backend_manifest := "backend/Cargo.toml"
 frontend_dir := "frontend"
-dagger_dir := "dagger"
 ruff_version := "0.9.0"
 openapi_spec := "api/oppsy-openapi.json"
 
@@ -39,18 +38,18 @@ frontend-lint-check:
     cd {{frontend_dir}} && yarn prettier --check "src/**/*.{ts,tsx,css}"
     cd {{frontend_dir}} && yarn build
 
-# Auto-fix formatting for the Dagger Python pipeline
-dagger-lint-fix:
-    uvx ruff@{{ruff_version}} format {{dagger_dir}}/src
-    uvx ruff@{{ruff_version}} check --fix {{dagger_dir}}/src
+# Auto-fix formatting for the Python sources
+python-lint-fix:
+    uvx ruff@{{ruff_version}} format .
+    uvx ruff@{{ruff_version}} check --fix .
 
-# Check formatting and lints for the Dagger Python pipeline (no writes)
-dagger-lint-check:
-    uvx ruff@{{ruff_version}} format --check {{dagger_dir}}/src
-    uvx ruff@{{ruff_version}} check {{dagger_dir}}/src
+# Check formatting and lints for the Python sources (no writes)
+python-lint-check:
+    uvx ruff@{{ruff_version}} format --check .
+    uvx ruff@{{ruff_version}} check .
 
 # Format, lint, unit tests, integration tests — run before committing
-dev: backend-lint-check frontend-lint-check dagger-lint-check backend-unit-tests
+dev: backend-lint-check frontend-lint-check python-lint-check backend-unit-tests
 
 # Run unit tests
 backend-unit-tests:

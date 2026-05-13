@@ -1,18 +1,20 @@
-name: Dagger CI
+name: Python CI
 
 on:
   push:
     branches: ["main"]
     paths:
-      - "dagger/**"
+      - "**.py"
+      - "ruff.toml"
       - "Justfile"
-      - ".github/workflows/dagger_ci.yml"
+      - ".github/workflows/python_ci.yml"
   pull_request:
     branches: ["main"]
     paths:
-      - "dagger/**"
+      - "**.py"
+      - "ruff.toml"
       - "Justfile"
-      - ".github/workflows/dagger_ci.yml"
+      - ".github/workflows/python_ci.yml"
 
 jobs:
   lint:
@@ -25,4 +27,4 @@ jobs:
       - uses: extractions/setup-just@v3
 
       - name: Lint check
-        run: just dagger-lint-check
+        run: just python-lint-check
