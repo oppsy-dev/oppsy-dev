@@ -81,6 +81,25 @@ async fn workspace_with_manifest() {
         tag: None,
         meta: serde_json::Value::Null
     },]);
+
+    // `is_manifest_in_workspace` returns true only for the registered pair.
+    assert!(
+        db.is_manifest_in_workspace(workspace_id, manifest_id)
+            .await
+            .unwrap()
+    );
+    let other_workspace = uuid::Uuid::now_v7();
+    assert!(
+        !db.is_manifest_in_workspace(other_workspace, manifest_id)
+            .await
+            .unwrap()
+    );
+    let other_manifest = uuid::Uuid::now_v7();
+    assert!(
+        !db.is_manifest_in_workspace(workspace_id, other_manifest)
+            .await
+            .unwrap()
+    );
 }
 
 #[test_with::file(oppsy.db)]

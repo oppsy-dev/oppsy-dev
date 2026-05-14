@@ -13,8 +13,8 @@ use crate::{
         AddNotificationChannelForWorkspaceError, DeleteManifestForWorkspaceError,
         DeleteNotificationChannelForWorkspaceError, DeleteWorkspaceError,
         GetManifestWorkspaceMapError, GetWorkspaceError, GetWorkspaceManifestsError,
-        GetWorkspaceNotificationChannelsError, GetWorkspacesError, WorkspaceDataFromRowError,
-        WorkspaceFromRowError,
+        GetWorkspaceNotificationChannelsError, GetWorkspacesError, IsManifestInWorkspaceError,
+        WorkspaceDataFromRowError, WorkspaceFromRowError,
     },
 };
 
@@ -153,6 +153,28 @@ impl CoreDb {
             .map(ConvertTo::convert)
             .collect::<Result<_, _>>()?;
         Ok(res)
+    }
+
+    /// Checks whether the given `manifest_id` is linked to the given `workspace_id`.
+    pub async fn is_manifest_in_workspace(
+        &self,
+        workspace_id: impl ConvertTo<WorkspaceId>,
+        manifest_id: impl ConvertTo<ManifestId>,
+    ) -> Result<bool, IsManifestInWorkspaceError> {
+        let workspace_id = workspace_id.convert()?;
+        let manifest_id = manifest_id.convert()?;
+        let exists: bool = sqlx::query_scalar(
+            "SELECT EXISTS(
+                 SELECT 1 FROM workspace_manifests
+                 WHERE workspace_id = $1 AND manifest_id = $2
+             )",
+        )
+        .bind(workspace_id)
+        .bind(manifest_id)
+        .fetch_one(&self.pool)
+        .await
+        .map_err(IsManifestInWorkspaceError::Database)?;
+        Ok(exists)
     }
 
     pub async fn get_manifest_workspace_map(
