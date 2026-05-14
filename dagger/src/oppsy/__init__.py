@@ -21,9 +21,7 @@ class Oppsy:
         )
 
     @function
-    def backend_build(
-        self, src: Annotated[dagger.Directory, DefaultPath(".")]
-    ) -> dagger.Directory:
+    def backend_build(self, src: Annotated[dagger.Directory, DefaultPath(".")]) -> dagger.Directory:
         return (
             dag.container()
             .from_("rust:1.91-slim")
@@ -77,9 +75,7 @@ class Oppsy:
                 "/core-db",
                 dag.directory()
                 .with_file("atlas.hcl", core_db_src.file("atlas.hcl"))
-                .with_directory(
-                    "sqlite-migrations", core_db_src.directory("sqlite-migrations")
-                ),
+                .with_directory("sqlite-migrations", core_db_src.directory("sqlite-migrations")),
             )
         )
 
@@ -121,9 +117,7 @@ class Oppsy:
                 permissions=0o755,
             )
             .with_env_variable("OPPSY_SERVICE_FRONTEND_PATH", "/frontend")
-            .with_env_variable(
-                "OPPSY_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db"
-            )
+            .with_env_variable("OPPSY_SERVICE_CORE_DB_URL", "sqlite:///data/core-db/oppsy.db")
             .with_env_variable("OPPSY_SERVICE_MANIFEST_DB_PATH", "/data/manifest-db")
             .with_env_variable("OPPSY_SERVICE_OSV_DB_PATH", "/data/osv-db")
             .with_env_variable("OPPSY_SERVICE_BIND_ADDRESS", "0.0.0.0:3030")
@@ -159,13 +153,25 @@ class Oppsy:
         )
 
         if goos == "windows":
-            return built.with_exec([
-                "zip", "-j", f"/archives/{archive_base}.zip", f"/out/{binary}",
-            ]).file(f"/archives/{archive_base}.zip")
+            return built.with_exec(
+                [
+                    "zip",
+                    "-j",
+                    f"/archives/{archive_base}.zip",
+                    f"/out/{binary}",
+                ]
+            ).file(f"/archives/{archive_base}.zip")
         else:
-            return built.with_exec([
-                "tar", "czf", f"/archives/{archive_base}.tar.gz", "-C", "/out", binary,
-            ]).file(f"/archives/{archive_base}.tar.gz")
+            return built.with_exec(
+                [
+                    "tar",
+                    "czf",
+                    f"/archives/{archive_base}.tar.gz",
+                    "-C",
+                    "/out",
+                    binary,
+                ]
+            ).file(f"/archives/{archive_base}.tar.gz")
 
     @function
     async def oppsy_publish(
@@ -176,6 +182,4 @@ class Oppsy:
         secret: dagger.Secret,
     ) -> str:
         container = await self.oppsy_build(src)
-        return await container.with_registry_auth("ghcr.io", username, secret).publish(
-            address
-        )
+        return await container.with_registry_auth("ghcr.io", username, secret).publish(address)
