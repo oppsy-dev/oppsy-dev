@@ -1,8 +1,9 @@
 mod api;
 mod common;
+mod mcp;
 
 use poem::{
-    Endpoint, EndpointExt, Route, Server,
+    Endpoint, EndpointExt, Route, Server, post,
     endpoint::StaticFilesEndpoint,
     http,
     listener::TcpListener,
@@ -39,6 +40,7 @@ fn mk_app(settings: &Settings) -> anyhow::Result<impl Endpoint + use<>> {
     Ok(Route::new()
         .nest(&settings.api_url_prefix, api)
         .nest("/docs", docs)
+        .at("/mcp", post(mcp::handle))
         .nest("/", static_files)
         .with(Tracing)
         .with(
