@@ -88,6 +88,14 @@ pub enum GetManifestWorkspaceMapError {
 }
 
 #[derive(thiserror::Error, Debug)]
+pub enum IsManifestInWorkspaceError {
+    #[error(transparent)]
+    CantConvert(#[from] ConvertError),
+    #[error("Failed to check workspace manifest membership: {0}")]
+    Database(sqlx::Error),
+}
+
+#[derive(thiserror::Error, Debug)]
 pub enum GetManifestTypeError {
     #[error(transparent)]
     CantConvert(#[from] ConvertError),

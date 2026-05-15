@@ -17,6 +17,9 @@ type V1ManifestsGetResp =
 type V1ManifestsPostReq =
   paths['/v1/workspaces/{workspace_id}/manifests']['post']['requestBody']['content']['application/json; charset=utf-8'];
 
+type V1ManifestPackagesGetResp =
+  paths['/v1/workspaces/{workspace_id}/manifests/{manifest_id}/packages']['get']['responses']['200']['content']['application/json; charset=utf-8'];
+
 type V1WorkspaceChannelsGetResp =
   paths['/v1/workspaces/{workspace_id}/channels']['get']['responses']['200']['content']['application/json; charset=utf-8'];
 
@@ -26,6 +29,8 @@ export type CreateWorkspaceRequest = V1WorkspacesPostReq;
 export type Manifest = V1ManifestsGetResp['manifests'][number];
 export type ManifestId = Manifest['id'];
 export type CreateManifestRequest = V1ManifestsPostReq;
+export type ManifestPackageList = V1ManifestPackagesGetResp;
+export type ManifestPackageWithVulns = ManifestPackageList['packages'][number];
 export type { PaginationParams } from './client';
 export type { NotificationChannel, NotificationChannelId } from './notification_channels';
 
@@ -100,6 +105,21 @@ export async function removeWorkspaceManifest(
   } catch (err) {
     throw err;
   }
+}
+
+export type ManifestPackagesParams = PaginationParams & { vulnerableOnly?: boolean };
+
+export async function fetchManifestPackages(
+  workspaceId: WorkspaceId,
+  manifestId: ManifestId,
+  params: ManifestPackagesParams = {},
+): Promise<ManifestPackageList> {
+  const res = await get(`/v1/workspaces/${workspaceId}/manifests/${manifestId}/packages`, {
+    page: params.page?.toString(),
+    limit: params.limit?.toString(),
+    vulnerable_only: params.vulnerableOnly ? 'true' : undefined,
+  });
+  return (await res.json()) as ManifestPackageList;
 }
 
 // --- Workspace channels ---

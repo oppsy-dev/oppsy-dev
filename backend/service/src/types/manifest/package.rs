@@ -22,3 +22,13 @@ impl From<ManifestPackage> for osv_analyzer::Package {
         }
     }
 }
+
+impl From<&ManifestPackage> for osv_analyzer::Package {
+    fn from(value: &ManifestPackage) -> Self {
+        Self {
+            name: value.name.clone(),
+            version: value.version.clone(),
+            ecosystem: value.ecosystem.clone().into(),
+        }
+    }
+}

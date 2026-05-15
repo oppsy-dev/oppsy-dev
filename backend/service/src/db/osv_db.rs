@@ -113,6 +113,18 @@ impl OsvDb {
         self.analyzer.osv_records_for_manifest(manifest_id)
     }
 
+    /// Returns every OSV record ID whose `affected` entries match the given package.
+    ///
+    /// # Errors
+    /// - If a candidate record cannot be loaded from the local OSV database.
+    /// - If the OSV evaluation algorithm fails for any candidate.
+    pub fn osv_records_for_package(
+        &self,
+        package: &osv_analyzer::Package,
+    ) -> anyhow::Result<Vec<OsvRecordId>> {
+        self.analyzer.osv_records_for_package(package, &self.inner)
+    }
+
     /// Looks up a single OSV record by its ID.
     ///
     /// Returns `Ok(None)` if no record matching `id` exists in the local database.

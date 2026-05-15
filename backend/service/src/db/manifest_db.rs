@@ -41,6 +41,19 @@ impl ManifestDb {
         Ok(())
     }
 
+    /// Returns the [`Manifest`] stored under `manifest_id`, or `None` if no
+    /// matching manifest exists.
+    pub fn get(
+        &self,
+        manifest_id: &ManifestId,
+    ) -> anyhow::Result<Option<Manifest>> {
+        let Some(bytes) = self.0.get(manifest_id)? else {
+            return Ok(None);
+        };
+        let manifest: Manifest = serde_json::from_slice(&bytes)?;
+        Ok(Some(manifest))
+    }
+
     #[allow(clippy::iter_not_returning_iterator)]
     pub fn iter(
         &self

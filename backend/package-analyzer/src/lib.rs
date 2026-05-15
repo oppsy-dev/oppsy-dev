@@ -48,6 +48,41 @@ impl<ManifestId: Clone + PartialEq + Eq + Hash> Analyzer<ManifestId> {
             .unwrap_or_default()
     }
 
+    /// Returns every [`OsvRecordId`] whose `affected` entries match the given
+    /// package by name, ecosystem, and version.
+    ///
+    /// Unlike [`Self::osv_records_for_manifest`], this works at the package level —
+    /// useful for surfacing which packages in a manifest each vulnerability touches.
+    ///
+    /// Returns an empty [`Vec`] if no recorded vulnerability affects the package.
+    ///
+    /// # Errors
+    /// - If the [`OsvDb::get_record`] lookup fails.
+    /// - If [`analyze`] fails for any candidate record.
+    pub fn osv_records_for_package(
+        &self,
+        package: &Package,
+        osv_db: &OsvDb,
+    ) -> anyhow::Result<Vec<OsvRecordId>> {
+        let Some(record_ids) = self.records_by_name.get(&package.name) else {
+            return Ok(Vec::new());
+        };
+
+        let mut out = Vec::new();
+        for record_id in record_ids.iter() {
+            let Some(osv_record) = osv_db.get_record(record_id)? else {
+                continue;
+            };
+            for affected_p in &osv_record.affected {
+                if analyze(package, affected_p)? {
+                    out.push(record_id.clone());
+                    break;
+                }
+            }
+        }
+        Ok(out)
+    }
+
     /// Registers an OSV vulnerability record and returns every [`ManifestId`] whose
     /// packages are affected by it, based on manifest files added so far.
     ///

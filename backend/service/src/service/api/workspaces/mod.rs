@@ -4,6 +4,7 @@ mod create_workspace;
 mod delete_manifest;
 mod delete_workspace;
 mod delete_workspace_channel;
+mod list_manifest_packages;
 mod list_manifests;
 mod list_workspace_channels;
 mod list_workspaces;
@@ -91,6 +92,41 @@ impl Api {
         limit: Query<Option<Limit>>,
     ) -> list_manifests::AllResponses {
         list_manifests::endpoint(workspace_id.0, page.0, limit.0).await
+    }
+
+    /// List every package parsed from a manifest.
+    ///
+    /// Returns the full list of dependencies recorded for the manifest, paginated.
+    /// Each entry includes the package as it was uploaded plus the OSV IDs that
+    /// affect it — empty for packages with no known vulnerabilities. Useful for
+    /// confirming what OPPSY parsed from the lock file beyond the vulnerable
+    /// subset surfaced by `list_manifests`.
+    #[oai(
+        path = "/v1/workspaces/:workspace_id/manifests/:manifest_id/packages",
+        method = "get"
+    )]
+    async fn list_manifest_packages(
+        &self,
+        /// Workspace the manifest belongs to.
+        workspace_id: Path<WorkspaceId>,
+        /// Manifest to list packages for.
+        manifest_id: Path<ManifestId>,
+        /// Page number (0-based, default: 0).
+        page: Query<Option<Page>>,
+        /// Maximum items per page (default: 20).
+        limit: Query<Option<Limit>>,
+        /// If `true`, only packages with at least one matching OSV record are returned.
+        /// Defaults to `false`.
+        vulnerable_only: Query<Option<bool>>,
+    ) -> list_manifest_packages::AllResponses {
+        list_manifest_packages::endpoint(
+            workspace_id.0,
+            manifest_id.0,
+            page.0,
+            limit.0,
+            vulnerable_only.0,
+        )
+        .await
     }
 
     /// Delete a manifest from a workspace.

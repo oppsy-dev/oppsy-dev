@@ -1376,6 +1376,189 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/v1/workspaces/{workspace_id}/manifests/{manifest_id}/packages': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List every package parsed from a manifest.
+     * @description Returns the full list of dependencies recorded for the manifest, paginated.
+     *     Each entry includes the package as it was uploaded plus the OSV IDs that
+     *     affect it — empty for packages with no known vulnerabilities. Useful for
+     *     confirming what OPPSY parsed from the lock file beyond the vulnerable
+     *     subset surfaced by `list_manifests`.
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Page number (0-based, default: 0). */
+          page?: number;
+          /** @description Maximum items per page (default: 20). */
+          limit?: number;
+          /**
+           * @description If `true`, only packages with at least one matching OSV record are returned.
+           *     Defaults to `false`.
+           */
+          vulnerable_only?: boolean;
+        };
+        header?: never;
+        path: {
+          /** @description Workspace the manifest belongs to. */
+          workspace_id: string;
+          /** @description Manifest to list packages for. */
+          manifest_id: string;
+        };
+        cookie?: never;
+      };
+      requestBody?: never;
+      responses: {
+        /**
+         * @description ## OK
+         *
+         *     Returns the packages parsed from the manifest, paginated.
+         */
+        200: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': components['schemas']['ManifestPackageList'];
+          };
+        };
+        /**
+         * @description ## Bad Request
+         *
+         *     The client has not sent valid request, could be an invalid HTTP in general or
+         *     provided not correct headers, path or query arguments.
+         */
+        400: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Unauthorized
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        401: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Forbidden
+         *
+         *     The client has not sent valid authentication credentials for the requested
+         *     resource.
+         */
+        403: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Not Found
+         *
+         *     Either the workspace does not exist, the manifest does not belong to it,
+         *     or the manifest's stored package list is missing.
+         */
+        404: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Precondition Failed
+         *
+         *     The client has not sent valid data in its request, headers, parameters or body.
+         */
+        412: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## URI Too Long
+         *
+         *     The client sent a request with the URI is longer than the server is willing to
+         *     interpret
+         */
+        414: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content?: never;
+        };
+        /**
+         * @description ## Unprocessable Content
+         *
+         *     The pagination math overflows a 32-bit counter.
+         */
+        422: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Internal Server Error.
+         *
+         *     An internal server error occurred.
+         *
+         *     *The contents of this response should be reported to the projects issue tracker.*
+         */
+        500: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+        /**
+         * @description ## Service Unavailable
+         *
+         *     The service is not available, try again later.
+         *
+         *     *This is returned when the service either has not started,
+         *     or has become unavailable.*
+         */
+        503: {
+          headers: {
+            [name: string]: unknown;
+          };
+          content: {
+            'application/json; charset=utf-8': string;
+          };
+        };
+      };
+    };
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/v1/workspaces/{workspace_id}/manifests/{manifest_id}': {
     parameters: {
       query?: never;
@@ -3047,6 +3230,54 @@ export interface components {
       version: string;
       /** @description The OSV ecosystem this package belongs to (e.g. `"crates.io"`, `"PyPI"`, `"npm"`). */
       ecosystem: string;
+    };
+    /**
+     * ManifestPackageList
+     * @description Response body for listing the packages parsed from a manifest.
+     */
+    ManifestPackageList: {
+      /** @description Packages parsed from the manifest, in the order they were uploaded. */
+      packages: components['schemas']['ManifestPackageWithVulns'][];
+      /**
+       * Format: uint32
+       * @description Total number of packages in the manifest before pagination is applied.
+       *
+       *     Reflects the post-filter count when `vulnerable_only=true` so the client
+       *     can paginate accurately.
+       */
+      total: number;
+      /**
+       * 1-based page number for paginated queries.
+       * Format: uint32
+       * @description Current page number (0-based).
+       * @example 0
+       */
+      page: number;
+      /**
+       * Maximum number of items returned per page.
+       * Format: uint32
+       * @description Maximum number of items per page.
+       * @example 20
+       */
+      limit: number;
+    };
+    /**
+     * ManifestPackageWithVulns
+     * @description A package parsed from a manifest, augmented with the OSV records that affect it.
+     */
+    ManifestPackageWithVulns: {
+      /** @description Manifest's package name. */
+      name: string;
+      /** @description Manifest's Package version (e.g. `0.1.0`). */
+      version: string;
+      /** @description The OSV ecosystem this package belongs to (e.g. `"crates.io"`, `"PyPI"`, `"npm"`). */
+      ecosystem: string;
+      /**
+       * @description OSV vulnerability identifiers that match this package.
+       *
+       *     Empty when no known vulnerability affects the package.
+       */
+      osv_ids: string[];
     };
     /**
      * NotificationChannel

@@ -137,6 +137,7 @@ export function ManifestsSection({ workspaceId }: ManifestsSectionProps) {
               {pageManifests.map((m, i) => (
                 <ManifestRow
                   key={m.id}
+                  workspaceId={workspaceId}
                   manifest={m}
                   isLast={i === pageManifests.length - 1}
                   onRemove={() => removeMutation.mutate(m.id)}

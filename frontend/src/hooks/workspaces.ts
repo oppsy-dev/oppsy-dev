@@ -4,6 +4,7 @@ import {
   createWorkspace,
   deleteWorkspace,
   fetchManifests,
+  fetchManifestPackages,
   fetchWorkspaceChannels,
   addWorkspaceChannel,
   removeWorkspaceChannel,
@@ -17,12 +18,15 @@ import type {
   NotificationChannelId,
   UploadManifestInput,
   ManifestId,
+  ManifestPackagesParams,
   PaginationParams,
 } from '../api/workspaces';
 
 export const workspacesQueryKey = () => ['workspaces'] as const;
 const manifestsQueryKey = (workspaceId: WorkspaceId) =>
   ['workspace', workspaceId, 'manifests'] as const;
+export const manifestPackagesQueryKey = (workspaceId: WorkspaceId, manifestId: ManifestId) =>
+  ['workspace', workspaceId, 'manifest', manifestId, 'packages'] as const;
 export const workspaceChannelsQueryKey = (workspaceId: WorkspaceId) =>
   ['workspace', workspaceId, 'channels'] as const;
 
@@ -83,6 +87,20 @@ export function useManifests(workspaceId: WorkspaceId, params: PaginationParams 
     queryFn: () => fetchManifests(workspaceId, params),
     select: (data) => data.manifests,
     // TODO: specify a proper stale time instead of Infinity
+    staleTime: Infinity,
+  });
+}
+
+export function useManifestPackages(
+  workspaceId: WorkspaceId,
+  manifestId: ManifestId,
+  params: ManifestPackagesParams = {},
+) {
+  return useQuery({
+    queryKey: [...manifestPackagesQueryKey(workspaceId, manifestId), params] as const,
+    queryFn: () => fetchManifestPackages(workspaceId, manifestId, params),
+    // Manifests are immutable post-upload. If we ever support re-upload, invalidate
+    // explicitly via `manifestPackagesQueryKey(workspaceId, manifestId)` as a prefix.
     staleTime: Infinity,
   });
 }
