@@ -109,11 +109,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actionutils/trusted-tag-verifier@v0
+        with:
+          verify: 'binary-install/setup-x@v1'
+
       - name: Install binstaller
-        run: |
-          curl -fsSL https://github.com/binary-install/binstaller/releases/download/v0.12.0/binst_Linux_x86_64.tar.gz \
-            | tar -xz -C /usr/local/bin binst
-          chmod +x /usr/local/bin/binst
+        uses: binary-install/setup-x@v1
+        with:
+          script_url: https://github.com/binary-install/binstaller/releases/latest/download/install.sh
+          gh_attestations_verify_flags: --repo=binary-install/binstaller --signer-workflow=actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml
 
       - name: Generate installer script
         run: binst gen --config binstaller.yml -o install.sh
