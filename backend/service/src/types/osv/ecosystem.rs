@@ -36,7 +36,7 @@ impl Type for Ecosystem {
     const IS_REQUIRED: bool = true;
 
     fn name() -> std::borrow::Cow<'static, str> {
-        concat!("string", "_", "email").into()
+        "osv_ecosystem".into()
     }
 
     fn schema_ref() -> MetaSchemaRef {
