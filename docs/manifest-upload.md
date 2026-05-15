@@ -4,9 +4,23 @@ A manifest is a dependency lock file attached to a workspace. Once uploaded, OPP
 
 ## Install oppsy-cli
 
+### From prebuilt binaries (recommended)
+
 Pre-built binaries for Linux, macOS, and Windows are available on the [GitHub Releases](https://github.com/oppsy-dev/oppsy-dev/releases) page.
 
-**From source (requires Go 1.24+):**
+The quickest way to install is with the generated installer script:
+
+```sh
+curl -fsSL https://github.com/oppsy-dev/oppsy-dev/releases/latest/download/install.sh | sh
+```
+
+This installs `oppsy-cli` to `~/.local/bin` by default. To choose a different directory:
+
+```sh
+curl -fsSL https://github.com/oppsy-dev/oppsy-dev/releases/latest/download/install.sh | sh -s -- -b /usr/local/bin
+```
+
+### From source (requires Go 1.24+)
 
 ```sh
 go install github.com/oppsy-dev/oppsy-dev/oppsy-cli@latest
