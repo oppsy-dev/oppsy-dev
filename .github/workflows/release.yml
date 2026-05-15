@@ -99,9 +99,37 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: find ./dist -type f | xargs gh release upload ${{ github.event.release.tag_name }} --clobber
 
+  release-installer:
+    name: Publish installer script
+    needs: [release-cli]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actionutils/trusted-tag-verifier@v0
+        with:
+          verify: 'binary-install/setup-x@v1'
+
+      - name: Install binstaller
+        uses: binary-install/setup-x@v1
+        with:
+          script_url: https://github.com/binary-install/binstaller/releases/latest/download/install.sh
+          gh_attestations_verify_flags: --repo=binary-install/binstaller --signer-workflow=actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml
+
+      - name: Generate installer script
+        run: binst gen --config binstaller.yml -o install.sh
+
+      - name: Upload installer to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} install.sh --clobber
+
   announce:
     name: Discord announcement
-    needs: [publish, release-cli]
+    needs: [publish, release-cli, release-installer]
     if: ${{ always() && needs.publish.result == 'success' }}
     runs-on: ubuntu-22.04
 
