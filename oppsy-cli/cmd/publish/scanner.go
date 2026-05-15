@@ -50,13 +50,18 @@ func scan(lockfilePath string) ([]Package, error) {
 		if p == nil || p.Name == "" {
 			continue
 		}
+		ecosystem := p.Ecosystem().String()
+		if ecosystem == "" {
+			slog.Info("skipping package with empty ecosystem", "name", p.Name, "version", p.Version)
+			continue
+		}
 		for _, loc := range p.Locations {
 			scannedPaths[filepath.Join(scanRoot, loc)] = struct{}{}
 		}
 		packages = append(packages, Package{
 			Name:      p.Name,
 			Version:   p.Version,
-			Ecosystem: p.Ecosystem().String(),
+			Ecosystem: ecosystem,
 		})
 	}
 
